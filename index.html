@@ -8,27 +8,39 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
+            /* ライトモード設定 */
             --bg-body: #f8f9fa;
             --text-main: #212529;
             --bg-card: #ffffff;
             --border-color: #dee2e6;
             --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
             --driver-bg: #e9ecef;
-            --driver-text: #6c757d;
+            --driver-text: #495057; /* 少し濃くしました */
             --drag-over-bg: #e2e6ea;
             --share-bar-bg: rgba(255,255,255,0.95);
+            --input-bg: #ffffff;
+            --input-group-bg: #e9ecef;
+            --input-group-text: #212529;
+            --ghost-bg: #e2e6ea;
+            color-scheme: light;
         }
 
         [data-theme="dark"] {
+            /* ダークモード設定 */
             --bg-body: #212529;
             --text-main: #f8f9fa;
             --bg-card: #343a40;
             --border-color: #495057;
             --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
             --driver-bg: #2b3035;
-            --driver-text: #adb5bd;
+            --driver-text: #ced4da; /* 明るく読みやすく */
             --drag-over-bg: #3d4248;
             --share-bar-bg: rgba(33, 37, 41, 0.95);
+            --input-bg: #343a40;
+            --input-group-bg: #495057; /* アイコン背景を暗く */
+            --input-group-text: #e9ecef;
+            --ghost-bg: #495057;
+            color-scheme: dark; /* スクロールバー等を暗く */
         }
 
         body { 
@@ -61,7 +73,7 @@
             display: none; border: 1px solid #ffe58f;
         }
         [data-theme="dark"] .member-memo {
-            background: #4d4632; color: #ddd; border-color: #665d40;
+            background: #4d4632; color: #e9ecef; border-color: #665d40;
         }
         
         /* アイコン類 */
@@ -122,19 +134,43 @@
             transition: background-color 0.3s;
         }
 
-        /* フォーム類 */
+        /* フォーム類（ダークモード対応強化） */
         .form-control {
-            background-color: var(--bg-card);
+            background-color: var(--input-bg);
             color: var(--text-main);
             border-color: var(--border-color);
             transition: background-color 0.3s, color 0.3s;
         }
         .form-control:focus {
-            background-color: var(--bg-card);
+            background-color: var(--input-bg);
             color: var(--text-main);
+            border-color: #86b7fe;
         }
+        /* プレースホルダー（入力例の文字）の色調整 */
+        .form-control::placeholder {
+            color: #adb5bd;
+            opacity: 1;
+        }
+        [data-theme="dark"] .form-control::placeholder {
+            color: #6c757d; /* 暗い背景でも見えるグレーに */
+        }
+
+        /* 入力欄横のアイコンエリア */
+        .input-group-text {
+            background-color: var(--input-group-bg);
+            color: var(--input-group-text);
+            border-color: var(--border-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
         .text-secondary-custom { color: #6c757d; }
-        [data-theme="dark"] .text-secondary-custom { color: #adb5bd; }
+        [data-theme="dark"] .text-secondary-custom { color: #ced4da; } /* より明るく */
+
+        /* ドラッグ中のゴースト要素 */
+        .sortable-ghost {
+            background-color: var(--ghost-bg) !important;
+            opacity: 0.6;
+        }
 
         /* トグルスイッチ */
         .theme-switch {
@@ -220,10 +256,10 @@
 
 <script>
     const STORAGE_KEY = 'sampokai_car_data_v6';
-    let manualOverride = false; // 手動切替されたかどうかのフラグ
+    let manualOverride = false;
 
     document.addEventListener('DOMContentLoaded', () => {
-        // --- データ読み込み処理 ---
+        // データ読み込み
         const urlParams = new URLSearchParams(window.location.search);
         const sharedData = urlParams.get('data');
 
@@ -246,27 +282,22 @@
 
         setupDragDrop(document.getElementById('waiting-list'));
 
-        // --- テーマ自動設定の開始 ---
-        checkSunAndSetTheme(); // 初回実行
-        setInterval(checkSunAndSetTheme, 60000); // 1分ごとにチェック
+        // テーマ自動設定
+        checkSunAndSetTheme();
+        setInterval(checkSunAndSetTheme, 60000);
     });
 
-    // --- テーマ管理（日の出・日の入り連動） ---
     function checkSunAndSetTheme() {
-        if (manualOverride) return; // 手動で切り替えられた場合は自動更新をスキップ
+        if (manualOverride) return;
 
-        // 日本の代表的な座標（東京付近）を使用
-        const lat = 35.6895;
+        const lat = 35.6895; // 東京
         const lon = 139.6917;
         const now = new Date();
         const times = SunCalc.getTimes(now, lat, lon);
         
-        // 現在時刻が「日の入り後」または「日の出前」ならダークモード
         const isNight = now > times.sunset || now < times.sunrise;
-        
         const newTheme = isNight ? 'dark' : 'light';
         
-        // 現在のテーマと違う場合のみ適用（無駄な描画を防ぐ）
         if (document.body.getAttribute('data-theme') !== newTheme) {
             applyTheme(newTheme);
         }
@@ -283,20 +314,15 @@
         }
     }
 
-    // 手動切り替えボタンを押した時の処理
     function toggleThemeManual() {
-        manualOverride = true; // 自動更新を停止
+        manualOverride = true;
         const current = document.body.getAttribute('data-theme');
         const next = current === 'light' ? 'dark' : 'light';
-        
         applyTheme(next);
-        
-        // ツールチップ更新
         const container = document.getElementById('themeIconContainer');
         container.title = "手動設定中 (リロードすると自動に戻ります)";
     }
 
-    // --- 共有機能 ---
     function copyShareLink() {
         const data = getCurrentData();
         const jsonString = JSON.stringify(data);
@@ -305,7 +331,7 @@
         const shareUrl = `${window.location.origin}${window.location.pathname}?data=${urlSafeBase64}`;
         
         navigator.clipboard.writeText(shareUrl).then(() => {
-            alert('✅ 共有リンクをコピーしました！\nLINEなどに貼り付けてください。\n\n(このリンクを開くと、現在の配置が再現されます)');
+            alert('✅ 共有リンクをコピーしました！\nLINEなどに貼り付けてください。');
         }, () => {
             alert('コピーに失敗しました。');
         });
@@ -342,11 +368,10 @@
         text += "\n作成ツール: " + window.location.href.split('?')[0];
 
         navigator.clipboard.writeText(text).then(() => {
-            alert('📋 LINE用のテキストをコピーしました！\nノートやトークに貼り付けてください。');
+            alert('📋 LINE用のテキストをコピーしました！');
         });
     }
 
-    // --- データ処理 ---
     function getCurrentData() {
         const data = { waiting: [], cars: [] };
         const getMemberObj = (el) => {
@@ -402,7 +427,6 @@
         if (json) restoreFromData(JSON.parse(json));
     }
 
-    // --- UI操作 ---
     function addMember(name = null, memo = '') {
         const input = document.getElementById('newMemberName');
         const memberName = name || input.value;
@@ -500,7 +524,7 @@
         new Sortable(element, {
             group: 'shared',
             animation: 150,
-            ghostClass: 'bg-light',
+            ghostClass: 'sortable-ghost', // カスタムクラスを使用
             onEnd: () => {
                 updateAllCapacities();
                 saveToStorage();
