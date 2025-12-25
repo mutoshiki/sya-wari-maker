@@ -5,92 +5,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>山歩会 配車管理</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: "Helvetica Neue", Arial, sans-serif; padding-bottom: 120px; }
+        :root {
+            --bg-body: #f8f9fa;
+            --text-main: #212529;
+            --bg-card: #ffffff;
+            --border-color: #dee2e6;
+            --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            --driver-bg: #e9ecef;
+            --driver-text: #6c757d;
+            --drag-over-bg: #e2e6ea;
+            --share-bar-bg: rgba(255,255,255,0.95);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #212529;
+            --text-main: #f8f9fa;
+            --bg-card: #343a40;
+            --border-color: #495057;
+            --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            --driver-bg: #2b3035;
+            --driver-text: #adb5bd;
+            --drag-over-bg: #3d4248;
+            --share-bar-bg: rgba(33, 37, 41, 0.95);
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            font-family: "Helvetica Neue", Arial, sans-serif; 
+            padding-bottom: 120px; 
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
         
         /* メンバーカード */
         .member-card {
-            background: white; border: 1px solid #ddd; padding: 8px 12px; margin-bottom: 8px;
-            border-radius: 6px; cursor: grab; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            padding: 10px 14px; 
+            margin-bottom: 8px;
+            border-radius: 8px; 
+            cursor: grab; 
+            box-shadow: var(--card-shadow);
+            color: var(--text-main);
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        .member-card:active { cursor: grabbing; background-color: #e9ecef; }
+        .member-card:active { cursor: grabbing; opacity: 0.8; }
         
         .member-header { display: flex; justify-content: space-between; align-items: center; }
         .member-name { font-weight: 500; }
         .member-memo { 
             font-size: 0.85rem; color: #666; background: #fffbe6; 
-            padding: 2px 6px; border-radius: 4px; margin-top: 4px; 
+            padding: 3px 8px; border-radius: 4px; margin-top: 6px; 
             display: none; border: 1px solid #ffe58f;
+        }
+        [data-theme="dark"] .member-memo {
+            background: #4d4632; color: #ddd; border-color: #665d40;
         }
         
         /* アイコン類 */
-        .action-btn { cursor: pointer; padding: 0 5px; color: #adb5bd; transition: color 0.2s; }
-        .action-btn:hover { color: #495057; }
+        .action-btn { cursor: pointer; padding: 0 6px; color: #adb5bd; transition: color 0.2s; }
+        .action-btn:hover { color: var(--text-main); }
         .delete-btn:hover { color: #dc3545; }
         .edit-btn:hover { color: #0d6efd; }
 
         /* 車両ボックス */
         .car-box {
-            background: #fff; border: 2px dashed #ccc; border-radius: 10px;
-            min-height: 150px; padding: 15px; transition: all 0.2s; position: relative;
+            background: var(--bg-card); 
+            border: 2px dashed var(--border-color); 
+            border-radius: 12px;
+            min-height: 150px; 
+            padding: 15px; 
+            transition: all 0.3s; 
+            position: relative;
         }
-        .car-box.drag-over { background-color: #e2e6ea; border-color: #0d6efd; }
-        .car-header { font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .capacity-badge { font-size: 0.9em; }
+        .car-box.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; border-style: solid; }
+        
+        .car-header { 
+            font-weight: bold; margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            color: var(--text-main);
+        }
+        
         .waiting-area {
-            background-color: #e9ecef; border-radius: 10px; padding: 15px; min-height: 100px;
+            background-color: rgba(0,0,0,0.03); 
+            border-radius: 12px; 
+            padding: 15px; 
+            min-height: 100px;
+            border: 1px solid transparent;
+            transition: background-color 0.3s;
         }
-        .car-box.over-capacity { border-color: #dc3545; background-color: #fff5f5; }
+        [data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.05); }
 
-        /* 固定運転手表示 */
+        .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+
+        /* 運転手表示 */
         .driver-seat {
-            background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;
-            padding: 6px 12px; border-radius: 6px; margin-bottom: 12px;
+            background-color: var(--driver-bg); 
+            color: var(--driver-text); 
+            border: 1px solid var(--border-color);
+            padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
             font-size: 0.9rem; display: flex; align-items: center;
-            user-select: none;
+            user-select: none; font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
         }
         
         /* 共有ボタンエリア */
         .share-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95);
-            border-top: 1px solid #ddd; padding: 15px; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: var(--share-bar-bg);
+            border-top: 1px solid var(--border-color); 
+            padding: 15px; z-index: 1000; 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+            transition: background-color 0.3s;
         }
+
+        /* フォーム類 */
+        .form-control {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .form-control:focus {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+        .text-secondary-custom { color: #6c757d; }
+        [data-theme="dark"] .text-secondary-custom { color: #adb5bd; }
+
+        /* トグルスイッチ */
+        .theme-switch {
+            cursor: pointer; font-size: 1.2rem; color: var(--text-main);
+            transition: transform 0.3s;
+        }
+        .theme-switch:hover { transform: rotate(15deg); }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-mountain text-success"></i> 山歩会 車割メーカー</h2>
-        <button class="btn btn-outline-danger btn-sm" onclick="resetData()">全リセット</button>
+        <h2 class="mb-0 fs-4 fw-bold">
+            <i class="fas fa-mountain text-success me-2"></i>山歩会 車割メーカー
+        </h2>
+        <div class="d-flex align-items-center gap-3">
+            <div id="themeIconContainer" title="日の出/日の入りに合わせて自動切替中" onclick="toggleThemeManual()">
+                <i class="fas fa-sun theme-switch" id="themeToggle"></i>
+            </div>
+            <button class="btn btn-outline-danger btn-sm" onclick="resetData()">
+                <i class="fas fa-redo-alt me-1"></i>全リセット
+            </button>
+        </div>
     </div>
 
     <div class="row g-2 mb-4">
         <div class="col-md-5">
             <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
                 <input type="text" id="newMemberName" class="form-control" placeholder="同乗者名 (例: 山田)">
                 <button class="btn btn-primary" onclick="addMember()">追加</button>
             </div>
         </div>
         <div class="col-md-7">
             <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-car"></i></span>
                 <input type="text" id="newCarName" class="form-control" placeholder="車名 (例: 佐藤カー)">
-                <input type="number" id="newCarCapacity" class="form-control" placeholder="同乗枠" value="3" style="max-width: 90px;">
+                <input type="number" id="newCarCapacity" class="form-control" placeholder="枠" value="3" style="max-width: 80px;">
                 <button class="btn btn-success" onclick="addCar()">車を追加</button>
             </div>
-            <div class="form-text mt-1">※人数は「運転手を除いた」同乗可能人数を入力してください</div>
+            <div class="form-text mt-1 text-secondary-custom small">※人数は「運転手を除いた」同乗可能人数</div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-4 mb-4">
-            <h5 class="text-secondary">📍 待ち合わせ / 未割当</h5>
+            <h5 class="text-secondary-custom mb-3">
+                <i class="fas fa-users me-2"></i>未割当
+            </h5>
             <div id="waiting-list" class="waiting-area list-group"></div>
         </div>
 
         <div class="col-md-8">
-            <h5 class="text-secondary">🚗 配車状況</h5>
+            <h5 class="text-secondary-custom mb-3">
+                <i class="fas fa-car-side me-2"></i>配車状況
+            </h5>
             <div id="cars-container" class="row"></div>
         </div>
     </div>
@@ -101,44 +202,42 @@
         <div class="row g-2">
             <div class="col-6">
                 <button class="btn btn-outline-primary w-100 py-2" onclick="copyTextForLine()">
-                    <i class="fas fa-copy me-1"></i>テキストコピー
+                    <i class="far fa-copy me-2"></i>テキストコピー
                 </button>
             </div>
             <div class="col-6">
                 <button class="btn btn-primary w-100 py-2" onclick="copyShareLink()">
-                    <i class="fas fa-link me-1"></i>リンクを共有
+                    <i class="fas fa-link me-2"></i>リンクを共有
                 </button>
             </div>
         </div>
-        <div class="text-center text-muted mt-1 small" style="font-size: 0.75rem;">※変更したら再度ボタンを押してください</div>
+        <div class="text-center text-secondary-custom mt-2 small" style="font-size: 0.75rem;">※変更したら再度ボタンを押してください</div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
 
 <script>
-    const STORAGE_KEY = 'sampokai_car_data_v5'; // バージョン変更
+    const STORAGE_KEY = 'sampokai_car_data_v6';
+    let manualOverride = false; // 手動切替されたかどうかのフラグ
 
     document.addEventListener('DOMContentLoaded', () => {
+        // --- データ読み込み処理 ---
         const urlParams = new URLSearchParams(window.location.search);
         const sharedData = urlParams.get('data');
 
         if (sharedData) {
             try {
-                // URLセーフなBase64をデコードする安全な処理
                 let base64 = sharedData.replace(/-/g, '+').replace(/_/g, '/');
-                // パディング修正
                 while (base64.length % 4) { base64 += '='; }
-                
                 const json = decodeURIComponent(escape(atob(base64)));
                 const data = JSON.parse(json);
                 restoreFromData(data);
-                
-                // URLを綺麗にする（履歴は残すがパラメータは消す）
                 window.history.replaceState({}, document.title, window.location.pathname);
             } catch (e) {
                 console.error("Data load error:", e);
-                alert('リンク情報の読み取りに失敗しました。\n(URLが途中で切れている可能性があります)\n\n端末に保存されている前回のデータを表示します。');
+                alert('リンク情報の読み取りに失敗しました。前回のデータを表示します。');
                 loadFromStorage();
             }
         } else {
@@ -146,17 +245,63 @@
         }
 
         setupDragDrop(document.getElementById('waiting-list'));
+
+        // --- テーマ自動設定の開始 ---
+        checkSunAndSetTheme(); // 初回実行
+        setInterval(checkSunAndSetTheme, 60000); // 1分ごとにチェック
     });
 
-    // --- 共有機能（修正版） ---
+    // --- テーマ管理（日の出・日の入り連動） ---
+    function checkSunAndSetTheme() {
+        if (manualOverride) return; // 手動で切り替えられた場合は自動更新をスキップ
+
+        // 日本の代表的な座標（東京付近）を使用
+        const lat = 35.6895;
+        const lon = 139.6917;
+        const now = new Date();
+        const times = SunCalc.getTimes(now, lat, lon);
+        
+        // 現在時刻が「日の入り後」または「日の出前」ならダークモード
+        const isNight = now > times.sunset || now < times.sunrise;
+        
+        const newTheme = isNight ? 'dark' : 'light';
+        
+        // 現在のテーマと違う場合のみ適用（無駄な描画を防ぐ）
+        if (document.body.getAttribute('data-theme') !== newTheme) {
+            applyTheme(newTheme);
+        }
+    }
+
+    function applyTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        const icon = document.getElementById('themeToggle');
+        
+        if (theme === 'dark') {
+            icon.className = 'fas fa-moon theme-switch text-warning';
+        } else {
+            icon.className = 'fas fa-sun theme-switch text-warning';
+        }
+    }
+
+    // 手動切り替えボタンを押した時の処理
+    function toggleThemeManual() {
+        manualOverride = true; // 自動更新を停止
+        const current = document.body.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        
+        applyTheme(next);
+        
+        // ツールチップ更新
+        const container = document.getElementById('themeIconContainer');
+        container.title = "手動設定中 (リロードすると自動に戻ります)";
+    }
+
+    // --- 共有機能 ---
     function copyShareLink() {
         const data = getCurrentData();
         const jsonString = JSON.stringify(data);
-        
-        // URLセーフなBase64エンコード (+を-に、/を_に変換)
         const base64 = btoa(unescape(encodeURIComponent(jsonString)));
         const urlSafeBase64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-        
         const shareUrl = `${window.location.origin}${window.location.pathname}?data=${urlSafeBase64}`;
         
         navigator.clipboard.writeText(shareUrl).then(() => {
@@ -166,7 +311,6 @@
         });
     }
 
-    // --- テキストコピー機能（LINE用） ---
     function copyTextForLine() {
         const data = getCurrentData();
         let text = "【山歩会 配車表】\n\n";
@@ -174,17 +318,14 @@
         data.cars.forEach(car => {
             const current = car.members.length;
             const cap = car.capacity;
-            // 満員判定
             const status = (current >= cap) ? "🈵" : `(あと${cap - current}人)`;
             
             text += `🚗 ${car.name} ${status}\n`;
-            text += `  [運転] 固定\n`;
+            text += `  [運転] ${car.name}\n`;
             
             if (car.members.length > 0) {
                 text += `  [同乗] `;
-                const names = car.members.map(m => {
-                    return m.memo ? `${m.name}(${m.memo})` : m.name;
-                });
+                const names = car.members.map(m => m.memo ? `${m.name}(${m.memo})` : m.name);
                 text += names.join(", ");
             } else {
                 text += `  [同乗] なし`;
@@ -193,7 +334,7 @@
         });
 
         if (data.waiting.length > 0) {
-            text += "📍 未割当・待ち\n";
+            text += "📍 未割当\n";
             const waitNames = data.waiting.map(m => m.memo ? `${m.name}(${m.memo})` : m.name);
             text += waitNames.join(", ") + "\n";
         }
@@ -205,12 +346,12 @@
         });
     }
 
-    // --- データ構造取得 ---
+    // --- データ処理 ---
     function getCurrentData() {
         const data = { waiting: [], cars: [] };
         const getMemberObj = (el) => {
             return {
-                name: el.querySelector('.member-name').innerText,
+                name: el.querySelector('.member-name-text').innerText,
                 memo: el.querySelector('.member-memo').innerText
             };
         };
@@ -220,7 +361,7 @@
         });
         
         document.querySelectorAll('.car-box').forEach(car => {
-            const carName = car.querySelector('.car-name').innerText;
+            const carName = car.querySelector('.car-name-text').innerText;
             const capacity = car.dataset.capacity;
             const members = [];
             car.querySelectorAll('.car-members .member-card').forEach(el => {
@@ -231,11 +372,9 @@
         return data;
     }
 
-    // --- データ復元 ---
     function restoreFromData(data) {
         document.getElementById('waiting-list').innerHTML = '';
         document.getElementById('cars-container').innerHTML = '';
-
         const normalizeMember = (m) => (typeof m === 'string') ? { name: m, memo: '' } : m;
 
         if(data.waiting) {
@@ -244,14 +383,12 @@
                 addMember(mem.name, mem.memo);
             });
         }
-
         if(data.cars) {
             data.cars.forEach(car => {
                 const membersObj = car.members.map(normalizeMember);
                 addCar(car.name, car.capacity, membersObj);
             });
         }
-        
         updateAllCapacities();
         saveToStorage();
     }
@@ -287,7 +424,10 @@
 
         div.innerHTML = `
             <div class="member-header">
-                <span class="member-name"><i class="fas fa-user text-secondary me-2"></i>${name}</span>
+                <div>
+                    <i class="fas fa-user text-secondary-custom me-2"></i>
+                    <span class="member-name-text">${name}</span>
+                </div>
                 <div>
                     <i class="fas fa-pen action-btn edit-btn" onclick="editMemo(this)" title="メモを編集"></i>
                     <i class="fas fa-times action-btn delete-btn" onclick="removeMember(this)" title="削除"></i>
@@ -324,14 +464,17 @@
         col.innerHTML = `
             <div class="car-box" data-capacity="${carCap}">
                 <div class="car-header">
-                    <span class="car-name">${carName}</span>
+                    <div>
+                        <i class="fas fa-car text-primary me-2"></i>
+                        <span class="car-name-text">${carName}</span>
+                    </div>
                     <div>
                         <span class="badge bg-secondary capacity-badge me-2">0 / ${carCap}</span>
                         <i class="fas fa-trash-alt action-btn delete-btn" onclick="removeCar(this)"></i>
                     </div>
                 </div>
                 <div class="driver-seat">
-                    <i class="fas fa-steering-wheel me-2"></i> 運転手 (固定)
+                    <i class="fas fa-id-card me-2"></i> 運転手 (${carName})
                 </div>
                 <div class="car-members list-group h-100 pb-4"></div>
             </div>
@@ -375,9 +518,11 @@
         if (members > capacity) {
             carBox.classList.add('over-capacity');
             badge.classList.replace('bg-secondary', 'bg-danger');
+            badge.classList.replace('bg-success', 'bg-danger');
         } else if (members === capacity) {
             carBox.classList.remove('over-capacity');
             badge.classList.replace('bg-secondary', 'bg-success');
+            badge.classList.replace('bg-danger', 'bg-success');
         } else {
             carBox.classList.remove('over-capacity');
             badge.classList.replace('bg-success', 'bg-secondary');
