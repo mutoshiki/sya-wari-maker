@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: "Helvetica Neue", Arial, sans-serif; padding-bottom: 100px; }
+        body { background-color: #f8f9fa; font-family: "Helvetica Neue", Arial, sans-serif; padding-bottom: 120px; }
         
         /* メンバーカード */
         .member-card {
@@ -48,7 +48,7 @@
             background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;
             padding: 6px 12px; border-radius: 6px; margin-bottom: 12px;
             font-size: 0.9rem; display: flex; align-items: center;
-            user-select: none; /* 選択不可 */
+            user-select: none;
         }
         
         /* 共有ボタンエリア */
@@ -96,17 +96,28 @@
     </div>
 </div>
 
-<div class="share-bar text-center">
-    <button class="btn btn-primary btn-lg w-100 w-md-50" onclick="copyShareLink()">
-        <i class="fas fa-link me-2"></i>現在の状態を共有 (リンクをコピー)
-    </button>
-    <div class="text-muted mt-1 small">※変更したら再度このボタンを押して新しいリンクを共有してください</div>
+<div class="share-bar">
+    <div class="container" style="max-width: 600px;">
+        <div class="row g-2">
+            <div class="col-6">
+                <button class="btn btn-outline-primary w-100 py-2" onclick="copyTextForLine()">
+                    <i class="fas fa-copy me-1"></i>テキストコピー
+                </button>
+            </div>
+            <div class="col-6">
+                <button class="btn btn-primary w-100 py-2" onclick="copyShareLink()">
+                    <i class="fas fa-link me-1"></i>リンクを共有
+                </button>
+            </div>
+        </div>
+        <div class="text-center text-muted mt-1 small" style="font-size: 0.75rem;">※変更したら再度ボタンを押してください</div>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <script>
-    const STORAGE_KEY = 'sampokai_car_data_v4'; // バージョン変更
+    const STORAGE_KEY = 'sampokai_car_data_v5'; // バージョン変更
 
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -114,12 +125,20 @@
 
         if (sharedData) {
             try {
-                const json = decodeURIComponent(escape(atob(sharedData)));
+                // URLセーフなBase64をデコードする安全な処理
+                let base64 = sharedData.replace(/-/g, '+').replace(/_/g, '/');
+                // パディング修正
+                while (base64.length % 4) { base64 += '='; }
+                
+                const json = decodeURIComponent(escape(atob(base64)));
                 const data = JSON.parse(json);
                 restoreFromData(data);
+                
+                // URLを綺麗にする（履歴は残すがパラメータは消す）
                 window.history.replaceState({}, document.title, window.location.pathname);
             } catch (e) {
-                alert('リンクデータ読込エラー。ローカルデータを使用します。');
+                console.error("Data load error:", e);
+                alert('リンク情報の読み取りに失敗しました。\n(URLが途中で切れている可能性があります)\n\n端末に保存されている前回のデータを表示します。');
                 loadFromStorage();
             }
         } else {
@@ -129,17 +148,60 @@
         setupDragDrop(document.getElementById('waiting-list'));
     });
 
-    // --- 共有機能 ---
+    // --- 共有機能（修正版） ---
     function copyShareLink() {
         const data = getCurrentData();
         const jsonString = JSON.stringify(data);
-        const encoded = btoa(unescape(encodeURIComponent(jsonString)));
-        const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
+        
+        // URLセーフなBase64エンコード (+を-に、/を_に変換)
+        const base64 = btoa(unescape(encodeURIComponent(jsonString)));
+        const urlSafeBase64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        
+        const shareUrl = `${window.location.origin}${window.location.pathname}?data=${urlSafeBase64}`;
         
         navigator.clipboard.writeText(shareUrl).then(() => {
-            alert('✅ リンクをコピーしました！');
+            alert('✅ 共有リンクをコピーしました！\nLINEなどに貼り付けてください。\n\n(このリンクを開くと、現在の配置が再現されます)');
         }, () => {
-            alert('コピーに失敗しました。URL欄からコピーしてください。');
+            alert('コピーに失敗しました。');
+        });
+    }
+
+    // --- テキストコピー機能（LINE用） ---
+    function copyTextForLine() {
+        const data = getCurrentData();
+        let text = "【山歩会 配車表】\n\n";
+
+        data.cars.forEach(car => {
+            const current = car.members.length;
+            const cap = car.capacity;
+            // 満員判定
+            const status = (current >= cap) ? "🈵" : `(あと${cap - current}人)`;
+            
+            text += `🚗 ${car.name} ${status}\n`;
+            text += `  [運転] 固定\n`;
+            
+            if (car.members.length > 0) {
+                text += `  [同乗] `;
+                const names = car.members.map(m => {
+                    return m.memo ? `${m.name}(${m.memo})` : m.name;
+                });
+                text += names.join(", ");
+            } else {
+                text += `  [同乗] なし`;
+            }
+            text += "\n\n";
+        });
+
+        if (data.waiting.length > 0) {
+            text += "📍 未割当・待ち\n";
+            const waitNames = data.waiting.map(m => m.memo ? `${m.name}(${m.memo})` : m.name);
+            text += waitNames.join(", ") + "\n";
+        }
+
+        text += "\n作成ツール: " + window.location.href.split('?')[0];
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert('📋 LINE用のテキストをコピーしました！\nノートやトークに貼り付けてください。');
         });
     }
 
@@ -153,12 +215,10 @@
             };
         };
 
-        // 未割当
         document.querySelectorAll('#waiting-list .member-card').forEach(el => {
             data.waiting.push(getMemberObj(el));
         });
         
-        // 車
         document.querySelectorAll('.car-box').forEach(car => {
             const carName = car.querySelector('.car-name').innerText;
             const capacity = car.dataset.capacity;
@@ -310,7 +370,6 @@
         const members = carBox.querySelectorAll('.member-card').length;
         const badge = carBox.querySelector('.capacity-badge');
         
-        // ラベルを「同乗」に変更
         badge.textContent = `同乗 ${members} / ${capacity}`;
         
         if (members > capacity) {
