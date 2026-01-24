@@ -14,8 +14,10 @@
             --bg-card: #ffffff;
             --border-color: #dee2e6;
             --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            
             --driver-bg: #e9ecef;
             --driver-text: #495057;
+            
             --drag-over-bg: #e2e6ea;
             --share-bar-bg: rgba(255,255,255,0.95);
             --input-bg: #ffffff;
@@ -24,6 +26,19 @@
             --ghost-bg: #e2e6ea;
             --modal-bg: #ffffff;
             --modal-border: #dee2e6;
+            
+            /* 性別カラー（ライト） */
+            --bg-male: #e7f1ff;     /* 薄い青 */
+            --border-male: #b6d4fe;
+            --bg-female: #fff0f1;   /* 薄い赤/ピンク */
+            --border-female: #ffc2c7;
+            
+            /* 運転席の性別カラー（ライト） */
+            --driver-bg-male: #d0e1fd;
+            --driver-text-male: #084298;
+            --driver-bg-female: #ffe3e6;
+            --driver-text-female: #842029;
+
             color-scheme: light;
         }
 
@@ -34,8 +49,10 @@
             --bg-card: #343a40;
             --border-color: #495057;
             --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            
             --driver-bg: #2b3035;
             --driver-text: #ced4da;
+            
             --drag-over-bg: #3d4248;
             --share-bar-bg: rgba(33, 37, 41, 0.95);
             --input-bg: #343a40;
@@ -44,6 +61,19 @@
             --ghost-bg: #495057;
             --modal-bg: #343a40;
             --modal-border: #495057;
+
+            /* 性別カラー（ダーク） */
+            --bg-male: #16263d;     
+            --border-male: #2c4a75;
+            --bg-female: #3d161a;   
+            --border-female: #752c34;
+
+            /* 運転席の性別カラー（ダーク） */
+            --driver-bg-male: #0d2142;
+            --driver-text-male: #9ec5fe;
+            --driver-bg-female: #381216;
+            --driver-text-female: #f1aeb5;
+
             color-scheme: dark;
         }
 
@@ -76,9 +106,20 @@
             box-shadow: var(--card-shadow);
             color: var(--text-main);
             transition: background-color 0.3s, border-color 0.3s;
+            position: relative;
         }
         .member-card:active { cursor: grabbing; opacity: 0.8; }
         
+        /* メンバーカードの性別色 */
+        .member-card[data-gender="male"] {
+            background-color: var(--bg-male);
+            border-color: var(--border-male);
+        }
+        .member-card[data-gender="female"] {
+            background-color: var(--bg-female);
+            border-color: var(--border-female);
+        }
+
         .member-header { display: flex; justify-content: space-between; align-items: center; }
         .member-name { font-weight: 500; }
         
@@ -86,12 +127,16 @@
         .action-btn { cursor: pointer; padding: 0 6px; color: #adb5bd; transition: color 0.2s; }
         .action-btn:hover { color: var(--text-main); }
         
-        /* 削除ボタン（未割当時） */
-        .delete-btn:hover { color: #dc3545; }
+        /* 性別変更ボタン */
+        .gender-btn { cursor: pointer; color: #adb5bd; margin-right: 8px; transition: color 0.2s; }
+        .gender-btn:hover { color: var(--text-main); }
         
-        /* 戻すボタン（車内時） */
-        .return-btn:hover { color: #0d6efd; }
+        /* 性別確定時のアイコン色 */
+        [data-gender="male"] .gender-btn { color: #5c9eff; }
+        [data-gender="female"] .gender-btn { color: #ff758c; }
 
+        .delete-btn:hover { color: #dc3545; }
+        .return-btn:hover { color: #0d6efd; }
         .edit-btn:hover { color: #0d6efd; }
         .edit-name-btn { cursor: pointer; color: #adb5bd; font-size: 0.8em; margin-left: 8px; opacity: 0.7; }
         .edit-name-btn:hover { color: var(--text-main); opacity: 1; }
@@ -123,7 +168,6 @@
             transition: background-color 0.3s;
         }
         [data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.05); }
-
         .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
 
         /* 運転手表示 */
@@ -135,6 +179,18 @@
             font-size: 0.9rem;
             user-select: none; font-weight: 500;
             transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 運転手の性別色 */
+        .driver-seat[data-gender="male"] {
+            background-color: var(--driver-bg-male);
+            color: var(--driver-text-male);
+            border-color: var(--border-male);
+        }
+        .driver-seat[data-gender="female"] {
+            background-color: var(--driver-bg-female);
+            color: var(--driver-text-female);
+            border-color: var(--border-female);
         }
         
         /* 共有ボタンエリア */
@@ -148,7 +204,6 @@
             transition: background-color 0.3s;
         }
 
-        /* フォーム類 */
         .form-control {
             background-color: var(--input-bg);
             color: var(--text-main);
@@ -181,7 +236,6 @@
         }
         .theme-switch:hover { transform: rotate(15deg); }
 
-        /* モーダル */
         .modal-content {
             background-color: var(--modal-bg);
             color: var(--text-main);
@@ -190,6 +244,12 @@
         .modal-header, .modal-footer { border-color: var(--border-color); }
         .btn-close { filter: invert(0); }
         [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+
+        /* 一括登録用テキストエリア */
+        .batch-textarea {
+            font-size: 0.9rem;
+            min-height: 200px;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -203,11 +263,13 @@
             <div id="themeIconContainer" class="me-2" title="日の出/日の入りに合わせて自動切替中" onclick="toggleThemeManual()">
                 <i class="fas fa-sun theme-switch" id="themeToggle"></i>
             </div>
-            <button class="btn btn-outline-info btn-sm" onclick="addDemoData()" title="動作確認用のテストデータを追加します">
-                <i class="fas fa-flask me-1"></i>テストデータ
+            
+            <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="openBatchModal()" title="スプレッドシート等からまとめて貼り付け">
+                <i class="fas fa-paste me-1"></i>一括登録
             </button>
+
             <button class="btn btn-outline-danger btn-sm" onclick="resetData()">
-                <i class="fas fa-redo-alt me-1"></i>全リセット
+                <i class="fas fa-redo-alt me-1"></i>リセット
             </button>
         </div>
     </div>
@@ -217,7 +279,7 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                 <input type="text" id="newMemberName" class="form-control" placeholder="同乗者名 (例: 山田)">
-                <button class="btn btn-primary" onclick="addMember()">追加</button>
+                <button class="btn btn-primary" onclick="handleAddMemberClick()">追加</button>
             </div>
         </div>
         <div class="col-md-7">
@@ -294,21 +356,62 @@
     </div>
 </div>
 
+<div class="modal fade" id="batchImportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">スプレッドシートから一括登録</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-secondary-custom">名前のリストをコピーして貼り付けてください（改行区切り）。</p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold"><i class="fas fa-users me-1"></i>同乗者リスト</label>
+                        <textarea id="batchMembers" class="form-control batch-textarea" placeholder="田中一郎&#13;&#10;佐藤花子&#13;&#10;鈴木次郎..."></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold"><i class="fas fa-car me-1"></i>運転手リスト</label>
+                        <textarea id="batchDrivers" class="form-control batch-textarea" placeholder="高橋運転手&#13;&#10;伊藤運転手..."></textarea>
+                        <div class="mt-2">
+                            <label class="form-label small">デフォルトの同乗枠数</label>
+                            <input type="number" id="batchDefaultCap" class="form-control form-control-sm" value="3" style="width: 80px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary" onclick="executeBatchImport()">登録実行</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
 
 <script>
-    const STORAGE_KEY = 'sampokai_car_data_v9'; // Version bump
+    // ▼APIキー設定
+    const GENDER_API_KEY = '6974b918d0998f075852411e'; 
+
+    const STORAGE_KEY = 'sampokai_car_data_v12'; // バージョンアップ
     let manualOverride = false;
     let editModalInstance = null;
+    let batchModalInstance = null;
     let saveCallback = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         editModalInstance = new bootstrap.Modal(document.getElementById('commonEditModal'));
+        batchModalInstance = new bootstrap.Modal(document.getElementById('batchImportModal'));
         
         document.getElementById('editModalInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') saveEditFromModal();
+        });
+        
+        document.getElementById('newMemberName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleAddMemberClick();
         });
 
         // データ読み込み
@@ -336,214 +439,260 @@
         setInterval(checkSunAndSetTheme, 60000);
     });
 
-    // --- モーダル制御 ---
-    function openEditModal(title, initialValue, callback) {
-        document.getElementById('editModalTitle').innerText = title;
-        const input = document.getElementById('editModalInput');
-        input.value = initialValue;
-        saveCallback = callback;
-        editModalInstance.show();
-        setTimeout(() => input.focus(), 500);
+    // --- 性別判定API連携 ---
+    async function fetchGender(name) {
+        if (!name || !GENDER_API_KEY) return 'unknown';
+        try {
+            const response = await fetch(`https://genderapi.io/api/?name=${encodeURIComponent(name)}&key=${GENDER_API_KEY}`);
+            if (!response.ok) throw new Error('API Error');
+            const data = await response.json();
+            return data.gender || 'unknown';
+        } catch (error) {
+            console.error("Gender API Error:", error);
+            return 'unknown';
+        }
     }
 
-    function saveEditFromModal() {
-        const val = document.getElementById('editModalInput').value;
-        const title = document.getElementById('editModalTitle').innerText;
-        // 名前編集系は空欄禁止
-        if ((title.includes('名前') || title.includes('車名')) && !val.trim()) return;
-        
-        if (saveCallback) saveCallback(val);
-        editModalInstance.hide();
+    // --- 自動判定のロジック ---
+    // 要素を追加した後に呼び出して、非同期で判定して更新する
+    async function autoDetectGender(name, element, type) {
+        if (!name) return;
+        const gender = await fetchGender(name);
+        if (gender !== 'unknown') {
+            element.setAttribute('data-gender', gender);
+            // アイコン更新
+            const icon = element.querySelector('.gender-btn');
+            updateGenderIcon(icon, gender);
+            saveToStorage(); // 判定完了後に保存
+        }
     }
 
-    // --- テーマ設定 ---
-    function checkSunAndSetTheme() {
-        if (manualOverride) return;
-        const times = SunCalc.getTimes(new Date(), 35.6895, 139.6917);
-        const now = new Date();
-        const isNight = now > times.sunset || now < times.sunrise;
-        applyTheme(isNight ? 'dark' : 'light');
+    // --- 一括登録機能 ---
+    function openBatchModal() {
+        document.getElementById('batchMembers').value = '';
+        document.getElementById('batchDrivers').value = '';
+        batchModalInstance.show();
     }
 
-    function applyTheme(theme) {
-        document.body.setAttribute('data-theme', theme);
-        document.getElementById('themeToggle').className = 
-            theme === 'dark' ? 'fas fa-moon theme-switch text-warning' : 'fas fa-sun theme-switch text-warning';
-    }
+    function executeBatchImport() {
+        const memberText = document.getElementById('batchMembers').value;
+        const driverText = document.getElementById('batchDrivers').value;
+        const defaultCap = document.getElementById('batchDefaultCap').value || 3;
 
-    function toggleThemeManual() {
-        manualOverride = true;
-        const current = document.body.getAttribute('data-theme');
-        applyTheme(current === 'light' ? 'dark' : 'light');
-    }
+        // リスト化（改行区切り、空行除去）
+        const memberList = memberText.split(/\n/).map(s => s.trim()).filter(s => s !== '');
+        const driverList = driverText.split(/\n/).map(s => s.trim()).filter(s => s !== '');
 
-    // --- デバッグ（テストデータ）機能 ---
-    function addDemoData() {
-        if(!confirm('テスト用データを追加しますか？\n(既存のデータに追加されます)')) return;
-
-        const demoMembers = ["高橋", "田中", "伊藤", "渡辺", "山本", "中村", "小林", "加藤", "吉田", "佐々木"];
-        const demoCars = [
-            { name: "高橋号", cap: 3 },
-            { name: "田中号", cap: 4 },
-            { name: "伊藤号", cap: 2 }
-        ];
-
-        demoMembers.forEach(name => addMember(name));
-        demoCars.forEach(car => addCar(car.name, car.cap));
-
-        saveToStorage();
-        alert('テストデータを追加しました。');
-    }
-
-    // --- 自動配車機能 (均等割り振り) ---
-    function randomAssign() {
-        if(!confirm('未割当メンバーを、なるべく均等になるようにランダムに割り振りますか？')) return;
-
-        const waitingList = document.getElementById('waiting-list');
-        const members = Array.from(waitingList.querySelectorAll('.member-card'));
-        
-        if (members.length === 0) {
-            alert('未割当のメンバーがいません。');
+        if (memberList.length === 0 && driverList.length === 0) {
+            alert('入力が空です');
             return;
         }
 
-        members.sort(() => Math.random() - 0.5);
+        // 同乗者追加
+        memberList.forEach(name => {
+            const el = addMemberToDOM(name, '', 'unknown');
+            // 追加直後に自動判定開始
+            autoDetectGender(name, el, 'member');
+        });
 
-        const cars = Array.from(document.querySelectorAll('.car-box'));
-        let carIndex = 0;
-        let assignedCount = 0;
-        
-        while (assignedCount < members.length) {
-            const allFull = cars.every(c => {
-                const cap = parseInt(c.dataset.capacity);
-                const current = c.querySelectorAll('.member-card').length;
-                return current >= cap;
-            });
-            if (allFull) break;
-
-            const car = cars[carIndex];
-            const capacity = parseInt(car.dataset.capacity);
-            const currentMembers = car.querySelectorAll('.member-card').length;
-
-            if (currentMembers < capacity) {
-                car.querySelector('.car-members').appendChild(members[assignedCount]);
-                assignedCount++;
+        // 運転手（車）追加
+        driverList.forEach(name => {
+            // addCarは内部で要素を作ってappendするが、戻り値がないので修正が必要
+            // 今回は addCar を少し改造して、追加した要素(運転席部分)を操作できるようにするか、
+            // 既存の仕組みに合わせて DOM から探す。
+            // 簡便のため addCar を呼び出した後、最後の車要素の運転席を取得して判定に投げる。
+            
+            addCar(name, defaultCap, [], '', 'unknown');
+            
+            // 追加されたばかりの車（最後尾）の運転席を取得
+            const cars = document.querySelectorAll('.car-box');
+            if(cars.length > 0) {
+                const lastCar = cars[cars.length - 1];
+                const driverSeat = lastCar.querySelector('.driver-seat');
+                autoDetectGender(name, driverSeat, 'driver');
             }
-            carIndex = (carIndex + 1) % cars.length;
-        }
+        });
 
-        updateAllCapacities();
+        saveToStorage();
+        batchModalInstance.hide();
+        alert(`登録しました。\n同乗者: ${memberList.length}人\n車(運転手): ${driverList.length}台\n\n性別は順次自動判定されます。`);
+    }
+
+
+    // --- DOM操作 ---
+
+    function handleAddMemberClick() {
+        const input = document.getElementById('newMemberName');
+        const name = input.value;
+        if (!name) return;
+        input.value = '';
+        
+        const el = addMemberToDOM(name, '', 'unknown');
         saveToStorage();
         
-        if (assignedCount < members.length) {
-            alert('車が満員になりました。一部メンバーは未割当です。');
+        // 個別追加時も自動判定
+        autoDetectGender(name, el, 'member');
+    }
+
+    function addMemberToDOM(name, memo = '', gender = 'unknown') {
+        const div = document.createElement('div');
+        div.className = 'member-card';
+        div.setAttribute('data-gender', gender);
+        
+        const iconClass = getIconClass(gender);
+        const iconTitle = getIconTitle(gender);
+
+        div.innerHTML = `
+            <div class="member-header">
+                <div class="d-flex align-items-center">
+                    <i class="${iconClass}" onclick="toggleGender(this)" title="${iconTitle}"></i>
+                    <span class="member-name-text me-1">${name}</span>
+                    <i class="fas fa-pencil-alt edit-name-btn" onclick="editMemberName(this)"></i>
+                </div>
+                <div>
+                    <i class="fas fa-sticky-note action-btn edit-btn" onclick="editMemo(this)"></i>
+                    <i class="fas fa-times action-btn delete-btn state-action-btn" onclick="handleMemberAction(this)" title="削除"></i>
+                </div>
+            </div>
+            <div class="member-memo memo-text" style="display: ${memo ? 'block' : 'none'};">${memo}</div>
+        `;
+        document.getElementById('waiting-list').appendChild(div);
+        return div;
+    }
+
+    // 運転手の性別も受け取るように修正
+    function addCar(name = null, capacity = null, members = [], driverMemo = '', driverGender = 'unknown') {
+        const nInput = document.getElementById('newCarName');
+        const cInput = document.getElementById('newCarCapacity');
+        const cName = name || nInput.value;
+        const cCap = capacity || cInput.value;
+
+        if (!cName) return;
+
+        const col = document.createElement('div');
+        col.className = 'col-md-6 mb-3';
+        const dmDisp = driverMemo ? 'block' : 'none';
+
+        // 運転手のアイコン設定
+        const iconClass = getIconClass(driverGender);
+        const iconTitle = getIconTitle(driverGender);
+
+        col.innerHTML = `
+            <div class="car-box" data-capacity="${cCap}">
+                <div class="car-header">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-car text-primary me-2"></i>
+                        <span class="car-name-text me-2">${cName}</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary capacity-badge me-2">0 / ${cCap}</span>
+                        <i class="fas fa-trash-alt action-btn delete-btn" onclick="removeCar(this)"></i>
+                    </div>
+                </div>
+                <div class="driver-seat" data-gender="${driverGender}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="${iconClass}" onclick="toggleDriverGender(this)" title="${iconTitle}"></i>
+                            <span class="small me-1 ms-1">運転:</span> 
+                            <span class="driver-name-disp fw-bold">${cName}</span>
+                            <i class="fas fa-pencil-alt edit-name-btn" onclick="editCarName(this)" title="車名(運転手)を変更"></i>
+                        </div>
+                        <i class="fas fa-sticky-note action-btn edit-btn" onclick="editDriverMemo(this)" title="運転手メモ"></i>
+                    </div>
+                    <div class="driver-memo-text memo-text" style="display: ${dmDisp};">${driverMemo}</div>
+                </div>
+                <div class="car-members list-group h-100 pb-4"></div>
+            </div>
+        `;
+
+        document.getElementById('cars-container').appendChild(col);
+        const list = col.querySelector('.car-members');
+        
+        members.forEach(m => {
+            const memberDiv = addMemberToDOM(m.name, m.memo, m.gender);
+            list.appendChild(memberDiv);
+        });
+        
+        setupDragDrop(list);
+        updateCapacityDisplay(col.querySelector('.car-box'));
+        
+        if (!name) { 
+            nInput.value = ''; 
+            saveToStorage(); 
+            // 手動追加の場合、ここで自動判定をキック
+            const addedCar = document.querySelectorAll('.car-box');
+            const lastSeat = addedCar[addedCar.length-1].querySelector('.driver-seat');
+            autoDetectGender(cName, lastSeat, 'driver');
         } else {
-            alert('均等割り振りが完了しました！');
+            updateMemberIcons();
         }
     }
 
-    function clearAssignments() {
-        if(!confirm('全ての同乗者を車から降ろし、未割当に戻しますか？')) return;
-        const waitingList = document.getElementById('waiting-list');
-        document.querySelectorAll('.car-members .member-card').forEach(m => waitingList.appendChild(m));
-        updateAllCapacities();
+    // --- 性別・アイコン処理 ---
+    function getIconClass(gender) {
+        if(gender === 'male') return 'fas gender-btn fa-mars';
+        if(gender === 'female') return 'fas gender-btn fa-venus';
+        return 'fas gender-btn fa-venus-mars';
+    }
+
+    function getIconTitle(gender) {
+        if(gender === 'male') return '男性 (クリックで変更)';
+        if(gender === 'female') return '女性 (クリックで変更)';
+        return '性別指定なし (クリックで変更)';
+    }
+
+    function updateGenderIcon(iconElement, gender) {
+        iconElement.className = getIconClass(gender);
+        iconElement.title = getIconTitle(gender);
+    }
+
+    // メンバーの性別変更（トグル）
+    function toggleGender(btn) {
+        const card = btn.closest('.member-card');
+        const current = card.getAttribute('data-gender');
+        const next = getNextGender(current);
+        card.setAttribute('data-gender', next);
+        updateGenderIcon(btn, next);
         saveToStorage();
     }
 
-    // --- 編集機能 ---
-    function editCarName(btn) {
-        const carBox = btn.closest('.car-box');
-        const nameSpan = carBox.querySelector('.car-name-text');
-        
-        openEditModal('車名(運転手名)の変更', nameSpan.innerText, (newName) => {
-            if (newName && newName !== nameSpan.innerText) {
-                nameSpan.innerText = newName;
-                carBox.querySelector('.driver-name-disp').innerText = newName;
-                saveToStorage();
-            }
-        });
+    // 運転手の性別変更（トグル）
+    function toggleDriverGender(btn) {
+        const seat = btn.closest('.driver-seat');
+        const current = seat.getAttribute('data-gender');
+        const next = getNextGender(current);
+        seat.setAttribute('data-gender', next);
+        updateGenderIcon(btn, next);
+        saveToStorage();
     }
 
-    function editDriverMemo(btn) {
-        const driverSeat = btn.closest('.driver-seat');
-        const memoDiv = driverSeat.querySelector('.driver-memo-text');
-        openEditModal('運転手メモ (経由地など)', memoDiv.innerText, (newMemo) => {
-            memoDiv.innerText = newMemo;
-            memoDiv.style.display = newMemo ? 'block' : 'none';
-            saveToStorage();
-        });
+    function getNextGender(current) {
+        if (!current || current === 'unknown') return 'male';
+        if (current === 'male') return 'female';
+        return 'unknown';
     }
 
-    function editMemberName(btn) {
-        const nameSpan = btn.closest('.member-header').querySelector('.member-name-text');
-        openEditModal('名前の修正', nameSpan.innerText, (newName) => {
-            if (newName) { nameSpan.innerText = newName; saveToStorage(); }
-        });
-    }
-
-    function editMemo(btn) {
-        const memoDiv = btn.closest('.member-card').querySelector('.member-memo');
-        openEditModal('メモ (荷物など)', memoDiv.innerText, (newMemo) => {
-            memoDiv.innerText = newMemo;
-            memoDiv.style.display = newMemo ? 'block' : 'none';
-            saveToStorage();
-        });
-    }
-
-    // --- 共有・コピー ---
-    function copyShareLink() {
-        const data = getCurrentData();
-        const json = JSON.stringify(data);
-        const base64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-        const url = `${window.location.origin}${window.location.pathname}?data=${base64}`;
-        navigator.clipboard.writeText(url).then(() => alert('✅ 共有リンクをコピーしました！'), () => alert('失敗しました'));
-    }
-
-    function copyTextForLine() {
-        const data = getCurrentData();
-        let text = "【山歩会 車割表】\n\n";
-
-        data.cars.forEach(car => {
-            const current = car.members.length;
-            const cap = car.capacity;
-            const status = (current >= cap) ? "🈵" : `(あと${cap - current}人)`;
-            
-            text += `🚗 ${car.name} ${status}\n`;
-            const driverMemoStr = car.driverMemo ? ` (${car.driverMemo})` : "";
-            text += `  [運転] ${car.name}${driverMemoStr}\n`;
-            
-            if (car.members.length > 0) {
-                text += `  [同乗] `;
-                text += car.members.map(m => m.memo ? `${m.name}(${m.memo})` : m.name).join(", ");
-            } else {
-                text += `  [同乗] なし`;
-            }
-            text += "\n\n";
-        });
-
-        if (data.waiting.length > 0) {
-            text += "📍 未割当\n";
-            text += data.waiting.map(m => m.memo ? `${m.name}(${m.memo})` : m.name).join(", ") + "\n";
-        }
-        text += "\nツール: " + window.location.href.split('?')[0];
-        navigator.clipboard.writeText(text).then(() => alert('📋 LINE用のテキストをコピーしました！'));
-    }
-
-    // --- データ処理 ---
+    // --- 保存・復元ロジック ---
     function getCurrentData() {
         const data = { waiting: [], cars: [] };
+        
         const getMem = (el) => ({
             name: el.querySelector('.member-name-text').innerText,
-            memo: el.querySelector('.member-memo').innerText
+            memo: el.querySelector('.member-memo').innerText,
+            gender: el.getAttribute('data-gender') || 'unknown'
         });
 
         document.querySelectorAll('#waiting-list .member-card').forEach(el => data.waiting.push(getMem(el)));
         
         document.querySelectorAll('.car-box').forEach(car => {
+            const driverSeat = car.querySelector('.driver-seat');
+            const driverGender = driverSeat ? driverSeat.getAttribute('data-gender') : 'unknown';
+
             data.cars.push({
                 name: car.querySelector('.car-name-text').innerText,
                 capacity: car.dataset.capacity,
                 driverMemo: car.querySelector('.driver-memo-text').innerText,
+                driverGender: driverGender, 
                 members: Array.from(car.querySelectorAll('.car-members .member-card')).map(getMem)
             });
         });
@@ -553,13 +702,22 @@
     function restoreFromData(data) {
         document.getElementById('waiting-list').innerHTML = '';
         document.getElementById('cars-container').innerHTML = '';
-        const norm = (m) => (typeof m === 'string') ? { name: m, memo: '' } : m;
+        
+        const norm = (m) => {
+            if (typeof m === 'string') return { name: m, memo: '', gender: 'unknown' };
+            return { name: m.name, memo: m.memo || '', gender: m.gender || 'unknown' };
+        };
 
-        if(data.waiting) data.waiting.forEach(m => addMember(norm(m).name, norm(m).memo));
+        if(data.waiting) data.waiting.forEach(m => {
+            const n = norm(m);
+            addMemberToDOM(n.name, n.memo, n.gender);
+        });
+        
         if(data.cars) data.cars.forEach(c => {
             const dMemo = c.driverMemo || '';
+            const dGender = c.driverGender || 'unknown';
             const mems = c.members.map(norm);
-            addCar(c.name, c.capacity, mems, dMemo);
+            addCar(c.name, c.capacity, mems, dMemo, dGender);
         });
         updateAllCapacities();
         saveToStorage();
@@ -574,100 +732,7 @@
         if (json) restoreFromData(JSON.parse(json));
     }
 
-    // --- DOM生成 ---
-    function addMember(name = null, memo = '') {
-        const input = document.getElementById('newMemberName');
-        const val = name || input.value;
-        if (!val) return;
-
-        const div = document.createElement('div');
-        div.className = 'member-card';
-        // handleMemberAction() will decide functionality based on location
-        div.innerHTML = `
-            <div class="member-header">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-user text-secondary-custom me-2"></i>
-                    <span class="member-name-text me-1">${val}</span>
-                    <i class="fas fa-pencil-alt edit-name-btn" onclick="editMemberName(this)"></i>
-                </div>
-                <div>
-                    <i class="fas fa-sticky-note action-btn edit-btn" onclick="editMemo(this)"></i>
-                    <i class="fas fa-times action-btn delete-btn state-action-btn" onclick="handleMemberAction(this)" title="削除"></i>
-                </div>
-            </div>
-            <div class="member-memo memo-text" style="display: ${memo ? 'block' : 'none'};">${memo}</div>
-        `;
-        document.getElementById('waiting-list').appendChild(div);
-        if (!name) { input.value = ''; saveToStorage(); }
-    }
-
-    function addCar(name = null, capacity = null, members = [], driverMemo = '') {
-        const nInput = document.getElementById('newCarName');
-        const cInput = document.getElementById('newCarCapacity');
-        const cName = name || nInput.value;
-        const cCap = capacity || cInput.value;
-
-        if (!cName) return;
-
-        const col = document.createElement('div');
-        col.className = 'col-md-6 mb-3';
-        const dmDisp = driverMemo ? 'block' : 'none';
-
-        col.innerHTML = `
-            <div class="car-box" data-capacity="${cCap}">
-                <div class="car-header">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-car text-primary me-2"></i>
-                        <span class="car-name-text me-2">${cName}</span>
-                    </div>
-                    <div>
-                        <span class="badge bg-secondary capacity-badge me-2">0 / ${cCap}</span>
-                        <i class="fas fa-trash-alt action-btn delete-btn" onclick="removeCar(this)"></i>
-                    </div>
-                </div>
-                <div class="driver-seat">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-id-card me-2"></i>
-                            <span class="small me-1">運転手:</span> 
-                            <span class="driver-name-disp fw-bold">${cName}</span>
-                            <i class="fas fa-pencil-alt edit-name-btn" onclick="editCarName(this)" title="車名(運転手)を変更"></i>
-                        </div>
-                        <i class="fas fa-sticky-note action-btn edit-btn" onclick="editDriverMemo(this)" title="運転手メモ"></i>
-                    </div>
-                    <div class="driver-memo-text memo-text" style="display: ${dmDisp};">${driverMemo}</div>
-                </div>
-                <div class="car-members list-group h-100 pb-4"></div>
-            </div>
-        `;
-
-        document.getElementById('cars-container').appendChild(col);
-        const list = col.querySelector('.car-members');
-        members.forEach(m => {
-            const div = document.createElement('div');
-            div.className = 'member-card';
-            div.innerHTML = `
-                <div class="member-header">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-user text-secondary-custom me-2"></i>
-                        <span class="member-name-text me-1">${m.name}</span>
-                        <i class="fas fa-pencil-alt edit-name-btn" onclick="editMemberName(this)"></i>
-                    </div>
-                    <div>
-                        <i class="fas fa-sticky-note action-btn edit-btn" onclick="editMemo(this)"></i>
-                        <i class="fas fa-reply action-btn return-btn state-action-btn" onclick="handleMemberAction(this)" title="未割当に戻す"></i>
-                    </div>
-                </div>
-                <div class="member-memo memo-text" style="display: ${m.memo ? 'block' : 'none'};">${m.memo}</div>
-            `;
-            list.appendChild(div);
-        });
-        
-        setupDragDrop(list);
-        updateCapacityDisplay(col.querySelector('.car-box'));
-        if (!name) { nInput.value = ''; saveToStorage(); }
-    }
-
+    // --- 以下、既存機能 ---
     function setupDragDrop(el) {
         new Sortable(el, {
             group: 'shared', animation: 150, ghostClass: 'sortable-ghost',
@@ -675,48 +740,153 @@
         });
     }
 
-    // --- アイコンと機能の切り替え ---
+    function randomAssign() {
+        if(!confirm('未割当メンバーを、なるべく均等になるようにランダムに割り振りますか？')) return;
+        const waitingList = document.getElementById('waiting-list');
+        const members = Array.from(waitingList.querySelectorAll('.member-card'));
+        if (members.length === 0) { alert('未割当のメンバーがいません。'); return; }
+        members.sort(() => Math.random() - 0.5);
+        const cars = Array.from(document.querySelectorAll('.car-box'));
+        let carIndex = 0;
+        let assignedCount = 0;
+        while (assignedCount < members.length) {
+            const allFull = cars.every(c => {
+                const cap = parseInt(c.dataset.capacity);
+                const current = c.querySelectorAll('.member-card').length;
+                return current >= cap;
+            });
+            if (allFull) break;
+            const car = cars[carIndex];
+            const capacity = parseInt(car.dataset.capacity);
+            const currentMembers = car.querySelectorAll('.member-card').length;
+            if (currentMembers < capacity) {
+                car.querySelector('.car-members').appendChild(members[assignedCount]);
+                assignedCount++;
+            }
+            carIndex = (carIndex + 1) % cars.length;
+        }
+        updateAllCapacities();
+        saveToStorage();
+        if (assignedCount < members.length) alert('車が満員になりました。');
+    }
+
+    function clearAssignments() {
+        if(!confirm('全ての同乗者を車から降ろし、未割当に戻しますか？')) return;
+        const waitingList = document.getElementById('waiting-list');
+        document.querySelectorAll('.car-members .member-card').forEach(m => waitingList.appendChild(m));
+        updateAllCapacities();
+        saveToStorage();
+    }
+
+    function openEditModal(title, initialValue, callback) {
+        document.getElementById('editModalTitle').innerText = title;
+        const input = document.getElementById('editModalInput');
+        input.value = initialValue;
+        saveCallback = callback;
+        editModalInstance.show();
+        setTimeout(() => input.focus(), 500);
+    }
+    function saveEditFromModal() {
+        const val = document.getElementById('editModalInput').value;
+        const title = document.getElementById('editModalTitle').innerText;
+        if ((title.includes('名前') || title.includes('車名')) && !val.trim()) return;
+        if (saveCallback) saveCallback(val);
+        editModalInstance.hide();
+    }
+    function editCarName(btn) {
+        const carBox = btn.closest('.car-box');
+        const nameSpan = carBox.querySelector('.car-name-text');
+        openEditModal('車名(運転手名)の変更', nameSpan.innerText, (newName) => {
+            if (newName && newName !== nameSpan.innerText) {
+                nameSpan.innerText = newName;
+                carBox.querySelector('.driver-name-disp').innerText = newName;
+                saveToStorage();
+            }
+        });
+    }
+    function editDriverMemo(btn) {
+        const driverSeat = btn.closest('.driver-seat');
+        const memoDiv = driverSeat.querySelector('.driver-memo-text');
+        openEditModal('運転手メモ', memoDiv.innerText, (newMemo) => {
+            memoDiv.innerText = newMemo;
+            memoDiv.style.display = newMemo ? 'block' : 'none';
+            saveToStorage();
+        });
+    }
+    function editMemberName(btn) {
+        const nameSpan = btn.closest('.member-header').querySelector('.member-name-text');
+        openEditModal('名前の修正', nameSpan.innerText, (newName) => {
+            if (newName) { nameSpan.innerText = newName; saveToStorage(); }
+        });
+    }
+    function editMemo(btn) {
+        const memoDiv = btn.closest('.member-card').querySelector('.member-memo');
+        openEditModal('メモ', memoDiv.innerText, (newMemo) => {
+            memoDiv.innerText = newMemo;
+            memoDiv.style.display = newMemo ? 'block' : 'none';
+            saveToStorage();
+        });
+    }
+    function copyShareLink() {
+        const data = getCurrentData();
+        const json = JSON.stringify(data);
+        const base64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        const url = `${window.location.origin}${window.location.pathname}?data=${base64}`;
+        navigator.clipboard.writeText(url).then(() => alert('✅ 共有リンクをコピーしました！'), () => alert('失敗しました'));
+    }
+    function copyTextForLine() {
+        const data = getCurrentData();
+        let text = "【山歩会 車割表】\n\n";
+        data.cars.forEach(car => {
+            const current = car.members.length;
+            const cap = car.capacity;
+            const status = (current >= cap) ? "🈵" : `(あと${cap - current}人)`;
+            text += `🚗 ${car.name} ${status}\n`;
+            const driverMemoStr = car.driverMemo ? ` (${car.driverMemo})` : "";
+            text += `  [運転] ${car.name}${driverMemoStr}\n`;
+            if (car.members.length > 0) {
+                text += `  [同乗] ` + car.members.map(m => m.memo ? `${m.name}(${m.memo})` : m.name).join(", ");
+            } else {
+                text += `  [同乗] なし`;
+            }
+            text += "\n\n";
+        });
+        if (data.waiting.length > 0) {
+            text += "📍 未割当\n" + data.waiting.map(m => m.memo ? `${m.name}(${m.memo})` : m.name).join(", ") + "\n";
+        }
+        text += "\nツール: " + window.location.href.split('?')[0];
+        navigator.clipboard.writeText(text).then(() => alert('📋 LINE用のテキストをコピーしました！'));
+    }
     function updateMemberIcons() {
-        // 未割当リスト内のメンバー更新
         document.querySelectorAll('#waiting-list .member-card .state-action-btn').forEach(btn => {
             btn.className = 'fas fa-times action-btn delete-btn state-action-btn';
             btn.title = '削除';
         });
-
-        // 車内のメンバー更新
         document.querySelectorAll('.car-members .member-card .state-action-btn').forEach(btn => {
             btn.className = 'fas fa-reply action-btn return-btn state-action-btn';
             btn.title = '未割当に戻す';
         });
     }
-
     function handleMemberAction(btn) {
         const card = btn.closest('.member-card');
-        const inCar = card.closest('.car-members') !== null;
-
-        if (inCar) {
-            // 車の中にいる -> 未割当に戻す
+        if (card.closest('.car-members') !== null) {
             document.getElementById('waiting-list').appendChild(card);
             updateAllCapacities();
             saveToStorage();
         } else {
-            // 未割当にいる -> 削除確認
             if (confirm('このメンバーをリストから完全に削除しますか？')) {
                 card.remove();
                 saveToStorage();
             }
         }
     }
-
     function updateCapacityDisplay(box) {
         const cap = parseInt(box.dataset.capacity);
         const cnt = box.querySelectorAll('.member-card').length;
         const badge = box.querySelector('.capacity-badge');
         badge.textContent = `同乗 ${cnt} / ${cap}`;
-        
         box.classList.remove('over-capacity');
         badge.className = 'badge capacity-badge me-2';
-        
         if (cnt > cap) {
             box.classList.add('over-capacity');
             badge.classList.add('bg-danger');
@@ -726,27 +896,41 @@
             badge.classList.add('bg-secondary');
         }
     }
-
     function updateAllCapacities() {
         document.querySelectorAll('.car-box').forEach(updateCapacityDisplay);
-        updateMemberIcons(); // ここでアイコンの状態も最新にする
+        updateMemberIcons();
     }
-
     function removeCar(btn) {
         if(confirm('車を削除しますか？(同乗者は未割当に戻ります)')) {
             const box = btn.closest('.car-box');
             box.querySelectorAll('.member-card').forEach(m => document.getElementById('waiting-list').appendChild(m));
             btn.closest('.col-md-6').remove();
-            updateAllCapacities(); // 未割当に戻ったメンバーのアイコンを更新するため
+            updateAllCapacities();
             saveToStorage();
         }
     }
-
     function resetData() {
         if(confirm('全データを消去しますか？')) {
             localStorage.removeItem(STORAGE_KEY);
             window.location.href = window.location.pathname;
         }
+    }
+    function checkSunAndSetTheme() {
+        if (manualOverride) return;
+        const times = SunCalc.getTimes(new Date(), 35.6895, 139.6917);
+        const now = new Date();
+        const isNight = now > times.sunset || now < times.sunrise;
+        applyTheme(isNight ? 'dark' : 'light');
+    }
+    function applyTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        document.getElementById('themeToggle').className = 
+            theme === 'dark' ? 'fas fa-moon theme-switch text-warning' : 'fas fa-sun theme-switch text-warning';
+    }
+    function toggleThemeManual() {
+        manualOverride = true;
+        const current = document.body.getAttribute('data-theme');
+        applyTheme(current === 'light' ? 'dark' : 'light');
     }
 </script>
 </body>
