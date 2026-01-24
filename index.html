@@ -13,7 +13,7 @@
             --text-main: #212529;
             --bg-card: #ffffff;
             --border-color: #dee2e6;
-            --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.08);
             
             --driver-bg: #e9ecef;
             --driver-text: #495057;
@@ -28,16 +28,22 @@
             --modal-border: #dee2e6;
             
             /* 性別カラー（ライト） */
-            --bg-male: #e7f1ff;     /* 薄い青 */
-            --border-male: #b6d4fe;
-            --bg-female: #fff0f1;   /* 薄い赤/ピンク */
-            --border-female: #ffc2c7;
+            --bg-male: #f0f7ff;     
+            --border-male: #cce5ff;
+            --text-male: #004085;
+            
+            --bg-female: #fff5f5;   
+            --border-female: #ffc9c9;
+            --text-female: #721c24;
             
             /* 運転席の性別カラー（ライト） */
             --driver-bg-male: #d0e1fd;
             --driver-text-male: #084298;
             --driver-bg-female: #ffe3e6;
             --driver-text-female: #842029;
+
+            /* 1年生アイコン色 */
+            --freshman-color: #198754; 
 
             color-scheme: light;
         }
@@ -65,14 +71,20 @@
             /* 性別カラー（ダーク） */
             --bg-male: #16263d;     
             --border-male: #2c4a75;
+            --text-male: #9ec5fe;
+
             --bg-female: #3d161a;   
             --border-female: #752c34;
+            --text-female: #f1aeb5;
 
             /* 運転席の性別カラー（ダーク） */
             --driver-bg-male: #0d2142;
             --driver-text-male: #9ec5fe;
             --driver-bg-female: #381216;
             --driver-text-female: #f1aeb5;
+
+            /* 1年生アイコン色（ダーク） */
+            --freshman-color: #75b798; 
 
             color-scheme: dark;
         }
@@ -85,103 +97,162 @@
             transition: background-color 0.5s ease, color 0.5s ease;
         }
         
-        /* 共通スタイル */
-        .memo-text { 
-            font-size: 0.85rem; color: #666; background: #fffbe6; 
-            padding: 3px 8px; border-radius: 4px; margin-top: 6px; 
-            display: none; border: 1px solid #ffe58f;
-        }
-        [data-theme="dark"] .memo-text {
-            background: #4d4632; color: #e9ecef; border-color: #665d40;
-        }
-
-        /* メンバーカード */
+        /* --- レイアウト変更: カード型スタイル --- */
         .member-card {
             background: var(--bg-card); 
             border: 1px solid var(--border-color); 
-            padding: 10px 14px; 
-            margin-bottom: 8px;
-            border-radius: 8px; 
+            border-radius: 6px; 
+            padding: 6px; 
             cursor: grab; 
             box-shadow: var(--card-shadow);
             color: var(--text-main);
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: transform 0.1s, box-shadow 0.1s;
             position: relative;
+            
+            /* ボックス内レイアウト */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 70px;
         }
-        .member-card:active { cursor: grabbing; opacity: 0.8; }
+        .member-card:active { cursor: grabbing; transform: scale(0.98); }
         
-        /* メンバーカードの性別色 */
         .member-card[data-gender="male"] {
             background-color: var(--bg-male);
             border-color: var(--border-male);
+            color: var(--text-male);
         }
         .member-card[data-gender="female"] {
             background-color: var(--bg-female);
             border-color: var(--border-female);
+            color: var(--text-female);
         }
 
-        .member-header { display: flex; justify-content: space-between; align-items: center; }
-        .member-name { font-weight: 500; }
+        /* 上段: 名前と性別 */
+        .card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+            flex-wrap: nowrap;
+            overflow: hidden;
+        }
+        .member-name-text {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* 下段: 操作系 */
+        .card-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+            padding-top: 4px;
+            font-size: 0.85rem;
+        }
         
         /* アイコン類 */
-        .action-btn { cursor: pointer; padding: 0 6px; color: #adb5bd; transition: color 0.2s; }
+        .action-btn { cursor: pointer; padding: 2px 4px; color: #adb5bd; transition: color 0.2s; }
         .action-btn:hover { color: var(--text-main); }
         
-        /* 性別変更ボタン */
-        .gender-btn { cursor: pointer; color: #adb5bd; margin-right: 8px; transition: color 0.2s; }
-        .gender-btn:hover { color: var(--text-main); }
-        
-        /* 性別確定時のアイコン色 */
-        [data-gender="male"] .gender-btn { color: #5c9eff; }
-        [data-gender="female"] .gender-btn { color: #ff758c; }
+        .gender-btn { cursor: pointer; margin-right: 4px; font-size: 0.9em; }
+        [data-gender="male"] .gender-btn { color: #0d6efd; }
+        [data-gender="female"] .gender-btn { color: #d63384; }
+
+        .freshman-icon { color: var(--freshman-color); margin-right: 2px; font-size: 0.9em; }
 
         .delete-btn:hover { color: #dc3545; }
         .return-btn:hover { color: #0d6efd; }
         .edit-btn:hover { color: #0d6efd; }
-        .edit-name-btn { cursor: pointer; color: #adb5bd; font-size: 0.8em; margin-left: 8px; opacity: 0.7; }
-        .edit-name-btn:hover { color: var(--text-main); opacity: 1; }
+        
+        .edit-name-btn { 
+            cursor: pointer; color: #adb5bd; 
+            font-size: 0.75em; margin-left: auto; /* 右端に寄せる */
+            padding-left: 4px;
+        }
+        .edit-name-btn:hover { color: var(--text-main); }
 
-        /* 車両ボックス */
+        /* メモ表示 */
+        .memo-indicator {
+            color: #ffc107;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .memo-indicator.empty { color: #dee2e6; }
+        [data-theme="dark"] .memo-indicator.empty { color: #495057; }
+
+        .memo-popup { 
+            font-size: 0.75rem; color: #666; background: #fffbe6; 
+            padding: 2px 4px; border-radius: 3px; 
+            border: 1px solid #ffe58f;
+            position: absolute; bottom: 25px; left: 0; right: 0;
+            z-index: 10;
+            display: none;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        [data-theme="dark"] .memo-popup {
+            background: #4d4632; color: #e9ecef; border-color: #665d40;
+        }
+
+        /* --- 車両ボックスの構造変更 --- */
         .car-box {
             background: var(--bg-card); 
             border: 2px dashed var(--border-color); 
             border-radius: 12px;
-            min-height: 150px; 
-            padding: 15px; 
+            padding: 10px; 
             transition: all 0.3s; 
             position: relative;
         }
         .car-box.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; border-style: solid; }
         
         .car-header { 
-            font-weight: bold; margin-bottom: 12px; 
+            font-weight: bold; margin-bottom: 8px; 
             display: flex; justify-content: space-between; align-items: center; 
             color: var(--text-main);
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--bg-body);
         }
-        
-        .waiting-area {
-            background-color: rgba(0,0,0,0.03); 
-            border-radius: 12px; 
-            padding: 15px; 
-            min-height: 100px;
-            border: 1px solid transparent;
-            transition: background-color 0.3s;
-        }
-        [data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.05); }
-        .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
 
-        /* 運転手表示 */
+        /* --- グリッドレイアウトの核心部分 --- */
+        .car-interior {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2列 */
+            gap: 8px;
+            min-height: 100px;
+        }
+
+        /* 運転席: Grid配置で2列目(右)、1行目(上)に固定 */
+        .driver-seat-wrapper {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        /* メンバーリスト: display:contents で子要素（カード）を親グリッドに直接参加させる */
+        .car-members {
+            display: contents; 
+        }
+
+        /* 運転席スタイル */
         .driver-seat {
+            height: 100%;
             background-color: var(--driver-bg); 
             color: var(--driver-text); 
-            border: 1px solid var(--border-color);
-            padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             font-size: 0.9rem;
-            user-select: none; font-weight: 500;
-            transition: background-color 0.3s, color 0.3s;
+            user-select: none; 
+            position: relative;
         }
-
-        /* 運転手の性別色 */
         .driver-seat[data-gender="male"] {
             background-color: var(--driver-bg-male);
             color: var(--driver-text-male);
@@ -192,8 +263,41 @@
             color: var(--driver-text-female);
             border-color: var(--border-female);
         }
+        .driver-label {
+            font-size: 0.7em; opacity: 0.7; text-align: right; display: block; margin-bottom: 2px;
+        }
+
+        /* 未割当リストはグリッドではなく、Flex Wrapなどで表示 */
+        .waiting-area {
+            background-color: rgba(0,0,0,0.03); 
+            border-radius: 12px; 
+            padding: 10px; 
+            min-height: 100px;
+            border: 1px solid transparent;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-content: flex-start;
+        }
+        /* 未割当エリアのカード幅調整（PCでは3列くらい、スマホでは2列くらいに） */
+        .waiting-area .member-card {
+            width: calc(33.333% - 6px);
+        }
+        @media (max-width: 768px) {
+            .waiting-area .member-card { width: calc(50% - 4px); }
+        }
+
+        .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
+
+        .capacity-badge {
+            cursor: pointer; transition: all 0.2s; position: relative; padding-right: 8px;
+        }
+        .capacity-badge:hover { transform: translateY(-1px); }
+        .capacity-badge:hover::after {
+            content: '\f303'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            margin-left: 6px; font-size: 0.8em; opacity: 0.8;
+        }
         
-        /* 共有ボタンエリア */
         .share-bar {
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: var(--share-bar-bg);
@@ -201,55 +305,26 @@
             padding: 15px; z-index: 1000; 
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             backdrop-filter: blur(5px);
-            transition: background-color 0.3s;
         }
 
-        .form-control {
+        .form-control, .input-group-text {
             background-color: var(--input-bg);
             color: var(--text-main);
             border-color: var(--border-color);
-            transition: background-color 0.3s, color 0.3s;
         }
         .form-control:focus {
-            background-color: var(--input-bg);
-            color: var(--text-main);
-            border-color: #86b7fe;
+            background-color: var(--input-bg); color: var(--text-main); border-color: #86b7fe;
         }
-        .form-control::placeholder { color: #adb5bd; opacity: 1; }
-        [data-theme="dark"] .form-control::placeholder { color: #6c757d; }
-
-        .input-group-text {
-            background-color: var(--input-group-bg);
-            color: var(--input-group-text);
-            border-color: var(--border-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .text-secondary-custom { color: #6c757d; }
-        [data-theme="dark"] .text-secondary-custom { color: #ced4da; }
 
         .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; }
-
-        .theme-switch {
-            cursor: pointer; font-size: 1.2rem; color: var(--text-main);
-            transition: transform 0.3s;
-        }
+        .theme-switch { cursor: pointer; font-size: 1.2rem; color: var(--text-main); transition: transform 0.3s; }
         .theme-switch:hover { transform: rotate(15deg); }
 
-        .modal-content {
-            background-color: var(--modal-bg);
-            color: var(--text-main);
-            border-color: var(--modal-border);
-        }
-        .modal-header, .modal-footer { border-color: var(--border-color); }
+        .modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--modal-border); }
         .btn-close { filter: invert(0); }
         [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-        /* 一括登録用テキストエリア */
-        .batch-textarea {
-            font-size: 0.9rem;
-            min-height: 200px;
-        }
+        
+        .batch-textarea { font-size: 0.9rem; min-height: 200px; }
     </style>
 </head>
 <body data-theme="light">
@@ -260,16 +335,14 @@
             <i class="fas fa-mountain text-success me-2"></i>山歩会 車割メーカー
         </h2>
         <div class="d-flex align-items-center gap-2">
-            <div id="themeIconContainer" class="me-2" title="日の出/日の入りに合わせて自動切替中" onclick="toggleThemeManual()">
+            <div id="themeIconContainer" class="me-2" onclick="toggleThemeManual()">
                 <i class="fas fa-sun theme-switch" id="themeToggle"></i>
             </div>
-            
-            <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="openBatchModal()" title="スプレッドシート等からまとめて貼り付け">
-                <i class="fas fa-paste me-1"></i>一括登録
+            <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="openBatchModal()">
+                <i class="fas fa-paste me-1"></i>一括
             </button>
-
             <button class="btn btn-outline-danger btn-sm" onclick="resetData()">
-                <i class="fas fa-redo-alt me-1"></i>リセット
+                <i class="fas fa-redo-alt me-1"></i>Reset
             </button>
         </div>
     </div>
@@ -278,41 +351,40 @@
         <div class="col-md-5">
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" id="newMemberName" class="form-control" placeholder="同乗者名 (例: 山田)">
+                <input type="text" id="newMemberName" class="form-control" placeholder="名前を入力">
                 <button class="btn btn-primary" onclick="handleAddMemberClick()">追加</button>
             </div>
         </div>
         <div class="col-md-7">
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-car"></i></span>
-                <input type="text" id="newCarName" class="form-control" placeholder="車名 (例: 佐藤カー)">
-                <input type="number" id="newCarCapacity" class="form-control" placeholder="枠" value="3" style="max-width: 80px;">
+                <input type="text" id="newCarName" class="form-control" placeholder="運転手名 (例: 佐藤)">
+                <input type="number" id="newCarCapacity" class="form-control" placeholder="定員" value="3" style="max-width: 80px;">
                 <button class="btn btn-success" onclick="addCar()">車を追加</button>
             </div>
-            <div class="form-text mt-1 text-secondary-custom small">※人数は「運転手を除いた」同乗可能人数</div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-secondary-custom mb-0">
+                <h5 class="text-secondary mb-0 fw-bold">
                     <i class="fas fa-users me-2"></i>未割当
                 </h5>
                 <button class="btn btn-outline-secondary btn-sm" onclick="randomAssign()" title="ランダムに均等割り振り">
-                    <i class="fas fa-dice me-1"></i>自動割当
+                    <i class="fas fa-dice me-1"></i>自動
                 </button>
             </div>
-            <div id="waiting-list" class="waiting-area list-group"></div>
+            <div id="waiting-list" class="waiting-area"></div>
         </div>
 
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-secondary-custom mb-0">
+                <h5 class="text-secondary mb-0 fw-bold">
                     <i class="fas fa-car-side me-2"></i>配車状況
                 </h5>
                 <button class="btn btn-outline-danger btn-sm" onclick="clearAssignments()" title="全ての同乗者を未割当に戻す">
-                    <i class="fas fa-reply-all me-1"></i>同乗解除
+                    <i class="fas fa-reply-all me-1"></i>全解除
                 </button>
             </div>
             <div id="cars-container" class="row"></div>
@@ -325,16 +397,15 @@
         <div class="row g-2">
             <div class="col-6">
                 <button class="btn btn-outline-primary w-100 py-2" onclick="copyTextForLine()">
-                    <i class="far fa-copy me-2"></i>テキストコピー
+                    <i class="far fa-copy me-2"></i>コピー
                 </button>
             </div>
             <div class="col-6">
                 <button class="btn btn-primary w-100 py-2" onclick="copyShareLink()">
-                    <i class="fas fa-link me-2"></i>リンクを共有
+                    <i class="fas fa-link me-2"></i>URL共有
                 </button>
             </div>
         </div>
-        <div class="text-center text-secondary-custom mt-2 small" style="font-size: 0.75rem;">※変更したら再度ボタンを押してください</div>
     </div>
 </div>
 
@@ -357,26 +428,25 @@
 </div>
 
 <div class="modal fade" id="batchImportModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">スプレッドシートから一括登録</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="small text-secondary-custom">名前のリストをコピーして貼り付けてください（改行区切り）。</p>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold"><i class="fas fa-users me-1"></i>同乗者リスト</label>
-                        <textarea id="batchMembers" class="form-control batch-textarea" placeholder="田中一郎&#13;&#10;佐藤花子&#13;&#10;鈴木次郎..."></textarea>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-primary"><i class="fas fa-users me-1"></i>同乗者</label>
+                        <textarea id="batchMembers" class="form-control batch-textarea" placeholder="名前を貼り付け (改行区切り)"></textarea>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold"><i class="fas fa-car me-1"></i>運転手リスト</label>
-                        <textarea id="batchDrivers" class="form-control batch-textarea" placeholder="高橋運転手&#13;&#10;伊藤運転手..."></textarea>
-                        <div class="mt-2">
-                            <label class="form-label small">デフォルトの同乗枠数</label>
-                            <input type="number" id="batchDefaultCap" class="form-control form-control-sm" value="3" style="width: 80px;">
-                        </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-success"><i class="fas fa-leaf me-1"></i>同乗者 (1年生)</label>
+                        <textarea id="batchFreshmen" class="form-control batch-textarea" placeholder="名前を貼り付け (改行区切り)"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-dark"><i class="fas fa-car me-1"></i>運転手</label>
+                        <textarea id="batchDrivers" class="form-control batch-textarea" placeholder="名前を貼り付け (改行区切り)"></textarea>
                     </div>
                 </div>
             </div>
@@ -396,7 +466,7 @@
     // ▼APIキー設定
     const GENDER_API_KEY = '6974b918d0998f075852411e'; 
 
-    const STORAGE_KEY = 'sampokai_car_data_v12'; // バージョンアップ
+    const STORAGE_KEY = 'sampokai_car_data_grid_v1'; // バージョンアップ(レイアウト変更のため)
     let manualOverride = false;
     let editModalInstance = null;
     let batchModalInstance = null;
@@ -414,7 +484,6 @@
             if (e.key === 'Enter') handleAddMemberClick();
         });
 
-        // データ読み込み
         const urlParams = new URLSearchParams(window.location.search);
         const sharedData = urlParams.get('data');
 
@@ -439,7 +508,6 @@
         setInterval(checkSunAndSetTheme, 60000);
     });
 
-    // --- 性別判定API連携 ---
     async function fetchGender(name) {
         if (!name || !GENDER_API_KEY) return 'unknown';
         try {
@@ -448,63 +516,55 @@
             const data = await response.json();
             return data.gender || 'unknown';
         } catch (error) {
-            console.error("Gender API Error:", error);
             return 'unknown';
         }
     }
 
-    // --- 自動判定のロジック ---
-    // 要素を追加した後に呼び出して、非同期で判定して更新する
     async function autoDetectGender(name, element, type) {
         if (!name) return;
         const gender = await fetchGender(name);
         if (gender !== 'unknown') {
             element.setAttribute('data-gender', gender);
-            // アイコン更新
             const icon = element.querySelector('.gender-btn');
             updateGenderIcon(icon, gender);
-            saveToStorage(); // 判定完了後に保存
+            saveToStorage();
         }
     }
 
-    // --- 一括登録機能 ---
     function openBatchModal() {
         document.getElementById('batchMembers').value = '';
+        document.getElementById('batchFreshmen').value = '';
         document.getElementById('batchDrivers').value = '';
         batchModalInstance.show();
     }
 
     function executeBatchImport() {
         const memberText = document.getElementById('batchMembers').value;
+        const freshmanText = document.getElementById('batchFreshmen').value;
         const driverText = document.getElementById('batchDrivers').value;
-        const defaultCap = document.getElementById('batchDefaultCap').value || 3;
+        const defaultCap = 3;
 
-        // リスト化（改行区切り、空行除去）
         const memberList = memberText.split(/\n/).map(s => s.trim()).filter(s => s !== '');
+        const freshmanList = freshmanText.split(/\n/).map(s => s.trim()).filter(s => s !== '');
         const driverList = driverText.split(/\n/).map(s => s.trim()).filter(s => s !== '');
 
-        if (memberList.length === 0 && driverList.length === 0) {
+        if (memberList.length === 0 && freshmanList.length === 0 && driverList.length === 0) {
             alert('入力が空です');
             return;
         }
 
-        // 同乗者追加
         memberList.forEach(name => {
-            const el = addMemberToDOM(name, '', 'unknown');
-            // 追加直後に自動判定開始
+            const el = addMemberToDOM(name, '', 'unknown', false);
             autoDetectGender(name, el, 'member');
         });
 
-        // 運転手（車）追加
+        freshmanList.forEach(name => {
+            const el = addMemberToDOM(name, '', 'unknown', true);
+            autoDetectGender(name, el, 'member');
+        });
+
         driverList.forEach(name => {
-            // addCarは内部で要素を作ってappendするが、戻り値がないので修正が必要
-            // 今回は addCar を少し改造して、追加した要素(運転席部分)を操作できるようにするか、
-            // 既存の仕組みに合わせて DOM から探す。
-            // 簡便のため addCar を呼び出した後、最後の車要素の運転席を取得して判定に投げる。
-            
             addCar(name, defaultCap, [], '', 'unknown');
-            
-            // 追加されたばかりの車（最後尾）の運転席を取得
             const cars = document.querySelectorAll('.car-box');
             if(cars.length > 0) {
                 const lastCar = cars[cars.length - 1];
@@ -515,52 +575,52 @@
 
         saveToStorage();
         batchModalInstance.hide();
-        alert(`登録しました。\n同乗者: ${memberList.length}人\n車(運転手): ${driverList.length}台\n\n性別は順次自動判定されます。`);
+        alert(`登録完了: 同乗者${memberList.length + freshmanList.length}人 / 車${driverList.length}台`);
     }
-
-
-    // --- DOM操作 ---
 
     function handleAddMemberClick() {
         const input = document.getElementById('newMemberName');
         const name = input.value;
         if (!name) return;
         input.value = '';
-        
-        const el = addMemberToDOM(name, '', 'unknown');
+        const el = addMemberToDOM(name, '', 'unknown', false);
         saveToStorage();
-        
-        // 個別追加時も自動判定
         autoDetectGender(name, el, 'member');
     }
 
-    function addMemberToDOM(name, memo = '', gender = 'unknown') {
+    // --- DOM生成 (カードデザイン変更) ---
+    function addMemberToDOM(name, memo = '', gender = 'unknown', isFreshman = false) {
         const div = document.createElement('div');
         div.className = 'member-card';
         div.setAttribute('data-gender', gender);
+        div.setAttribute('data-freshman', isFreshman);
         
         const iconClass = getIconClass(gender);
         const iconTitle = getIconTitle(gender);
+        const freshmanMark = isFreshman ? '<i class="fas fa-leaf freshman-icon" title="1年生"></i>' : '';
+        const memoDisp = memo ? 'block' : 'none';
+        const hasMemoClass = memo ? '' : 'empty';
 
         div.innerHTML = `
-            <div class="member-header">
-                <div class="d-flex align-items-center">
-                    <i class="${iconClass}" onclick="toggleGender(this)" title="${iconTitle}"></i>
-                    <span class="member-name-text me-1">${name}</span>
-                    <i class="fas fa-pencil-alt edit-name-btn" onclick="editMemberName(this)"></i>
-                </div>
-                <div>
-                    <i class="fas fa-sticky-note action-btn edit-btn" onclick="editMemo(this)"></i>
-                    <i class="fas fa-times action-btn delete-btn state-action-btn" onclick="handleMemberAction(this)" title="削除"></i>
-                </div>
+            <div class="card-top-row">
+                <i class="${iconClass}" onclick="toggleGender(this)" title="${iconTitle}"></i>
+                ${freshmanMark}
+                <span class="member-name-text" title="${name}">${name}</span>
+                <i class="fas fa-pencil-alt edit-name-btn" onclick="editMemberName(this)"></i>
             </div>
-            <div class="member-memo memo-text" style="display: ${memo ? 'block' : 'none'};">${memo}</div>
+            <div class="card-bottom-row">
+                <div style="position:relative;">
+                    <i class="fas fa-sticky-note memo-indicator ${hasMemoClass} edit-btn" onclick="editMemo(this)"></i>
+                    <div class="memo-popup">${memo}</div>
+                </div>
+                <i class="fas fa-times action-btn delete-btn state-action-btn" onclick="handleMemberAction(this)" title="削除"></i>
+            </div>
         `;
         document.getElementById('waiting-list').appendChild(div);
         return div;
     }
 
-    // 運転手の性別も受け取るように修正
+    // --- 車生成 (グリッドレイアウト) ---
     function addCar(name = null, capacity = null, members = [], driverMemo = '', driverGender = 'unknown') {
         const nInput = document.getElementById('newCarName');
         const cInput = document.getElementById('newCarCapacity');
@@ -571,37 +631,47 @@
 
         const col = document.createElement('div');
         col.className = 'col-md-6 mb-3';
-        const dmDisp = driverMemo ? 'block' : 'none';
-
-        // 運転手のアイコン設定
+        
         const iconClass = getIconClass(driverGender);
         const iconTitle = getIconTitle(driverGender);
+        const driverMemoDisp = driverMemo ? 'block' : 'none';
+        const hasDriverMemoClass = driverMemo ? '' : 'empty';
 
         col.innerHTML = `
             <div class="car-box" data-capacity="${cCap}">
                 <div class="car-header">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-car text-primary me-2"></i>
-                        <span class="car-name-text me-2">${cName}</span>
+                        <span class="car-name-text">${cName} 車</span>
                     </div>
                     <div>
-                        <span class="badge bg-secondary capacity-badge me-2">0 / ${cCap}</span>
+                        <span class="badge capacity-badge me-2 bg-secondary" onclick="editCapacity(this)" title="定員を変更">0 / ${cCap}</span>
                         <i class="fas fa-trash-alt action-btn delete-btn" onclick="removeCar(this)"></i>
                     </div>
                 </div>
-                <div class="driver-seat" data-gender="${driverGender}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="${iconClass}" onclick="toggleDriverGender(this)" title="${iconTitle}"></i>
-                            <span class="small me-1 ms-1">運転:</span> 
-                            <span class="driver-name-disp fw-bold">${cName}</span>
-                            <i class="fas fa-pencil-alt edit-name-btn" onclick="editCarName(this)" title="車名(運転手)を変更"></i>
+                
+                <div class="car-interior">
+                    <div class="driver-seat-wrapper">
+                        <div class="driver-seat" data-gender="${driverGender}">
+                            <div>
+                                <span class="driver-label">DRIVER</span>
+                                <div class="card-top-row">
+                                    <i class="${iconClass}" onclick="toggleDriverGender(this)" title="${iconTitle}"></i>
+                                    <span class="driver-name-disp fw-bold text-truncate" style="max-width:80px;">${cName}</span>
+                                    <i class="fas fa-pencil-alt edit-name-btn" onclick="editCarName(this)"></i>
+                                </div>
+                            </div>
+                            <div class="card-bottom-row" style="border-top: 1px solid rgba(0,0,0,0.1);">
+                                <div style="position:relative;">
+                                    <i class="fas fa-sticky-note memo-indicator ${hasDriverMemoClass} edit-btn" onclick="editDriverMemo(this)"></i>
+                                    <div class="memo-popup driver-memo-text" style="display:${driverMemoDisp}">${driverMemo}</div>
+                                </div>
+                            </div>
                         </div>
-                        <i class="fas fa-sticky-note action-btn edit-btn" onclick="editDriverMemo(this)" title="運転手メモ"></i>
                     </div>
-                    <div class="driver-memo-text memo-text" style="display: ${dmDisp};">${driverMemo}</div>
+                    
+                    <div class="car-members"></div>
                 </div>
-                <div class="car-members list-group h-100 pb-4"></div>
             </div>
         `;
 
@@ -609,7 +679,7 @@
         const list = col.querySelector('.car-members');
         
         members.forEach(m => {
-            const memberDiv = addMemberToDOM(m.name, m.memo, m.gender);
+            const memberDiv = addMemberToDOM(m.name, m.memo, m.gender, m.isFreshman);
             list.appendChild(memberDiv);
         });
         
@@ -619,7 +689,6 @@
         if (!name) { 
             nInput.value = ''; 
             saveToStorage(); 
-            // 手動追加の場合、ここで自動判定をキック
             const addedCar = document.querySelectorAll('.car-box');
             const lastSeat = addedCar[addedCar.length-1].querySelector('.driver-seat');
             autoDetectGender(cName, lastSeat, 'driver');
@@ -628,25 +697,20 @@
         }
     }
 
-    // --- 性別・アイコン処理 ---
     function getIconClass(gender) {
         if(gender === 'male') return 'fas gender-btn fa-mars';
         if(gender === 'female') return 'fas gender-btn fa-venus';
         return 'fas gender-btn fa-venus-mars';
     }
-
     function getIconTitle(gender) {
-        if(gender === 'male') return '男性 (クリックで変更)';
-        if(gender === 'female') return '女性 (クリックで変更)';
-        return '性別指定なし (クリックで変更)';
+        if(gender === 'male') return '男性';
+        if(gender === 'female') return '女性';
+        return '未設定';
     }
-
     function updateGenderIcon(iconElement, gender) {
         iconElement.className = getIconClass(gender);
         iconElement.title = getIconTitle(gender);
     }
-
-    // メンバーの性別変更（トグル）
     function toggleGender(btn) {
         const card = btn.closest('.member-card');
         const current = card.getAttribute('data-gender');
@@ -655,8 +719,6 @@
         updateGenderIcon(btn, next);
         saveToStorage();
     }
-
-    // 運転手の性別変更（トグル）
     function toggleDriverGender(btn) {
         const seat = btn.closest('.driver-seat');
         const current = seat.getAttribute('data-gender');
@@ -665,31 +727,29 @@
         updateGenderIcon(btn, next);
         saveToStorage();
     }
-
     function getNextGender(current) {
         if (!current || current === 'unknown') return 'male';
         if (current === 'male') return 'female';
         return 'unknown';
     }
 
-    // --- 保存・復元ロジック ---
     function getCurrentData() {
         const data = { waiting: [], cars: [] };
-        
         const getMem = (el) => ({
             name: el.querySelector('.member-name-text').innerText,
-            memo: el.querySelector('.member-memo').innerText,
-            gender: el.getAttribute('data-gender') || 'unknown'
+            memo: el.querySelector('.memo-popup').innerText,
+            gender: el.getAttribute('data-gender') || 'unknown',
+            isFreshman: el.getAttribute('data-freshman') === 'true'
         });
 
         document.querySelectorAll('#waiting-list .member-card').forEach(el => data.waiting.push(getMem(el)));
-        
         document.querySelectorAll('.car-box').forEach(car => {
             const driverSeat = car.querySelector('.driver-seat');
             const driverGender = driverSeat ? driverSeat.getAttribute('data-gender') : 'unknown';
+            const driverName = car.querySelector('.driver-name-disp').innerText;
 
             data.cars.push({
-                name: car.querySelector('.car-name-text').innerText,
+                name: driverName,
                 capacity: car.dataset.capacity,
                 driverMemo: car.querySelector('.driver-memo-text').innerText,
                 driverGender: driverGender, 
@@ -702,17 +762,19 @@
     function restoreFromData(data) {
         document.getElementById('waiting-list').innerHTML = '';
         document.getElementById('cars-container').innerHTML = '';
-        
         const norm = (m) => {
-            if (typeof m === 'string') return { name: m, memo: '', gender: 'unknown' };
-            return { name: m.name, memo: m.memo || '', gender: m.gender || 'unknown' };
+            if (typeof m === 'string') return { name: m, memo: '', gender: 'unknown', isFreshman: false };
+            return { 
+                name: m.name, 
+                memo: m.memo || '', 
+                gender: m.gender || 'unknown',
+                isFreshman: m.isFreshman || false 
+            };
         };
-
         if(data.waiting) data.waiting.forEach(m => {
             const n = norm(m);
-            addMemberToDOM(n.name, n.memo, n.gender);
+            addMemberToDOM(n.name, n.memo, n.gender, n.isFreshman);
         });
-        
         if(data.cars) data.cars.forEach(c => {
             const dMemo = c.driverMemo || '';
             const dGender = c.driverGender || 'unknown';
@@ -726,13 +788,11 @@
     function saveToStorage() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(getCurrentData()));
     }
-
     function loadFromStorage() {
         const json = localStorage.getItem(STORAGE_KEY);
         if (json) restoreFromData(JSON.parse(json));
     }
 
-    // --- 以下、既存機能 ---
     function setupDragDrop(el) {
         new Sortable(el, {
             group: 'shared', animation: 150, ghostClass: 'sortable-ghost',
@@ -741,10 +801,10 @@
     }
 
     function randomAssign() {
-        if(!confirm('未割当メンバーを、なるべく均等になるようにランダムに割り振りますか？')) return;
+        if(!confirm('未割当メンバーをランダムに割り振りますか？')) return;
         const waitingList = document.getElementById('waiting-list');
         const members = Array.from(waitingList.querySelectorAll('.member-card'));
-        if (members.length === 0) { alert('未割当のメンバーがいません。'); return; }
+        if (members.length === 0) return;
         members.sort(() => Math.random() - 0.5);
         const cars = Array.from(document.querySelectorAll('.car-box'));
         let carIndex = 0;
@@ -758,20 +818,19 @@
             if (allFull) break;
             const car = cars[carIndex];
             const capacity = parseInt(car.dataset.capacity);
-            const currentMembers = car.querySelectorAll('.member-card').length;
-            if (currentMembers < capacity) {
-                car.querySelector('.car-members').appendChild(members[assignedCount]);
+            const list = car.querySelector('.car-members');
+            if (list.children.length < capacity) {
+                list.appendChild(members[assignedCount]);
                 assignedCount++;
             }
             carIndex = (carIndex + 1) % cars.length;
         }
         updateAllCapacities();
         saveToStorage();
-        if (assignedCount < members.length) alert('車が満員になりました。');
     }
 
     function clearAssignments() {
-        if(!confirm('全ての同乗者を車から降ろし、未割当に戻しますか？')) return;
+        if(!confirm('全ての同乗者を未割当に戻しますか？')) return;
         const waitingList = document.getElementById('waiting-list');
         document.querySelectorAll('.car-members .member-card').forEach(m => waitingList.appendChild(m));
         updateAllCapacities();
@@ -793,13 +852,26 @@
         if (saveCallback) saveCallback(val);
         editModalInstance.hide();
     }
+
+    function editCapacity(badge) {
+        const carBox = badge.closest('.car-box');
+        openEditModal('定員の変更', carBox.dataset.capacity, (newCap) => {
+            const num = parseInt(newCap);
+            if (!isNaN(num) && num > 0) {
+                carBox.dataset.capacity = num;
+                updateCapacityDisplay(carBox);
+                saveToStorage();
+            }
+        });
+    }
     function editCarName(btn) {
         const carBox = btn.closest('.car-box');
-        const nameSpan = carBox.querySelector('.car-name-text');
-        openEditModal('車名(運転手名)の変更', nameSpan.innerText, (newName) => {
-            if (newName && newName !== nameSpan.innerText) {
-                nameSpan.innerText = newName;
-                carBox.querySelector('.driver-name-disp').innerText = newName;
+        const driverNameSpan = carBox.querySelector('.driver-name-disp');
+        const headerNameSpan = carBox.querySelector('.car-name-text');
+        openEditModal('車名(運転手)の変更', driverNameSpan.innerText, (newName) => {
+            if (newName && newName !== driverNameSpan.innerText) {
+                driverNameSpan.innerText = newName;
+                headerNameSpan.innerText = newName + ' 車';
                 saveToStorage();
             }
         });
@@ -807,33 +879,39 @@
     function editDriverMemo(btn) {
         const driverSeat = btn.closest('.driver-seat');
         const memoDiv = driverSeat.querySelector('.driver-memo-text');
+        const icon = btn.closest('.driver-seat').querySelector('.memo-indicator');
         openEditModal('運転手メモ', memoDiv.innerText, (newMemo) => {
             memoDiv.innerText = newMemo;
             memoDiv.style.display = newMemo ? 'block' : 'none';
+            if(newMemo) icon.classList.remove('empty'); else icon.classList.add('empty');
             saveToStorage();
         });
     }
     function editMemberName(btn) {
-        const nameSpan = btn.closest('.member-header').querySelector('.member-name-text');
+        const nameSpan = btn.closest('.card-top-row').querySelector('.member-name-text');
         openEditModal('名前の修正', nameSpan.innerText, (newName) => {
             if (newName) { nameSpan.innerText = newName; saveToStorage(); }
         });
     }
     function editMemo(btn) {
-        const memoDiv = btn.closest('.member-card').querySelector('.member-memo');
+        const card = btn.closest('.member-card');
+        const memoDiv = card.querySelector('.memo-popup');
+        const icon = card.querySelector('.memo-indicator');
         openEditModal('メモ', memoDiv.innerText, (newMemo) => {
             memoDiv.innerText = newMemo;
-            memoDiv.style.display = newMemo ? 'block' : 'none';
+            if(newMemo) icon.classList.remove('empty'); else icon.classList.add('empty');
             saveToStorage();
         });
     }
+
     function copyShareLink() {
         const data = getCurrentData();
         const json = JSON.stringify(data);
         const base64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         const url = `${window.location.origin}${window.location.pathname}?data=${base64}`;
-        navigator.clipboard.writeText(url).then(() => alert('✅ 共有リンクをコピーしました！'), () => alert('失敗しました'));
+        navigator.clipboard.writeText(url).then(() => alert('✅ URLをコピーしました'), () => alert('失敗しました'));
     }
+
     function copyTextForLine() {
         const data = getCurrentData();
         let text = "【山歩会 車割表】\n\n";
@@ -841,22 +919,37 @@
             const current = car.members.length;
             const cap = car.capacity;
             const status = (current >= cap) ? "🈵" : `(あと${cap - current}人)`;
-            text += `🚗 ${car.name} ${status}\n`;
+            
+            text += `🚗 ${car.name} 車 ${status}\n`;
             const driverMemoStr = car.driverMemo ? ` (${car.driverMemo})` : "";
             text += `  [運転] ${car.name}${driverMemoStr}\n`;
+            
             if (car.members.length > 0) {
-                text += `  [同乗] ` + car.members.map(m => m.memo ? `${m.name}(${m.memo})` : m.name).join(", ");
+                // コピー用に並び順を視覚的に表現 (助手席 -> 後部座席)
+                // Gridの順序はDOM順序(car.members)と一致するので、そのまま出力でOK
+                text += `  [同乗] ` + car.members.map(m => {
+                    let disp = m.name;
+                    if(m.isFreshman) disp += "🔰";
+                    if(m.memo) disp += `(${m.memo})`;
+                    return disp;
+                }).join(", ");
             } else {
                 text += `  [同乗] なし`;
             }
             text += "\n\n";
         });
         if (data.waiting.length > 0) {
-            text += "📍 未割当\n" + data.waiting.map(m => m.memo ? `${m.name}(${m.memo})` : m.name).join(", ") + "\n";
+            text += "📍 未割当\n" + data.waiting.map(m => {
+                let disp = m.name;
+                if(m.isFreshman) disp += "🔰";
+                if(m.memo) disp += `(${m.memo})`;
+                return disp;
+            }).join(", ") + "\n";
         }
         text += "\nツール: " + window.location.href.split('?')[0];
-        navigator.clipboard.writeText(text).then(() => alert('📋 LINE用のテキストをコピーしました！'));
+        navigator.clipboard.writeText(text).then(() => alert('📋 コピーしました'));
     }
+
     function updateMemberIcons() {
         document.querySelectorAll('#waiting-list .member-card .state-action-btn').forEach(btn => {
             btn.className = 'fas fa-times action-btn delete-btn state-action-btn';
@@ -867,6 +960,7 @@
             btn.title = '未割当に戻す';
         });
     }
+
     function handleMemberAction(btn) {
         const card = btn.closest('.member-card');
         if (card.closest('.car-members') !== null) {
@@ -874,15 +968,16 @@
             updateAllCapacities();
             saveToStorage();
         } else {
-            if (confirm('このメンバーをリストから完全に削除しますか？')) {
+            if (confirm('削除しますか？')) {
                 card.remove();
                 saveToStorage();
             }
         }
     }
+
     function updateCapacityDisplay(box) {
         const cap = parseInt(box.dataset.capacity);
-        const cnt = box.querySelectorAll('.member-card').length;
+        const cnt = box.querySelectorAll('.car-members .member-card').length;
         const badge = box.querySelector('.capacity-badge');
         badge.textContent = `同乗 ${cnt} / ${cap}`;
         box.classList.remove('over-capacity');
@@ -901,16 +996,16 @@
         updateMemberIcons();
     }
     function removeCar(btn) {
-        if(confirm('車を削除しますか？(同乗者は未割当に戻ります)')) {
+        if(confirm('車を削除しますか？')) {
             const box = btn.closest('.car-box');
-            box.querySelectorAll('.member-card').forEach(m => document.getElementById('waiting-list').appendChild(m));
+            box.querySelectorAll('.car-members .member-card').forEach(m => document.getElementById('waiting-list').appendChild(m));
             btn.closest('.col-md-6').remove();
             updateAllCapacities();
             saveToStorage();
         }
     }
     function resetData() {
-        if(confirm('全データを消去しますか？')) {
+        if(confirm('リセットしますか？')) {
             localStorage.removeItem(STORAGE_KEY);
             window.location.href = window.location.pathname;
         }
