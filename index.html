@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>山歩会 車割メーカー</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -13,17 +13,19 @@
             --text-main: #212529;
             --bg-card: #ffffff;
             --border-color: #dee2e6;
-            --card-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            --card-shadow: 0 1px 2px rgba(0,0,0,0.1);
             
             --driver-bg: #e9ecef;
             --driver-text: #495057;
             
-            --seat-bg: #f8f9fa;
+            --seat-bg: #f0f2f5;
             --drag-over-bg: #e2e6ea;
             --share-bar-bg: rgba(255,255,255,0.95);
+            
             --input-bg: #ffffff;
             --input-text: #212529;
             --input-border: #dee2e6;
+            
             --ghost-bg: #cbd3da;
             --modal-bg: #ffffff;
             --modal-border: #dee2e6;
@@ -49,41 +51,41 @@
 
         [data-theme="dark"] {
             /* ダークモード設定 */
-            --bg-body: #212529;
-            --text-main: #f8f9fa;
-            --bg-card: #343a40;
-            --border-color: #495057;
-            --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            --bg-body: #121212;
+            --text-main: #e0e0e0;
+            --bg-card: #1e1e1e;
+            --border-color: #333333;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.5);
             
-            --driver-bg: #2b3035;
-            --driver-text: #ced4da;
+            --driver-bg: #252525;
+            --driver-text: #b0b0b0;
             
-            --seat-bg: #2b3035;
-            --drag-over-bg: #3d4248;
-            --share-bar-bg: rgba(33, 37, 41, 0.95);
+            --seat-bg: #181818;
+            --drag-over-bg: #2a2a2a;
+            --share-bar-bg: rgba(30, 30, 30, 0.95);
             
-            --input-bg: #495057;
-            --input-text: #f8f9fa;
-            --input-border: #6c757d;
+            --input-bg: #2d2d2d;
+            --input-text: #e0e0e0;
+            --input-border: #444444;
 
-            --ghost-bg: #495057;
-            --modal-bg: #343a40;
-            --modal-border: #495057;
+            --ghost-bg: #3a3a3a;
+            --modal-bg: #242424;
+            --modal-border: #333333;
 
-            --bg-male: #16263d;     
-            --border-male: #2c4a75;
-            --text-male: #9ec5fe;
+            --bg-male: #0d1b2a;     
+            --border-male: #1b3a5e;
+            --text-male: #a6c8ff;
 
-            --bg-female: #3d161a;   
-            --border-female: #752c34;
-            --text-female: #f1aeb5;
+            --bg-female: #2a0d10;   
+            --border-female: #5e1b22;
+            --text-female: #ffb3ba;
 
-            --driver-bg-male: #0d2142;
-            --driver-text-male: #9ec5fe;
-            --driver-bg-female: #381216;
-            --driver-text-female: #f1aeb5;
+            --driver-bg-male: #0a1626;
+            --driver-text-male: #a6c8ff;
+            --driver-bg-female: #260a0d;
+            --driver-text-female: #ffb3ba;
 
-            --freshman-color: #75b798; 
+            --freshman-color: #68c998; 
 
             color-scheme: dark;
         }
@@ -91,33 +93,32 @@
         body { 
             background-color: var(--bg-body); 
             color: var(--text-main);
-            font-family: "Helvetica Neue", Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
             padding-bottom: 120px; 
-            transition: background-color 0.5s ease, color 0.5s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 0.9rem; /* 全体的に少し小さく */
         }
 
-        .form-control, .form-select {
+        /* フォーム要素のダークモード対応強化 */
+        .form-control, .form-select, .input-group-text {
             background-color: var(--input-bg);
             color: var(--input-text);
             border-color: var(--input-border);
         }
-        .form-control::placeholder { color: #adb5bd; }
         .form-control:focus {
             background-color: var(--input-bg);
             color: var(--input-text);
             border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
-        .input-group-text {
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-color: var(--input-border);
-        }
-
+        .form-control::placeholder { color: #888; }
+        
+        /* コンパクト化されたメンバーカード */
         .member-card {
             background: var(--bg-card); 
             border: 1px solid var(--border-color); 
-            border-radius: 6px; 
-            padding: 6px; 
+            border-radius: 4px; /* 角丸を少し小さく */
+            padding: 3px 6px; /* 余白を極限まで削る */
             cursor: grab; 
             box-shadow: var(--card-shadow);
             color: var(--text-main);
@@ -125,66 +126,113 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            min-height: 70px;
-            height: 100%;
+            justify-content: center;
+            min-height: auto; /* 高さ制限を撤廃 */
+            height: auto;
+            touch-action: manipulation; /* スクロール誤爆防止 */
         }
-        .member-card:active { cursor: grabbing; transform: scale(0.98); }
+        .member-card:active { cursor: grabbing; opacity: 0.8; }
         
         .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
         .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
 
-        .card-top-row { display: flex; align-items: center; margin-bottom: 4px; font-size: 0.95rem; overflow: hidden; }
-        .member-name-text { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-        .card-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px; font-size: 0.85rem; }
-
-        .action-btn { cursor: pointer; padding: 2px 4px; color: #adb5bd; }
-        .action-btn:hover { color: var(--text-main); }
+        /* カード内部レイアウトの圧縮 */
+        .card-top-row { 
+            display: flex; 
+            align-items: center; 
+            font-size: 0.9rem; 
+            line-height: 1.2;
+            width: 100%;
+        }
+        .member-name-text { 
+            font-weight: 600; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            flex-grow: 1; 
+            margin: 0 4px;
+        }
         
-        .gender-btn { cursor: pointer; margin-right: 4px; }
+        .card-bottom-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-top: 2px;
+            font-size: 0.8rem;
+        }
+
+        /* アイコン類 */
+        .action-btn { cursor: pointer; padding: 2px 4px; color: #adb5bd; opacity: 0.7; }
+        .action-btn:hover { color: var(--text-main); opacity: 1; }
+        .edit-name-btn { cursor: pointer; font-size: 0.75rem; color: inherit; opacity: 0.5; }
+        
+        .gender-btn { cursor: pointer; margin-right: 2px; font-size: 0.9em; }
         [data-gender="male"] .gender-btn { color: #0d6efd; }
         [data-gender="female"] .gender-btn { color: #d63384; }
-        .freshman-icon { color: var(--freshman-color); margin-right: 2px; }
+        .freshman-icon { color: var(--freshman-color); margin-right: 2px; font-size: 0.85em; }
 
-        .memo-indicator { color: #ffc107; cursor: pointer; }
-        .memo-indicator.empty { color: #dee2e6; }
-        [data-theme="dark"] .memo-indicator.empty { color: #495057; }
-        .memo-popup { 
-            font-size: 0.75rem; color: #666; background: #fffbe6; padding: 2px 4px; border-radius: 3px; 
-            border: 1px solid #ffe58f; position: absolute; bottom: 25px; left: 0; right: 0; z-index: 10; display: none; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        /* 修正されたメモ機能 */
+        .memo-container {
+            flex-grow: 1;
+            margin-right: 4px;
         }
-        [data-theme="dark"] .memo-popup { background: #4d4632; color: #e9ecef; border-color: #665d40; }
+        .memo-indicator { 
+            font-size: 0.8rem; color: #ffc107; cursor: pointer; margin-right: 4px; 
+        }
+        .memo-indicator.empty { color: var(--border-color); opacity: 0.5; }
+        
+        /* メモ表示エリア（絶対配置をやめてブロック配置に変更） */
+        .memo-popup { 
+            font-size: 0.7rem; 
+            color: #555; 
+            background: #fff9c4; 
+            padding: 1px 4px; 
+            border-radius: 2px; 
+            border: 1px solid #ffe082; 
+            margin-top: 2px;
+            display: none; 
+            width: 100%;
+            word-break: break-all;
+            line-height: 1.1;
+        }
+        [data-theme="dark"] .memo-popup { 
+            background: #423c18; 
+            color: #fff9c4; 
+            border-color: #635b2e; 
+        }
 
+        /* 車両ボックス */
         .car-box {
             background: var(--bg-card); 
-            border: 2px dashed var(--border-color); 
-            border-radius: 12px;
-            padding: 10px; 
+            border: 1px solid var(--border-color); /* 枠線を実線で細く */
+            border-radius: 8px;
+            padding: 8px; 
             position: relative;
+            box-shadow: var(--card-shadow);
         }
         .car-header { 
-            font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; 
-            padding-bottom: 6px; border-bottom: 2px solid var(--bg-body);
+            font-weight: bold; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; 
+            padding-bottom: 4px; border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
         }
         .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220, 53, 69, 0.05); }
 
         .car-interior-layout {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px; /* 隙間を詰める */
         }
         .front-row {
             display: flex;
-            gap: 8px;
+            gap: 4px;
         }
         .seat-area {
             flex: 1;
-            min-height: 85px; 
-            border-radius: 6px;
-            padding: 4px;
+            min-height: 45px; /* 高さを小さく */
+            border-radius: 4px;
+            padding: 2px; /* パディング縮小 */
             background-color: var(--seat-bg);
-            border: 1px solid transparent;
+            border: 1px dashed transparent;
             transition: background-color 0.2s;
         }
         .sortable-area { border: 1px dashed var(--border-color); }
@@ -192,35 +240,46 @@
 
         .rear-seats {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2列 */
+            grid-template-columns: 1fr 1fr; 
             gap: 4px;
             align-content: start;
         }
 
         .driver-seat {
-            height: 100%;
+            height: auto; /* 高さ自動 */
             background-color: var(--driver-bg); 
             color: var(--driver-text); 
-            border: 2px solid var(--border-color);
-            border-radius: 6px; 
-            padding: 6px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            font-size: 0.9rem; user-select: none;
+            border: 1px solid var(--border-color);
+            border-radius: 4px; 
+            padding: 4px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* 上寄せ */
+            font-size: 0.9rem; 
+            user-select: none;
         }
         .driver-seat[data-gender="male"] { background: var(--driver-bg-male); color: var(--driver-text-male); border-color: var(--border-male); }
         .driver-seat[data-gender="female"] { background: var(--driver-bg-female); color: var(--driver-text-female); border-color: var(--border-female); }
-        .driver-label { font-size: 0.7em; opacity: 0.7; text-align: right; display: block; margin-bottom: 2px; }
+        .driver-label { font-size: 0.65em; opacity: 0.7; text-align: right; margin-bottom: 2px; line-height: 1; }
 
+        /* 待機エリア */
         .waiting-area {
-            background-color: rgba(0,0,0,0.03); border-radius: 12px; padding: 10px; min-height: 100px;
-            display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;
+            background-color: rgba(128, 128, 128, 0.05); 
+            border-radius: 8px; 
+            padding: 6px; 
+            min-height: 80px;
+            display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start;
+            border: 1px solid transparent;
         }
-        .waiting-area .member-card { width: calc(33.333% - 6px); }
-        @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
+        [data-theme="dark"] .waiting-area { border-color: var(--border-color); }
+
+        /* グリッド調整（みちみちにする） */
+        .waiting-area .member-card { width: calc(33.333% - 3px); }
+        @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 2px); } }
 
         .share-bar {
             position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg);
-            border-top: 1px solid var(--border-color); padding: 15px; z-index: 1000; 
+            border-top: 1px solid var(--border-color); padding: 10px 15px 15px; z-index: 1000; 
             backdrop-filter: blur(5px);
         }
 
@@ -228,67 +287,68 @@
         
         .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); }
         .dropdown-item { color: var(--text-main); }
-        .dropdown-item:hover { background-color: var(--drag-over-bg); }
+        .dropdown-item:hover { background-color: var(--drag-over-bg); color: var(--text-main); }
+        .dropdown-header { color: var(--text-main); opacity: 0.7; }
 
+        /* モーダルのダークモード対応 */
         .modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--modal-border); }
+        .modal-header, .modal-footer { border-color: var(--modal-border); }
         .btn-close { filter: invert(0); }
-        [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        [data-theme="dark"] .btn-close { filter: invert(1); }
     </style>
 </head>
 <body data-theme="light">
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0 fs-4 fw-bold">
-            <i class="fas fa-mountain text-success me-2"></i>山歩会 車割メーカー
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0 fs-5 fw-bold text-nowrap">
+            <i class="fas fa-mountain text-success me-2"></i>車割
         </h2>
         <div class="d-flex align-items-center gap-2">
             <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="openBatchModal()">
                 <i class="fas fa-paste me-1"></i>一括
             </button>
             <button class="btn btn-outline-danger btn-sm" onclick="resetData()">
-                <i class="fas fa-redo-alt me-1"></i>Reset
+                <i class="fas fa-redo-alt"></i>
             </button>
         </div>
     </div>
 
-    <div class="row g-2 mb-4">
+    <div class="row g-2 mb-3">
         <div class="col-md-5">
-            <div class="input-group">
+            <div class="input-group input-group-sm">
                 <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" id="newMemberName" class="form-control" placeholder="名前を入力">
+                <input type="text" id="newMemberName" class="form-control" placeholder="名前">
                 <button class="btn btn-primary" onclick="handleAddMemberClick()">追加</button>
             </div>
         </div>
         <div class="col-md-7">
-            <div class="input-group">
+            <div class="input-group input-group-sm">
                 <span class="input-group-text"><i class="fas fa-car"></i></span>
-                <input type="text" id="newCarName" class="form-control" placeholder="運転手名 (例: 佐藤)">
-                <input type="number" id="newCarCapacity" class="form-control" placeholder="定員" value="3" style="max-width: 80px;">
-                <button class="btn btn-success" onclick="addCar()">車を追加</button>
+                <input type="text" id="newCarName" class="form-control" placeholder="運転手 (例: 佐藤)">
+                <input type="number" id="newCarCapacity" class="form-control" placeholder="定員" value="3" style="max-width: 60px;">
+                <button class="btn btn-success" onclick="addCar()">車追加</button>
             </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-secondary mb-0 fw-bold">
-                    <i class="fas fa-users me-2"></i>未割当
-                </h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-secondary mb-0 fw-bold">
+                    <i class="fas fa-users me-1"></i>未割当
+                </h6>
                 
                 <div class="btn-group">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="autoAssign('fill')" title="空いている席に追加">
-                        <i class="fas fa-plus me-1"></i>追加
+                    <button class="btn btn-outline-secondary btn-sm" style="font-size: 0.75rem;" onclick="autoAssign('fill')">
+                        <i class="fas fa-plus me-1"></i>埋める
                     </button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="autoAssign('shuffle')" title="全員回収してシャッフル">
+                    <button class="btn btn-outline-secondary btn-sm" style="font-size: 0.75rem;" onclick="autoAssign('shuffle')">
                         <i class="fas fa-random me-1"></i>シャッフル
                     </button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                    </button>
-                    <div class="dropdown-menu p-3" style="min-width: 280px;">
-                        <h6 class="dropdown-header">自動割り当てオプション</h6>
+                    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                    <div class="dropdown-menu p-3 shadow" style="min-width: 250px;">
+                        <h6 class="dropdown-header">自動割り当て設定</h6>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="optGroupGenderFemale">
                             <label class="form-check-label" for="optGroupGenderFemale">🚺 女子をまとめる</label>
@@ -299,13 +359,8 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="optGroupGrade">
-                            <label class="form-check-label" for="optGroupGrade">🎓 学年をまとめる (優先度: 高)</label>
+                            <label class="form-check-label" for="optGroupGrade">🎓 学年をまとめる (優先)</label>
                         </div>
-                        <hr class="dropdown-divider">
-                        <small class="text-muted d-block px-1">
-                            <b>追加</b>: 現在の配置を残して空席を埋めます。<br>
-                            <b>シャッフル</b>: 全員を一度回収して再配分します。
-                        </small>
                     </div>
                 </div>
 
@@ -314,15 +369,15 @@
         </div>
 
         <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-secondary mb-0 fw-bold">
-                    <i class="fas fa-car-side me-2"></i>配車状況
-                </h5>
-                <button class="btn btn-outline-danger btn-sm" onclick="clearAssignments()" title="全ての同乗者を未割当に戻す">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-secondary mb-0 fw-bold">
+                    <i class="fas fa-car-side me-1"></i>配車状況
+                </h6>
+                <button class="btn btn-outline-danger btn-sm" style="font-size: 0.75rem;" onclick="clearAssignments()">
                     <i class="fas fa-reply-all me-1"></i>全解除
                 </button>
             </div>
-            <div id="cars-container" class="row"></div>
+            <div id="cars-container" class="row g-2"></div>
         </div>
     </div>
 </div>
@@ -331,12 +386,12 @@
     <div class="container" style="max-width: 600px;">
         <div class="row g-2">
             <div class="col-6">
-                <button class="btn btn-outline-primary w-100 py-2" onclick="copyTextForLine()">
-                    <i class="far fa-copy me-2"></i>コピー
+                <button class="btn btn-outline-primary w-100 py-1" onclick="copyTextForLine()">
+                    <i class="far fa-copy me-2"></i>LINE用
                 </button>
             </div>
             <div class="col-6">
-                <button class="btn btn-primary w-100 py-2" onclick="copyShareLink()">
+                <button class="btn btn-primary w-100 py-1" onclick="copyShareLink()">
                     <i class="fas fa-link me-2"></i>URL共有
                 </button>
             </div>
@@ -345,18 +400,18 @@
 </div>
 
 <div class="modal fade" id="commonEditModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalTitle">編集</h5>
+            <div class="modal-header py-2">
+                <h5 class="modal-title fs-6" id="editModalTitle">編集</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <input type="text" id="editModalInput" class="form-control" autocomplete="off">
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-primary" onclick="saveEditFromModal()">保存</button>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="saveEditFromModal()">保存</button>
             </div>
         </div>
     </div>
@@ -372,16 +427,16 @@
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-primary"><i class="fas fa-users me-1"></i>同乗者</label>
-                        <textarea id="batchMembers" class="form-control batch-textarea" style="min-height: 200px;" placeholder="名前を貼り付け (改行区切り)"></textarea>
+                        <label class="form-label fw-bold text-primary small"><i class="fas fa-users me-1"></i>同乗者</label>
+                        <textarea id="batchMembers" class="form-control batch-textarea" style="min-height: 150px; font-size:0.9rem;" placeholder="名前を貼り付け (改行区切り)"></textarea>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-success"><i class="fas fa-leaf me-1"></i>同乗者 (1年生)</label>
-                        <textarea id="batchFreshmen" class="form-control batch-textarea" style="min-height: 200px;" placeholder="名前を貼り付け (改行区切り)"></textarea>
+                        <label class="form-label fw-bold text-success small"><i class="fas fa-leaf me-1"></i>同乗者 (1年生)</label>
+                        <textarea id="batchFreshmen" class="form-control batch-textarea" style="min-height: 150px; font-size:0.9rem;" placeholder="名前を貼り付け (改行区切り)"></textarea>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-dark"><i class="fas fa-car me-1"></i>運転手</label>
-                        <textarea id="batchDrivers" class="form-control batch-textarea" style="min-height: 200px;" placeholder="名前を貼り付け (改行区切り)"></textarea>
+                        <label class="form-label fw-bold text-secondary small"><i class="fas fa-car me-1"></i>運転手</label>
+                        <textarea id="batchDrivers" class="form-control batch-textarea" style="min-height: 150px; font-size:0.9rem;" placeholder="名前を貼り付け (改行区切り)"></textarea>
                     </div>
                 </div>
             </div>
@@ -399,8 +454,7 @@
 
 <script>
     const GENDER_API_KEY = '6974b918d0998f075852411e'; 
-    const STORAGE_KEY = 'sampokai_car_data_v7_shuffle'; 
-    let manualOverride = false;
+    const STORAGE_KEY = 'sampokai_car_data_v8_compact'; // キーを更新
     let editModalInstance = null;
     let batchModalInstance = null;
     let saveCallback = null;
@@ -519,7 +573,7 @@
         autoDetectGender(name, el, 'member');
     }
 
-    // --- DOM Generation ---
+    // --- DOM Generation (Compact & Fixed Memo) ---
     function addMemberToDOM(name, memo = '', gender = 'unknown', isFreshman = false, targetContainer = null) {
         const div = document.createElement('div');
         div.className = 'member-card';
@@ -530,6 +584,7 @@
         const iconTitle = getIconTitle(gender);
         const freshmanMark = isFreshman ? '<i class="fas fa-leaf freshman-icon" title="1年生"></i>' : '';
         const hasMemoClass = memo ? '' : 'empty';
+        const memoDisplay = memo ? 'block' : 'none';
 
         div.innerHTML = `
             <div class="card-top-row">
@@ -538,10 +593,12 @@
                 <span class="member-name-text" title="${name}">${name}</span>
                 <i class="fas fa-pencil-alt edit-name-btn" onclick="editMemberName(this)"></i>
             </div>
+            
+            <div class="memo-popup" style="display:${memoDisplay}">${memo}</div>
+            
             <div class="card-bottom-row">
-                <div style="position:relative;">
-                    <i class="fas fa-sticky-note memo-indicator ${hasMemoClass} edit-btn" onclick="editMemo(this)"></i>
-                    <div class="memo-popup" style="display:${memo?'block':'none'}">${memo}</div>
+                <div class="d-flex align-items-center">
+                   <i class="fas fa-sticky-note memo-indicator ${hasMemoClass} edit-btn" onclick="editMemo(this)"></i>
                 </div>
                 <i class="fas fa-times action-btn delete-btn state-action-btn" onclick="handleMemberAction(this)" title="削除"></i>
             </div>
@@ -560,7 +617,7 @@
         if (!cName) return;
 
         const col = document.createElement('div');
-        col.className = 'col-md-6 mb-3';
+        col.className = 'col-md-6 mb-2';
         
         const iconClass = getIconClass(driverGender);
         const iconTitle = getIconTitle(driverGender);
@@ -575,7 +632,7 @@
                         <span class="car-name-text">${cName} 車</span>
                     </div>
                     <div>
-                        <span class="badge capacity-badge me-2 bg-secondary" onclick="editCapacity(this)" title="定員を変更">0 / ${cCap}</span>
+                        <span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" onclick="editCapacity(this)" title="定員を変更">0 / ${cCap}</span>
                         <i class="fas fa-trash-alt action-btn delete-btn" onclick="removeCar(this)"></i>
                     </div>
                 </div>
@@ -585,19 +642,19 @@
                         <div class="seat-area sortable-area passenger-seat" data-role="passenger"></div>
                         
                         <div class="seat-area driver-seat" data-gender="${driverGender}">
-                            <div>
+                            <div class="w-100">
                                 <span class="driver-label">DRIVER</span>
                                 <div class="card-top-row">
                                     <i class="${iconClass}" onclick="toggleDriverGender(this)" title="${iconTitle}"></i>
-                                    <span class="driver-name-disp fw-bold text-truncate" style="max-width:80px;">${cName}</span>
+                                    <span class="driver-name-disp fw-bold text-truncate" style="flex:1; margin:0 4px;">${cName}</span>
                                     <i class="fas fa-pencil-alt edit-name-btn" onclick="editCarName(this)"></i>
                                 </div>
                             </div>
-                            <div class="card-bottom-row" style="border-top: 1px solid rgba(0,0,0,0.1);">
-                                <div style="position:relative;">
-                                    <i class="fas fa-sticky-note memo-indicator ${hasDriverMemoClass} edit-btn" onclick="editDriverMemo(this)"></i>
-                                    <div class="memo-popup driver-memo-text" style="display:${driverMemoDisp}">${driverMemo}</div>
-                                </div>
+                            
+                            <div class="memo-popup driver-memo-text" style="display:${driverMemoDisp}">${driverMemo}</div>
+                            
+                            <div class="card-bottom-row mt-1 w-100" style="border-top: 1px dashed rgba(0,0,0,0.1); padding-top:2px;">
+                                <i class="fas fa-sticky-note memo-indicator ${hasDriverMemoClass} edit-btn" onclick="editDriverMemo(this)"></i>
                             </div>
                         </div>
                     </div>
@@ -637,6 +694,8 @@
             group: 'shared', 
             animation: 150,
             ghostClass: 'sortable-ghost',
+            delay: 100, // スクロール誤爆防止用遅延
+            delayOnTouchOnly: true,
             onEnd: () => { 
                 updateAllCapacities(); 
                 saveToStorage(); 
@@ -644,7 +703,7 @@
         });
     }
 
-    // --- Auto Assign V7 (Shuffle & Fill Mode) ---
+    // --- Auto Assign Logic (Preserved) ---
     function autoAssign(mode) {
         const groupFemale = document.getElementById('optGroupGenderFemale').checked;
         const groupMale = document.getElementById('optGroupGenderMale').checked;
@@ -653,7 +712,6 @@
         const allMembers = [];
         const waitingList = document.getElementById('waiting-list');
         
-        // 1. 対象メンバーの収集
         const collect = (container) => {
             Array.from(container.querySelectorAll('.member-card')).forEach(card => {
                 allMembers.push(extractMemberData(card));
@@ -662,7 +720,6 @@
         };
 
         if (mode === 'shuffle') {
-            // シャッフルモード: 全員回収
             if(!confirm("車に乗っているメンバーも含めて全員をシャッフルしますか？")) return;
             collect(waitingList);
             document.querySelectorAll('.car-box').forEach(car => {
@@ -671,26 +728,20 @@
                 updateCapacityDisplay(car);
             });
         } else {
-            // 追加(fill)モード: 未割当のみ
             collect(waitingList);
         }
 
         if (allMembers.length === 0) return;
 
-        // 2. シャッフル (ランダム性確保)
         allMembers.sort(() => Math.random() - 0.5);
 
-        // 3. ソート (優先度: 学年 > 性別)
         if (groupFemale || groupMale || groupGrade) {
             allMembers.sort((a, b) => {
                 let scoreA = 0; let scoreB = 0;
-                
-                // Grade Priority (Highest)
                 if (groupGrade) {
                     if (a.isFreshman) scoreA -= 2000;
                     if (b.isFreshman) scoreB -= 2000;
                 }
-                // Gender Grouping
                 if (groupFemale) {
                     if (a.gender === 'female') scoreA -= 1000;
                     if (b.gender === 'female') scoreB -= 1000;
@@ -699,15 +750,11 @@
                     if (a.gender === 'male') scoreA -= 500;
                     if (b.gender === 'male') scoreB -= 500;
                 }
-                
                 return scoreA - scoreB;
             });
         }
 
-        // 4. 配車 (Distribution)
         const cars = Array.from(document.querySelectorAll('.car-box'));
-        
-        // 【重要】車の順番をランダムにする (毎回同じ組み合わせが同じ車に行かないように)
         cars.sort(() => Math.random() - 0.5);
         
         for (let member of allMembers) {
@@ -717,21 +764,17 @@
             for (let car of cars) {
                 const capacity = parseInt(car.dataset.capacity);
                 const currentCount = getCurrentCount(car);
-                
                 if (currentCount >= capacity) continue;
 
                 let score = 0;
                 const membersInCar = getCarMemberData(car);
                 
-                // --- Grade Logic ---
                 if (groupGrade) {
                     const sameGradeCount = membersInCar.filter(m => m.isFreshman === member.isFreshman).length;
                     if (sameGradeCount > 0) score += 100;
-                    // 均等化ペナルティ (2:2分散のため)
                     score -= (sameGradeCount * 20);
                 }
 
-                // --- Gender Logic ---
                 const dSeat = car.querySelector('.driver-seat');
                 const dGender = dSeat ? dSeat.getAttribute('data-gender') : 'unknown';
 
@@ -766,9 +809,7 @@
             }
         }
 
-        // 5. ボッチ回避 (Solo Fix)
         avoidSoloGranular(cars, groupFemale, groupMale, groupGrade);
-
         updateAllCapacities();
         saveToStorage();
     }
@@ -780,24 +821,21 @@
 
     function avoidSoloGranular(cars, checkFemale, checkMale, checkGrade) {
         const typesToCheck = [];
-
         if (checkFemale && checkGrade) {
-            typesToCheck.push({ g: 'female', f: true });  // 1年女子
-            typesToCheck.push({ g: 'female', f: false }); // 上級生女子
+            typesToCheck.push({ g: 'female', f: true });
+            typesToCheck.push({ g: 'female', f: false });
         } else if (checkFemale) {
             typesToCheck.push({ g: 'female', f: null });
         }
-
         if (checkMale && checkGrade) {
-            typesToCheck.push({ g: 'male', f: true });    // 1年男子
-            typesToCheck.push({ g: 'male', f: false });   // 上級生男子
+            typesToCheck.push({ g: 'male', f: true });
+            typesToCheck.push({ g: 'male', f: false });
         } else if (checkMale) {
             typesToCheck.push({ g: 'male', f: null });
         }
-        
         if (!checkFemale && !checkMale && checkGrade) {
-             typesToCheck.push({ g: null, f: true }); // 1年生
-             typesToCheck.push({ g: null, f: false }); // 上級生
+             typesToCheck.push({ g: null, f: true });
+             typesToCheck.push({ g: null, f: false });
         }
 
         for (let i = 0; i < 3; i++) { 
@@ -818,16 +856,14 @@
         let totalMatches = matchingPassengers.length;
         
         if (typeDef.g && dGender === typeDef.g) {
-            if (typeDef.f === true) { /* 1年生なら運転手とマッチしない */ }
+            if (typeDef.f === true) { }
             else { totalMatches++; } 
         }
 
         if (totalMatches === 1 && matchingPassengers.length === 1) {
             const soloPerson = matchingPassengers[0];
-            
             for (let otherCar of allCars) {
                 if (otherCar === targetCar) continue;
-                
                 const otherPassengers = Array.from(otherCar.querySelectorAll('.passenger-seat .member-card, .rear-seats .member-card'));
                 const otherDGender = otherCar.querySelector('.driver-seat').getAttribute('data-gender');
                 
@@ -838,7 +874,6 @@
                 if (otherTotal === 1 && otherMatches.length === 1) {
                     const friend = otherMatches[0];
                     const mySwapToken = passengers.find(p => !isMatch(p, typeDef));
-                    
                     if (mySwapToken) {
                         swapElements(mySwapToken, friend);
                         return; 
@@ -850,7 +885,6 @@
                         }
                     }
                 }
-                
                 if (otherTotal >= 3 && otherMatches.length >= 1) {
                     const friend = otherMatches[0];
                     const mySwapToken = passengers.find(p => !isMatch(p, typeDef));
@@ -866,7 +900,6 @@
     function isMatch(element, typeDef) {
         const g = element.getAttribute('data-gender');
         const f = element.getAttribute('data-freshman') === 'true';
-        
         if (typeDef.g && g !== typeDef.g) return false;
         if (typeDef.f !== null && f !== typeDef.f) return false;
         return true;
@@ -894,7 +927,7 @@
         return carBox.querySelectorAll('.passenger-seat .member-card, .rear-seats .member-card').length;
     }
 
-    // --- Standard Functions ---
+    // --- Utility Functions ---
     function getIconClass(gender) {
         if(gender === 'male') return 'fas gender-btn fa-mars';
         if(gender === 'female') return 'fas gender-btn fa-venus';
@@ -941,6 +974,7 @@
             const driverSeat = car.querySelector('.driver-seat');
             const driverGender = driverSeat ? driverSeat.getAttribute('data-gender') : 'unknown';
             const driverName = car.querySelector('.driver-name-disp').innerText;
+            const driverMemo = car.querySelector('.driver-memo-text').innerText;
             
             const members = [];
             car.querySelectorAll('.passenger-seat .member-card').forEach(el => members.push(getMem(el)));
@@ -949,7 +983,7 @@
             data.cars.push({
                 name: driverName,
                 capacity: car.dataset.capacity,
-                driverMemo: car.querySelector('.driver-memo-text').innerText,
+                driverMemo: driverMemo,
                 driverGender: driverGender, 
                 members: members
             });
@@ -1061,6 +1095,7 @@
         const icon = card.querySelector('.memo-indicator');
         openEditModal('メモ', memoDiv.innerText, (newMemo) => {
             memoDiv.innerText = newMemo;
+            memoDiv.style.display = newMemo ? 'block' : 'none';
             if(newMemo) icon.classList.remove('empty'); else icon.classList.add('empty');
             saveToStorage();
         });
@@ -1119,21 +1154,6 @@
             btn.className = 'fas fa-reply action-btn return-btn state-action-btn';
             btn.title = '未割当に戻す';
         });
-    }
-
-    function handleMemberAction(btn) {
-        const card = btn.closest('.member-card');
-        const inCar = card.closest('.car-interior-layout') !== null;
-        if (inCar) {
-            document.getElementById('waiting-list').appendChild(card);
-            updateAllCapacities();
-            saveToStorage();
-        } else {
-            if (confirm('削除しますか？')) {
-                card.remove();
-                saveToStorage();
-            }
-        }
     }
 
     function updateCapacityDisplay(box) {
