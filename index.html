@@ -8,76 +8,198 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-body:#f8f9fa; --text-main:#212529; --bg-card:#ffffff; --border-color:#dee2e6; --card-shadow:0 1px 2px rgba(0,0,0,0.1);
-            --driver-bg:#e9ecef; --driver-text:#495057; --seat-bg:#f0f2f5; --drag-over-bg:#e2e6ea; --share-bar-bg:rgba(255,255,255,0.95);
-            --input-bg:#ffffff; --input-text:#212529; --input-border:#dee2e6; --ghost-bg:#cbd3da; --modal-bg:#ffffff; --modal-border:#dee2e6;
-            --bg-male:#f0f7ff; --border-male:#cce5ff; --text-male:#004085;
-            --bg-female:#fff5f5; --border-female:#ffc9c9; --text-female:#721c24;
-            --driver-bg-male:#d0e1fd; --driver-text-male:#084298; --driver-bg-female:#ffe3e6; --driver-text-female:#842029;
-            --freshman-color:#198754; color-scheme:light;
-        }
-        [data-theme="dark"] {
-            --bg-body:#121212; --text-main:#e0e0e0; --bg-card:#1e1e1e; --border-color:#333333; --card-shadow:0 1px 3px rgba(0,0,0,0.5);
-            --driver-bg:#252525; --driver-text:#b0b0b0; --seat-bg:#181818; --drag-over-bg:#2a2a2a; --share-bar-bg:rgba(30,30,30,0.95);
-            --input-bg:#2d2d2d; --input-text:#e0e0e0; --input-border:#444444; --ghost-bg:#3a3a3a; --modal-bg:#242424; --modal-border:#333333;
-            --bg-male:#0d1b2a; --border-male:#1b3a5e; --text-male:#a6c8ff;
-            --bg-female:#2a0d10; --border-female:#5e1b22; --text-female:#ffb3ba;
-            --driver-bg-male:#0a1626; --driver-text-male:#a6c8ff; --driver-bg-female:#260a0d; --driver-text-female:#ffb3ba;
-            --freshman-color:#68c998; color-scheme:dark;
-        }
-        body { background-color:var(--bg-body); color:var(--text-main); font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif; padding-bottom:120px; transition:0.3s; font-size:0.9rem; }
-        .form-control, .form-select, .input-group-text { background-color:var(--input-bg); color:var(--input-text); border-color:var(--input-border); }
-        .form-control:focus { background-color:var(--input-bg); color:var(--input-text); border-color:#86b7fe; box-shadow:0 0 0 0.25rem rgba(13,110,253,0.25); }
-        .member-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; padding:3px 6px; cursor:grab; box-shadow:var(--card-shadow); color:var(--text-main); margin-bottom:0; display:flex; flex-direction:column; touch-action:manipulation; }
-        .member-card:active { cursor:grabbing; opacity:0.8; }
-        .member-card[data-gender="male"] { background-color:var(--bg-male); border-color:var(--border-male); color:var(--text-male); }
-        .member-card[data-gender="female"] { background-color:var(--bg-female); border-color:var(--border-female); color:var(--text-female); }
-        
-        /* ★追加: ロック時のスタイル */
-        .member-card[data-locked="true"] { border-color: #ffc107; border-width: 2px; }
-        .lock-btn { color: #adb5bd; margin-right: 8px; transition: 0.2s; }
-        .lock-btn:hover { color: var(--text-main); }
-        .member-card[data-locked="true"] .lock-btn { color: #ffc107; opacity: 1; }
+            /* ベースカラー */
+            --bg-body: #f4f7f6;
+            --text-main: #333;
+            --bg-card: #fff;
+            --border-color: #e0e0e0;
+            --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            
+            /* エリア背景 */
+            --driver-bg: #f0f2f5;
+            --driver-text: #495057;
+            --seat-bg: #f8f9fa;
+            --drag-over-bg: #e9ecef;
+            --share-bar-bg: rgba(255,255,255,0.95);
 
-        .card-top-row { display:flex; align-items:center; font-size:0.9rem; line-height:1.2; width:100%; }
-        .member-name-text { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-grow:1; margin:0 4px; }
-        .card-bottom-row { display:flex; justify-content:space-between; align-items:flex-end; margin-top:2px; font-size:0.8rem; }
-        .action-btn { cursor:pointer; padding:2px 4px; color:#adb5bd; opacity:0.7; }
-        .action-btn:hover { color:var(--text-main); opacity:1; }
-        .edit-name-btn { cursor:pointer; font-size:0.75rem; color:inherit; opacity:0.5; }
-        .gender-btn { cursor:pointer; margin-right:2px; font-size:0.9em; }
-        [data-gender="male"] .gender-btn { color:#0d6efd; } [data-gender="female"] .gender-btn { color:#d63384; }
-        .freshman-icon { color:var(--freshman-color); margin-right:2px; font-size:0.85em; }
-        .memo-indicator { font-size:0.8rem; color:#ffc107; cursor:pointer; margin-right:4px; }
-        .memo-indicator.empty { color:var(--border-color); opacity:0.5; }
-        .memo-popup { font-size:0.7rem; color:#555; background:#fff9c4; padding:1px 4px; border-radius:2px; border:1px solid #ffe082; margin-top:2px; display:none; width:100%; word-break:break-all; line-height:1.1; }
-        [data-theme="dark"] .memo-popup { background:#423c18; color:#fff9c4; border-color:#635b2e; }
-        .car-box { background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:8px; position:relative; box-shadow:var(--card-shadow); }
-        .car-header { font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; padding-bottom:4px; border-bottom:1px solid var(--border-color); font-size:0.95rem; }
-        .car-box.over-capacity { border-color:#dc3545; background-color:rgba(220,53,69,0.05); }
-        .car-interior-layout { display:flex; flex-direction:column; gap:4px; }
-        .front-row { display:flex; gap:4px; }
-        .seat-area { flex:1; min-height:45px; border-radius:4px; padding:2px; background-color:var(--seat-bg); transition:0.2s; }
-        .sortable-area { border:1px dashed var(--border-color); }
-        .sortable-area.drag-over { background-color:var(--drag-over-bg); border-color:#0d6efd; }
-        .rear-seats { display:grid; grid-template-columns:1fr 1fr; gap:4px; align-content:start; }
-        .driver-seat { background-color:var(--driver-bg); color:var(--driver-text); border:1px solid var(--border-color); border-radius:4px; padding:4px; display:flex; flex-direction:column; font-size:0.9rem; user-select:none; }
-        .driver-seat[data-gender="male"] { background:var(--driver-bg-male); color:var(--driver-text-male); border-color:var(--border-male); }
-        .driver-seat[data-gender="female"] { background:var(--driver-bg-female); color:var(--driver-text-female); border-color:var(--border-female); }
-        .driver-label { font-size:0.65em; opacity:0.7; text-align:right; margin-bottom:2px; line-height:1; }
-        .waiting-area { background-color:rgba(128,128,128,0.05); border-radius:8px; padding:6px; min-height:80px; display:flex; flex-wrap:wrap; gap:4px; align-content:flex-start; border:1px solid transparent; }
-        [data-theme="dark"] .waiting-area { border-color:var(--border-color); }
-        .waiting-area .member-card { width:calc(33.333% - 3px); }
-        @media (max-width:768px) { .waiting-area .member-card { width:calc(50% - 2px); } }
-        .share-bar { position:fixed; bottom:0; left:0; right:0; background:var(--share-bar-bg); border-top:1px solid var(--border-color); padding:10px 15px 15px; z-index:1000; backdrop-filter:blur(5px); }
-        .sortable-ghost { background-color:var(--ghost-bg) !important; opacity:0.5; }
-        .dropdown-menu { background-color:var(--modal-bg); border-color:var(--modal-border); }
-        .dropdown-item { color:var(--text-main); }
-        .dropdown-item:hover { background-color:var(--drag-over-bg); color:var(--text-main); }
-        .dropdown-header { color:var(--text-main); opacity:0.7; }
-        .modal-content { background-color:var(--modal-bg); color:var(--text-main); border-color:var(--modal-border); }
-        .modal-header, .modal-footer { border-color:var(--modal-border); }
-        .btn-close { filter:invert(0); } [data-theme="dark"] .btn-close { filter:invert(1); }
+            /* 入力・モーダル */
+            --input-bg: #fff;
+            --input-text: #495057;
+            --input-border: #ced4da;
+            --ghost-bg: #c8c8c8;
+            --modal-bg: #fff;
+            --modal-border: #dee2e6;
+
+            /* 性別カラー（パステル調） */
+            --bg-male: #e3f2fd;
+            --border-male: #90caf9;
+            --text-male: #0d47a1;
+
+            --bg-female: #fce4ec;
+            --border-female: #f48fb1;
+            --text-female: #880e4f;
+
+            /* 運転席カラー */
+            --driver-bg-male: #bbdefb;
+            --driver-text-male: #0d47a1;
+            --driver-bg-female: #f8bbd0;
+            --driver-text-female: #880e4f;
+
+            --freshman-color: #2e7d32;
+            --locked-color: #ffc107;
+            
+            color-scheme: light;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --text-main: #e0e0e0;
+            --bg-card: #2a2a2a;
+            --border-color: #444;
+            --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            
+            --driver-bg: #333;
+            --driver-text: #ccc;
+            --seat-bg: #222;
+            --drag-over-bg: #3a3a3a;
+            --share-bar-bg: rgba(30,30,30,0.95);
+
+            --input-bg: #333;
+            --input-text: #e0e0e0;
+            --input-border: #555;
+            --ghost-bg: #555;
+            --modal-bg: #2a2a2a;
+            --modal-border: #444;
+
+            --bg-male: rgba(13, 71, 161, 0.3);
+            --border-male: #1565c0;
+            --text-male: #90caf9;
+
+            --bg-female: rgba(136, 14, 79, 0.3);
+            --border-female: #ad1457;
+            --text-female: #f48fb1;
+
+            --driver-bg-male: rgba(13, 71, 161, 0.5);
+            --driver-text-male: #90caf9;
+            --driver-bg-female: rgba(136, 14, 79, 0.5);
+            --driver-text-female: #f48fb1;
+
+            --freshman-color: #81c784;
+            color-scheme: dark;
+        }
+
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; padding-bottom: 100px; transition: background-color 0.3s, color 0.3s; font-size: 0.95rem; }
+        .form-control, .form-select, .input-group-text { background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border); }
+        .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
+
+        /* メンバーカード */
+        .member-card { 
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; 
+            padding: 8px 10px; cursor: grab; box-shadow: var(--card-shadow); color: var(--text-main); 
+            margin-bottom: 0; display: flex; flex-direction: column; touch-action: manipulation; 
+            transition: all 0.2s;
+        }
+        .member-card:active { cursor: grabbing; transform: scale(0.98); }
+        .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
+        .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
+        
+        /* ロック時のスタイル強化 */
+        .member-card[data-locked="true"] { 
+            border-color: var(--locked-color); border-width: 2px; 
+            box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+        }
+        .lock-btn { color: #aaa; margin-right: 8px; transition: color 0.2s; }
+        .lock-btn:hover { color: var(--text-main); }
+        .member-card[data-locked="true"] .lock-btn { color: var(--locked-color); opacity: 1; }
+
+        .card-top-row { display: flex; align-items: center; font-size: 1rem; line-height: 1.2; width: 100%; }
+        .member-name-text { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; }
+        .card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; font-size: 0.85rem; }
+        
+        .action-btn { cursor: pointer; padding: 2px 4px; color: #aaa; transition: color 0.2s; }
+        .action-btn:hover { color: var(--text-main); }
+        .edit-name-btn { cursor: pointer; font-size: 0.8em; color: inherit; opacity: 0.6; transition: opacity 0.2s; }
+        .edit-name-btn:hover { opacity: 1; }
+        
+        .gender-btn { cursor: pointer; margin-right: 4px; font-size: 1.1em; }
+        [data-gender="male"] .gender-btn { color: #1976d2; } [data-gender="female"] .gender-btn { color: #c2185b; }
+        
+        .freshman-icon { color: var(--freshman-color); margin-right: 4px; font-size: 1em; }
+        
+        .memo-indicator { font-size: 0.9rem; color: #ffc107; cursor: pointer; margin-right: 6px; transition: transform 0.2s; }
+        .memo-indicator:hover { transform: scale(1.1); }
+        .memo-indicator.empty { color: var(--border-color); opacity: 0.6; }
+        
+        .memo-popup { 
+            font-size: 0.8rem; color: #555; background: #fff9c4; padding: 4px 6px; 
+            border-radius: 4px; border: 1px solid #ffe082; margin-top: 4px; display: none; width: 100%; 
+            word-break: break-all; line-height: 1.2; 
+        }
+        [data-theme="dark"] .memo-popup { background: #423c18; color: #fff9c4; border-color: #635b2e; }
+
+        /* 車ボックス */
+        .car-box { 
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; 
+            padding: 12px; position: relative; box-shadow: var(--card-shadow); 
+        }
+        .car-header { 
+            font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; 
+            align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); font-size: 1.05rem; 
+        }
+        .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220,53,69,0.05); }
+        
+        .car-interior-layout { display: flex; flex-direction: column; gap: 8px; }
+        .front-row { display: flex; gap: 8px; }
+        
+        /* 座席エリア */
+        .seat-area { 
+            flex: 1; min-height: 60px; border-radius: 8px; padding: 4px; background-color: var(--seat-bg); transition: background-color 0.2s; 
+        }
+        .sortable-area { border: 2px dashed var(--border-color); }
+        .sortable-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
+        
+        .rear-seats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+        
+        /* 運転席 */
+        .driver-seat { 
+            background-color: var(--driver-bg); color: var(--driver-text); border: 1px solid var(--border-color); 
+            border-radius: 8px; padding: 8px; display: flex; flex-direction: column; font-size: 0.95rem; user-select: none; 
+        }
+        .driver-seat[data-gender="male"] { background: var(--driver-bg-male); color: var(--driver-text-male); border-color: var(--border-male); }
+        .driver-seat[data-gender="female"] { background: var(--driver-bg-female); color: var(--driver-text-female); border-color: var(--border-female); }
+        .driver-label { font-size: 0.7em; opacity: 0.8; text-align: right; margin-bottom: 4px; line-height: 1; font-weight: bold; letter-spacing: 0.5px;}
+        
+        /* 待機エリア */
+        .waiting-area { 
+            background-color: rgba(0,0,0,0.03); border-radius: 10px; padding: 10px; min-height: 100px; 
+            display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; border: 2px dashed var(--border-color);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        [data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.03); }
+        .waiting-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
+        .waiting-area .member-card { width: calc(33.333% - 6px); }
+        @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
+        
+        /* シェアバー */
+        .share-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg); 
+            border-top: 1px solid var(--border-color); padding: 12px 15px 15px; z-index: 1000; 
+            backdrop-filter: blur(5px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
+        
+        .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .dropdown-item { color: var(--text-main); }
+        .dropdown-item:hover { background-color: var(--drag-over-bg); color: var(--text-main); }
+        .dropdown-header { color: var(--text-main); opacity: 0.7; font-weight: bold; }
+        
+        .modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--modal-border); border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-header, .modal-footer { border-color: var(--modal-border); }
+        .btn-close { filter: invert(0); } [data-theme="dark"] .btn-close { filter: invert(1); }
+
+        /* ボタンのアイコンサイズ調整 */
+        .btn-group .btn i, .btn-outline-danger i { font-size: 1.1em; }
     </style>
 </head>
 <body data-theme="light">
@@ -108,11 +230,11 @@
     </div>
     <div class="row">
         <div class="col-md-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2 px-1">
                 <h6 class="text-secondary mb-0 fw-bold"><i class="fas fa-users me-1"></i>未割当</h6>
                 <div class="btn-group">
-                    <button class="btn btn-outline-secondary btn-sm" style="font-size:0.75rem;" data-action="auto" data-mode="fill"><i class="fas fa-plus me-1"></i>埋める</button>
-                    <button class="btn btn-outline-secondary btn-sm" style="font-size:0.75rem;" data-action="auto" data-mode="shuffle"><i class="fas fa-random me-1"></i>シャッフル</button>
+                    <button class="btn btn-outline-secondary btn-sm" style="font-size:0.8rem;" data-action="auto" data-mode="fill"><i class="fas fa-plus me-1"></i>埋める</button>
+                    <button class="btn btn-outline-secondary btn-sm" style="font-size:0.8rem;" data-action="auto" data-mode="shuffle"><i class="fas fa-random me-1"></i>シャッフル</button>
                     <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                     <div class="dropdown-menu p-3 shadow" style="min-width:250px;">
                         <h6 class="dropdown-header">自動割り当て設定</h6>
@@ -125,19 +247,19 @@
             <div id="waiting-list" class="waiting-area shared-sortable"></div>
         </div>
         <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2 px-1">
                 <h6 class="text-secondary mb-0 fw-bold"><i class="fas fa-car-side me-1"></i>配車状況</h6>
-                <button class="btn btn-outline-danger btn-sm" style="font-size:0.75rem;" data-action="clear"><i class="fas fa-reply-all me-1"></i>全解除</button>
+                <button class="btn btn-outline-danger btn-sm" style="font-size:0.8rem;" data-action="clear"><i class="fas fa-reply-all me-1"></i>全解除</button>
             </div>
-            <div id="cars-container" class="row g-2"></div>
+            <div id="cars-container" class="row g-3"></div>
         </div>
     </div>
 </div>
 <div class="share-bar">
     <div class="container" style="max-width:600px;">
         <div class="row g-2">
-            <div class="col-6"><button class="btn btn-outline-primary w-100 py-1" data-action="copyLine"><i class="far fa-copy me-2"></i>LINE用</button></div>
-            <div class="col-6"><button class="btn btn-primary w-100 py-1" data-action="copyUrl"><i class="fas fa-link me-2"></i>URL共有</button></div>
+            <div class="col-6"><button class="btn btn-outline-primary w-100 py-1 fw-bold" data-action="copyLine"><i class="far fa-copy me-2"></i>LINE用</button></div>
+            <div class="col-6"><button class="btn btn-primary w-100 py-1 fw-bold" data-action="copyUrl"><i class="fas fa-link me-2"></i>URL共有</button></div>
         </div>
     </div>
 </div>
