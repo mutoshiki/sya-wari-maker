@@ -74,7 +74,28 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .form-control, .form-select, .input-group-text { background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border); }
 .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); background-color: var(--input-bg); color: var(--input-text); }
 .form-control::placeholder { color: var(--input-text); opacity: 0.6; }
-.member-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; cursor: grab; box-shadow: var(--card-shadow); color: var(--text-main); margin-bottom: 0; display: flex; flex-direction: column; touch-action: manipulation; transition: all 0.2s; }
+
+/* --- 修正箇所: user-selectとtouch-action --- */
+.member-card { 
+    background: var(--bg-card); 
+    border: 1px solid var(--border-color); 
+    border-radius: 8px; 
+    padding: 8px 10px; 
+    cursor: grab; 
+    box-shadow: var(--card-shadow); 
+    color: var(--text-main); 
+    margin-bottom: 0; 
+    display: flex; 
+    flex-direction: column; 
+    transition: all 0.2s;
+    
+    /* スマホ対応の重要設定 */
+    touch-action: pan-y; /* 縦スクロールは許可、他はJSに任せる */
+    -webkit-user-select: none; /* iOSでの長押しテキスト選択防止 */
+    user-select: none; /* Androidでの長押しテキスト選択防止 */
+}
+/* -------------------------------------- */
+
 .member-card:active { cursor: grabbing; transform: scale(0.98); }
 .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
@@ -117,6 +138,10 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
 .share-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg); border-top: 1px solid var(--border-color); padding: 12px 15px 15px; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
 .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
+
+/* 追加: 掴んでいる最中のスタイル */
+.sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; transform: scale(1.02); }
+
 .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: var(--text-main); }
 .dropdown-item { color: var(--text-main); }
 .dropdown-item:hover { background-color: var(--drag-over-bg); color: var(--text-main); }
@@ -224,7 +249,6 @@ dbRef = ref(db, 'rooms/' + roomId);
 const D=document, L=localStorage, J=JSON;
 const $=(s,p=D)=>p.querySelector(s), $$=(s,p=D)=>p.querySelectorAll(s), ce=(t,c)=>{const e=D.createElement(t);if(c)e.className=c;return e}, getInt=v=>parseInt(v)||0;
 
-// 【設定】GenderAPI.io 用のキーを設定
 const CFG = {
     KEY:'6974b918d0998f075852411e', 
     STORE:'sampokai_car_data_v8_compact',
@@ -298,7 +322,6 @@ function save() {
     }
 }
 
-// --- 性別判定処理 (GenderAPI.io 対応) ---
 function detectGender(name) {
     if (!name) return;
     genderQueue.push(name); 
@@ -325,7 +348,7 @@ async function processGenderQueue() {
                             if (btn) renderGender(btn, gender);
                         }
                     });
-                    save(); // 判定確定時に保存
+                    save(); 
                 }
             }
             await new Promise(resolve => setTimeout(resolve, 200));
@@ -338,7 +361,6 @@ async function fetchGenderFromApi(name) {
     if (name.endsWith('郎') || name.endsWith('太') || name.endsWith('助') || name.endsWith('夫') || name.endsWith('男') || name.endsWith('平')) return 'male';
 
     try {
-        // GenderAPI.io (api.genderapi.io) のエンドポイントを使用
         const url = `https://api.genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`;
         const res = await fetch(url);
         if (res.ok) {
@@ -391,7 +413,20 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     updateUI();
 }
 
-function setupSortable(el) { new Sortable(el,{group:'shared',animation:150,ghostClass:'sortable-ghost',delay:100,delayOnTouchOnly:true,onEnd:()=>{updateUI();save();}}); }
+// --- 修正箇所: setupSortableの設定調整 ---
+function setupSortable(el) { 
+    new Sortable(el,{
+        group:'shared',
+        animation:150,
+        ghostClass:'sortable-ghost',
+        chosenClass: 'sortable-chosen', // 追加: 掴んだときのスタイル適用
+        delay: 200, // 修正: 200ms長押しでドラッグ開始
+        delayOnTouchOnly: true,
+        touchStartThreshold: 5, // 追加: 5pxの指ブレを許容（超重要）
+        onEnd:()=>{updateUI();save();}
+    }); 
+}
+// --------------------------------------
 
 function autoAssign(mode) {
     const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
@@ -564,9 +599,7 @@ function load() {
     });
 }
 
-// 【重要】Firebaseの更新で、判明した性別を上書きしないロジックを追加
 function restore(d) { 
-    // 現在の状態をバックアップ（名前をキーにして性別を保存）
     const knownGenders = {};
     const scan = (el) => { if(el && el.dataset.name && el.dataset.gender!=='unknown') knownGenders[el.dataset.name] = el.dataset.gender; };
     $$('.member-card').forEach(scan);
@@ -576,7 +609,6 @@ function restore(d) {
     $('#cars-container').innerHTML=''; 
     const n = m => {
         let obj = typeof m==='string' ? {name:m} : m;
-        // もしFirebaseからのデータがunknownでも、ローカルで判明済みならそれを採用
         if (knownGenders[obj.name] && (obj.gender === 'unknown' || !obj.gender)) {
             obj.gender = knownGenders[obj.name];
         }
@@ -585,7 +617,6 @@ function restore(d) {
 
     (d.waiting||[]).forEach(m=>{const x=n(m);addMember(x.name,x.memo,x.gender,x.isFreshman, $('#waiting-list'), x.locked);}); 
     (d.cars||[]).forEach(c=>{
-        // 運転手の性別も同様に保護
         let dG = c.driverGender;
         if(knownGenders[c.name] && (dG === 'unknown' || !dG)) dG = knownGenders[c.name];
         addCar(c.name,c.capacity,(c.members||[]).map(n),c.driverMemo,dG);
