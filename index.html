@@ -75,28 +75,50 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); background-color: var(--input-bg); color: var(--input-text); }
 .form-control::placeholder { color: var(--input-text); opacity: 0.6; }
 
-/* --- 修正箇所: user-selectとtouch-action --- */
+/* --- 修正箇所: カードとハンドルのスタイル --- */
 .member-card { 
     background: var(--bg-card); 
     border: 1px solid var(--border-color); 
     border-radius: 8px; 
-    padding: 8px 10px; 
-    cursor: grab; 
+    /* 左側にハンドル用のスペースを確保 */
+    padding: 8px 10px 8px 34px; 
+    position: relative; /* ハンドルの絶対配置用 */
     box-shadow: var(--card-shadow); 
     color: var(--text-main); 
     margin-bottom: 0; 
     display: flex; 
     flex-direction: column; 
     transition: all 0.2s;
-    
-    /* スマホ対応の重要設定 */
-    touch-action: pan-y; /* 縦スクロールは許可、他はJSに任せる */
-    -webkit-user-select: none; /* iOSでの長押しテキスト選択防止 */
-    user-select: none; /* Androidでの長押しテキスト選択防止 */
+    touch-action: pan-y; /* カード本体はスクロール可能にする */
 }
+
+/* 並べ替え専用の持ち手（ハンドル） */
+.handle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    background-color: rgba(0,0,0,0.03); /* 少し色を付けて認識しやすく */
+    border-right: 1px solid var(--border-color);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    color: #adb5bd;
+    touch-action: none; /* ここを触った時はスクロールさせない（ドラッグ優先） */
+}
+.handle:active {
+    cursor: grabbing;
+    background-color: rgba(0,0,0,0.08);
+    color: #6c757d;
+}
+[data-theme="dark"] .handle { background-color: rgba(255,255,255,0.03); }
 /* -------------------------------------- */
 
-.member-card:active { cursor: grabbing; transform: scale(0.98); }
+.member-card:active { transform: scale(1.0); /* scaleさせない方が安定する */ }
 .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
 .member-card[data-locked="true"] { border-color: var(--locked-color); border-width: 2px; box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
@@ -138,9 +160,10 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
 .share-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg); border-top: 1px solid var(--border-color); padding: 12px 15px 15px; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
 .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
+.sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; }
 
-/* 追加: 掴んでいる最中のスタイル */
-.sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; transform: scale(1.02); }
+/* スマホでのドラッグ移動中のクローン要素のスタイル */
+.sortable-fallback { opacity: 0.9 !important; background: var(--bg-card); box-shadow: 0 10px 20px rgba(0,0,0,0.2); transform: scale(1.02); cursor: grabbing; }
 
 .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: var(--text-main); }
 .dropdown-item { color: var(--text-main); }
@@ -394,7 +417,13 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
     d.setAttribute('data-name', name); 
 
-    d.innerHTML = `<div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[g]}" title="${CFG.TITLES[g]}"></i>${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div><div class="memo-popup" style="display:${m?'block':'none'}">${m}</div><div class="card-bottom-row"><div class="d-flex align-items-center"><i class="fas fa-sticky-note memo-indicator ${m?'':'empty'} edit-btn"></i></div><div class="d-flex align-items-center"><i class="fas ${locked?'fa-lock':'fa-unlock'} action-btn lock-btn" title="${locked?'固定中':'固定解除'}"></i><i class="fas action-btn state-action-btn" data-action="${parent.id==='waiting-list'?'delete':'return'}"></i></div></div>`;
+    // 修正: カードの先頭にハンドル（持ち手）を追加
+    d.innerHTML = `
+        <div class="handle"><i class="fas fa-grip-vertical"></i></div>
+        <div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[g]}" title="${CFG.TITLES[g]}"></i>${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div>
+        <div class="memo-popup" style="display:${m?'block':'none'}">${m}</div>
+        <div class="card-bottom-row"><div class="d-flex align-items-center"><i class="fas fa-sticky-note memo-indicator ${m?'':'empty'} edit-btn"></i></div><div class="d-flex align-items-center"><i class="fas ${locked?'fa-lock':'fa-unlock'} action-btn lock-btn" title="${locked?'固定中':'固定解除'}"></i><i class="fas action-btn state-action-btn" data-action="${parent.id==='waiting-list'?'delete':'return'}"></i></div></div>
+    `;
     parent.appendChild(d);
     
     if(!n) { $('#newMemberName').value=''; detectGender(name); save(); }
@@ -413,17 +442,17 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     updateUI();
 }
 
-// --- 修正箇所: setupSortableの設定調整 ---
+// --- 修正箇所: ハンドル指定とFallback設定 ---
 function setupSortable(el) { 
     new Sortable(el,{
-        group:'shared',
-        animation:150,
-        ghostClass:'sortable-ghost',
-        chosenClass: 'sortable-chosen', // 追加: 掴んだときのスタイル適用
-        delay: 200, // 修正: 200ms長押しでドラッグ開始
-        delayOnTouchOnly: true,
-        touchStartThreshold: 5, // 追加: 5pxの指ブレを許容（超重要）
-        onEnd:()=>{updateUI();save();}
+        group: 'shared',
+        animation: 150,
+        handle: '.handle', // 追加: このクラスを持つ要素だけがドラッグ可能
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        forceFallback: true, // 追加: スマホのネイティブDnDのバグを回避し、JSで制御する
+        delay: 0, // ハンドルがあるので遅延は不要（即時反応）
+        onEnd: () => { updateUI(); save(); }
     }); 
 }
 // --------------------------------------
