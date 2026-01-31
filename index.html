@@ -297,27 +297,39 @@ const renderGender = (el,g) => { el.className=`fas gender-btn ${CFG.ICONS[g]}`; 
 async function detectGender(name, el, isDriver) {
     if (!name) return;
     try {
-        // APIは元のまま (ユーザー様の環境で動いている実績があるため)
-        const res = await fetch(`https://genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`);
+        // ご希望の genderize.io APIを使用
+        const res = await fetch(`https://api.genderize.io/?name=${encodeURIComponent(name)}`);
         const d = await res.json();
         
-        if (d.gender) {
-            el.dataset.gender = d.gender;
-            
-            // 【修正ポイント】ここが以前のバグの原因でした。
-            // 以前のコード: $(isDriver?'.gender-btn':'.member-card .gender-btn', el)
-            // これだと「カードの中にある別のカード」を探してしまい、見つかりませんでした。
-            // 修正版: シンプルに「その要素の中にあるボタン」を探します。
-            const btn = el.querySelector('.gender-btn');
-            
-            if (btn) {
-                renderGender(btn, d.gender);
-                save(); // 保存
+        if (d && d.gender) {
+            // パターンA: まだ元の要素が画面に残っている場合（そのまま更新）
+            if (el.isConnected) {
+                el.dataset.gender = d.gender;
+                const btn = el.querySelector('.gender-btn');
+                if (btn) renderGender(btn, d.gender);
+            } 
+            // パターンB: Firebaseの同期により画面が再描画され、元の要素が消えていた場合
+            // → 画面全体から「同じ名前」の要素を探し出して更新する（これがFirebase対策の肝です）
+            else {
+                const selector = isDriver ? '.driver-seat' : '.member-card';
+                const nameSelector = isDriver ? '.driver-name-disp' : '.member-name-text';
+                
+                // 画面上の全要素からこの名前の人を探す
+                const targets = document.querySelectorAll(selector);
+                targets.forEach(target => {
+                    const nameEl = target.querySelector(nameSelector);
+                    // 名前が一致したら性別を書き込む
+                    if (nameEl && nameEl.innerText === name) {
+                         target.dataset.gender = d.gender;
+                         const btn = target.querySelector('.gender-btn');
+                         if (btn) renderGender(btn, d.gender);
+                    }
+                });
             }
+            save(); // 保存して同期
         }
     } catch (e) {
-        // もし動かない場合、F12キーのコンソールにエラー理由が出ます
-        console.error("Gender API Error:", e);
+        console.error("Gender Detect Error:", e);
     }
 }
 function toggleGender(btn) {
