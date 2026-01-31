@@ -212,7 +212,6 @@ const db = getDatabase(app);
 let dbRef;
 let isRemoteUpdate = false;
 
-// ルームIDの取得または生成
 const urlParams = new URLSearchParams(window.location.search);
 let roomId = urlParams.get('room');
 if (!roomId) {
@@ -224,11 +223,18 @@ dbRef = ref(db, 'rooms/' + roomId);
 
 const D=document, L=localStorage, J=JSON;
 const $=(s,p=D)=>p.querySelector(s), $$=(s,p=D)=>p.querySelectorAll(s), ce=(t,c)=>{const e=D.createElement(t);if(c)e.className=c;return e}, getInt=v=>parseInt(v)||0;
+
+// 【設定】GenderAPI.io 用のキーを設定
 const CFG = {
-    KEY:'6974b918d0998f075852411e', STORE:'sampokai_car_data_v8_compact',
-    ICONS:{male:'fa-mars',female:'fa-venus',unknown:'fa-venus-mars'}, TITLES:{male:'男性',female:'女性',unknown:'未設定'}
+    KEY:'6974b918d0998f075852411e', 
+    STORE:'sampokai_car_data_v8_compact',
+    ICONS:{male:'fa-mars',female:'fa-venus',unknown:'fa-venus-mars'}, 
+    TITLES:{male:'男性',female:'女性',unknown:'未設定'}
 };
 let modals={}, saveCb;
+let genderQueue = [];
+let isProcessingQueue = false;
+let saveTimer = null; 
 
 D.addEventListener('DOMContentLoaded', () => {
     modals = { edit: new bootstrap.Modal($('#commonEditModal')), batch: new bootstrap.Modal($('#batchImportModal')) };
@@ -243,7 +249,6 @@ D.addEventListener('DOMContentLoaded', () => {
         if (cls.contains('lock-btn')) { toggleLock(t.closest('.member-card')); return; }
         
         if (!act) return;
-
         const box = t.closest('.car-box'), card = t.closest('.member-card');
         const ACTIONS = {
             delete: () => {
@@ -259,19 +264,11 @@ D.addEventListener('DOMContentLoaded', () => {
                 }
                 updateUI(); save();
             },
-            return: () => { 
-                if(card.dataset.locked==='true') return;
-                $('#waiting-list').appendChild(card); updateUI(); save(); 
-            },
+            return: () => { if(card.dataset.locked==='true') return; $('#waiting-list').appendChild(card); updateUI(); save(); },
             batch: () => { $$('.batch-textarea').forEach(e=>e.value=''); modals.batch.show(); },
             addCar: () => addCar(), addMember: () => addMember(),
             auto: () => autoAssign(d.mode),
-            clear: () => { 
-                if(confirm('ロックされていないメンバーを全解除しますか？')) { 
-                    $$('.car-interior-layout .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m)); 
-                    updateUI(); save(); 
-                }
-            },
+            clear: () => { if(confirm('ロックされていないメンバーを全解除しますか？')) { $$('.car-interior-layout .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m)); updateUI(); save(); } },
             reset: () => { if(confirm('リセット？')) { L.removeItem(CFG.STORE); location.href = location.pathname; }},
             copyUrl: () => copy(window.location.href),
             copyLine: () => copyLine()
@@ -284,8 +281,7 @@ D.addEventListener('DOMContentLoaded', () => {
     $('#editModalInput').onkeypress = e => { if(e.key==='Enter' && saveCb) saveCb(); };
     $('#newMemberName').onkeypress = e => { if(e.key==='Enter') addMember(); };
 
-    load(); // Firebase同期を開始
-
+    load(); 
     setupSortable($('#waiting-list'));
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const checkTheme = () => D.body.dataset.theme = mql.matches ? 'dark' : 'light';
@@ -293,45 +289,69 @@ D.addEventListener('DOMContentLoaded', () => {
     mql.addEventListener('change', checkTheme);
 });
 
-const renderGender = (el,g) => { el.className=`fas gender-btn ${CFG.ICONS[g]}`; el.title=CFG.TITLES[g]; };
-async function detectGender(name, el, isDriver) {
-    if (!name) return;
-    try {
-        // ご希望の genderize.io APIを使用
-        const res = await fetch(`https://api.genderize.io/?name=${encodeURIComponent(name)}`);
-        const d = await res.json();
-        
-        if (d && d.gender) {
-            // パターンA: まだ元の要素が画面に残っている場合（そのまま更新）
-            if (el.isConnected) {
-                el.dataset.gender = d.gender;
-                const btn = el.querySelector('.gender-btn');
-                if (btn) renderGender(btn, d.gender);
-            } 
-            // パターンB: Firebaseの同期により画面が再描画され、元の要素が消えていた場合
-            // → 画面全体から「同じ名前」の要素を探し出して更新する（これがFirebase対策の肝です）
-            else {
-                const selector = isDriver ? '.driver-seat' : '.member-card';
-                const nameSelector = isDriver ? '.driver-name-disp' : '.member-name-text';
-                
-                // 画面上の全要素からこの名前の人を探す
-                const targets = document.querySelectorAll(selector);
-                targets.forEach(target => {
-                    const nameEl = target.querySelector(nameSelector);
-                    // 名前が一致したら性別を書き込む
-                    if (nameEl && nameEl.innerText === name) {
-                         target.dataset.gender = d.gender;
-                         const btn = target.querySelector('.gender-btn');
-                         if (btn) renderGender(btn, d.gender);
-                    }
-                });
-            }
-            save(); // 保存して同期
-        }
-    } catch (e) {
-        console.error("Gender Detect Error:", e);
+function save() { 
+    const d = getData();
+    L.setItem(CFG.STORE, J.stringify(d)); 
+    if (!isRemoteUpdate && dbRef) {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => { set(dbRef, d).catch(e => console.error("Firebase Error:", e)); }, 500); 
     }
 }
+
+// --- 性別判定処理 (GenderAPI.io 対応) ---
+function detectGender(name) {
+    if (!name) return;
+    genderQueue.push(name); 
+    processGenderQueue();
+}
+
+async function processGenderQueue() {
+    if (isProcessingQueue) return; 
+    isProcessingQueue = true; 
+    try {
+        while (genderQueue.length > 0) {
+            const name = genderQueue.shift();
+            let gender = 'unknown';
+            try { gender = await fetchGenderFromApi(name); } catch (e) { console.warn(`API Failed for ${name}:`, e); }
+
+            if (gender !== 'unknown') {
+                const targets = document.querySelectorAll(`[data-name="${name}"]`);
+                if (targets.length > 0) {
+                    targets.forEach(el => {
+                        const card = el.closest('.member-card') || el.closest('.driver-seat');
+                        if (card) {
+                            card.dataset.gender = gender;
+                            const btn = card.querySelector('.gender-btn');
+                            if (btn) renderGender(btn, gender);
+                        }
+                    });
+                    save(); // 判定確定時に保存
+                }
+            }
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+    } finally { isProcessingQueue = false; }
+}
+
+async function fetchGenderFromApi(name) {
+    if (name.endsWith('子') || name.endsWith('美') || name.endsWith('代') || name.endsWith('奈') || name.endsWith('香') || name.endsWith('音')) return 'female';
+    if (name.endsWith('郎') || name.endsWith('太') || name.endsWith('助') || name.endsWith('夫') || name.endsWith('男') || name.endsWith('平')) return 'male';
+
+    try {
+        // GenderAPI.io (api.genderapi.io) のエンドポイントを使用
+        const url = `https://api.genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`;
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.gender === 'male') return 'male';
+            if (data.gender === 'female') return 'female';
+        }
+    } catch(e) { console.error("Fetch Error:", e); }
+    return 'unknown';
+}
+
+const renderGender = (el,g) => { el.className=`fas gender-btn ${CFG.ICONS[g]}`; el.title=CFG.TITLES[g]; };
+ 
 function toggleGender(btn) {
     const p = btn.closest(btn.closest('.member-card') ? '.member-card' : '.driver-seat');
     const next = {unknown:'male',male:'female',female:'unknown'}[p.dataset.gender]||'male';
@@ -342,28 +362,32 @@ function toggleLock(card) {
     card.dataset.locked = !isLocked;
     const icon = $('.lock-btn', card);
     icon.className = `fas lock-btn action-btn ${!isLocked ? 'fa-lock' : 'fa-unlock'}`;
-    icon.title = !isLocked ? '固定中(自動移動しません)' : '固定解除';
+    icon.title = !isLocked ? '固定中' : '固定解除';
     save();
 }
 
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
     const name = n || $('#newMemberName').value; if(!name) return;
-    const d = ce('div', 'member-card'); Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
+    const d = ce('div', 'member-card'); 
+    Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
+    d.setAttribute('data-name', name); 
+
     d.innerHTML = `<div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[g]}" title="${CFG.TITLES[g]}"></i>${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div><div class="memo-popup" style="display:${m?'block':'none'}">${m}</div><div class="card-bottom-row"><div class="d-flex align-items-center"><i class="fas fa-sticky-note memo-indicator ${m?'':'empty'} edit-btn"></i></div><div class="d-flex align-items-center"><i class="fas ${locked?'fa-lock':'fa-unlock'} action-btn lock-btn" title="${locked?'固定中':'固定解除'}"></i><i class="fas action-btn state-action-btn" data-action="${parent.id==='waiting-list'?'delete':'return'}"></i></div></div>`;
     parent.appendChild(d);
-    if(!n) { $('#newMemberName').value=''; detectGender(name, d); save(); }
+    
+    if(!n) { $('#newMemberName').value=''; detectGender(name); save(); }
     return d;
 }
 
 function addCar(n, cap, mems=[], dm='', dg='unknown') {
     const name = n || $('#newCarName').value, c = cap || $('#newCarCapacity').value; if(!name) return;
     const col = ce('div', 'col-md-6 mb-2');
-    col.innerHTML = `<div class="car-box" data-capacity="${c}"><div class="car-header"><div class="d-flex align-items-center"><i class="fas fa-car text-primary me-2"></i><span class="car-name-text">${name} 車</span></div><div><span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" data-edit="capacity">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn" data-action="delete"></i></div></div><div class="car-interior-layout"><div class="front-row"><div class="seat-area sortable-area passenger-seat"></div><div class="seat-area driver-seat" data-gender="${dg}"><div class="w-100"><span class="driver-label">DRIVER</span><div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[dg]}" title="driver"></i><span class="driver-name-disp fw-bold text-truncate" style="flex:1; margin:0 4px;">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div></div><div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${dm}</div><div class="card-bottom-row mt-1 w-100" style="border-top:1px dashed rgba(0,0,0,0.1); padding-top:2px;"><i class="fas fa-sticky-note memo-indicator ${dm?'':'empty'} edit-btn"></i></div></div></div><div class="seat-area sortable-area rear-seats"></div></div></div>`;
+    col.innerHTML = `<div class="car-box" data-capacity="${c}"><div class="car-header"><div class="d-flex align-items-center"><i class="fas fa-car text-primary me-2"></i><span class="car-name-text">${name} 車</span></div><div><span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" data-edit="capacity">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn" data-action="delete"></i></div></div><div class="car-interior-layout"><div class="front-row"><div class="seat-area sortable-area passenger-seat"></div><div class="seat-area driver-seat" data-gender="${dg}" data-name="${name}"><div class="w-100"><span class="driver-label">DRIVER</span><div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[dg]}" title="driver"></i><span class="driver-name-disp fw-bold text-truncate" style="flex:1; margin:0 4px;">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div></div><div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${dm}</div><div class="card-bottom-row mt-1 w-100" style="border-top:1px dashed rgba(0,0,0,0.1); padding-top:2px;"><i class="fas fa-sticky-note memo-indicator ${dm?'':'empty'} edit-btn"></i></div></div></div><div class="seat-area sortable-area rear-seats"></div></div></div>`;
     $('#cars-container').appendChild(col);
     const [pS, rS] = [$('.passenger-seat',col), $('.rear-seats',col)];
     setupSortable(pS); setupSortable(rS);
     mems.forEach((m,i) => addMember(m.name,m.memo,m.gender,m.isFreshman,i===0?pS:rS, m.locked));
-    if(!n) { $('#newCarName').value=''; detectGender(name,$('.driver-seat',col),true); save(); }
+    if(!n) { $('#newCarName').value=''; detectGender(name); save(); }
     updateUI();
 }
 
@@ -374,15 +398,10 @@ function autoAssign(mode) {
     const isSmartMode = opts.f || opts.m || opts.g;
     const getM = el => Array.from(el.children).filter(c => c.dataset.locked !== 'true').map(c => { const d = getMemData(c); c.remove(); return d; });
     let mems = getM($('#waiting-list'));
-
     if (mode === 'shuffle') {
-        if (!confirm("ロックされていないメンバーを再編成しますか？")) {
-            mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); 
-            return;
-        }
+        if (!confirm("ロックされていないメンバーを再編成しますか？")) { mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); return; }
         $$('.car-box').forEach(c => { mems.push(...getM($('.passenger-seat', c)), ...getM($('.rear-seats', c))); });
     }
-
     if (!mems.length) return;
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
     mems = shuffle(mems); 
@@ -390,45 +409,28 @@ function autoAssign(mode) {
 
     if (!isSmartMode) {
         mems.forEach(member => {
-            const availableCars = cars.filter(c => {
-                const count = getCarMembers(c).length;
-                return count < getInt(c.dataset.capacity);
-            });
-            if (availableCars.length > 0) {
-                const car = availableCars[Math.floor(Math.random() * availableCars.length)];
-                addMemberToCar(member, car);
-            } else {
-                addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
-            }
+            const availableCars = cars.filter(c => getCarMembers(c).length < getInt(c.dataset.capacity));
+            if (availableCars.length > 0) addMemberToCar(member, availableCars[Math.floor(Math.random() * availableCars.length)]);
+            else addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
         });
         updateUI(); save(); return;
     }
-
     mems.sort((a, b) => {
         let pA = 0, pB = 0;
-        if (opts.f && a.gender === 'female') pA += 20;
-        if (opts.m && a.gender === 'male') pA += 20;
-        if (opts.g && a.isFreshman) pA += 10;
-        if (opts.f && b.gender === 'female') pB += 20;
-        if (opts.m && b.gender === 'male') pB += 20;
-        if (opts.g && b.isFreshman) pB += 10;
+        if (opts.f && a.gender === 'female') pA += 20; if (opts.m && a.gender === 'male') pA += 20; if (opts.g && a.isFreshman) pA += 10;
+        if (opts.f && b.gender === 'female') pB += 20; if (opts.m && b.gender === 'male') pB += 20; if (opts.g && b.isFreshman) pB += 10;
         return pB - pA;
     });
-
     mems.forEach(member => {
-        let bestCar = null;
-        let bestScore = -Infinity;
+        let bestCar = null, bestScore = -Infinity;
         cars.forEach(car => {
             if (getCarMembers(car).length >= getInt(car.dataset.capacity)) return;
-            const currentMems = getCarMembersData(car);
-            const driver = getDriverData(car);
-            const score = calculateMemberScore(member, [driver, ...currentMems], opts);
+            const score = calculateMemberScore(member, [getDriverData(car), ...getCarMembersData(car)], opts);
             if (score > bestScore) { bestScore = score; bestCar = car; }
         });
         if (bestCar) addMemberToCar(member, bestCar);
         else addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
     });
-
     optimizeDistribution(cars, opts);
     updateUI(); save();
 }
@@ -442,106 +444,67 @@ function getCarMembersData(car) { return getCarMembers(car).map(getMemData); }
 function getDriverData(car) { return { gender: $('.driver-seat', car).dataset.gender, isFreshman: false, isDriver: true }; }
 
 function optimizeDistribution(cars, opts) {
-    const iterations = 500; 
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i < 500; i++) {
         const carA = cars[Math.floor(Math.random() * cars.length)];
         const carB = cars[Math.floor(Math.random() * cars.length)];
         if (carA === carB) continue;
-
         const memsA = getCarMembers(carA), memsB = getCarMembers(carB);
-        const candA = memsA.length > 0 ? memsA[Math.floor(Math.random() * memsA.length)] : null;
-        const candB = memsB.length > 0 ? memsB[Math.floor(Math.random() * memsB.length)] : null;
-
+        const candA = memsA.length ? memsA[Math.floor(Math.random() * memsA.length)] : null;
+        const candB = memsB.length ? memsB[Math.floor(Math.random() * memsB.length)] : null;
         if (!candA && !candB) continue;
-        if ((candA && candA.dataset.locked === 'true') || (candB && candB.dataset.locked === 'true')) continue;
+        if ((candA && candA.dataset.locked==='true') || (candB && candB.dataset.locked==='true')) continue;
 
         const scoreBefore = getCarTotalScore(carA, opts) + getCarTotalScore(carB, opts);
         const dataA = getCarMembersData(carA), dataB = getCarMembersData(carB);
         const driverA = getDriverData(carA), driverB = getDriverData(carB);
         let newDataA = [...dataA], newDataB = [...dataB];
-
-        if (candA) { const idxA = newDataA.findIndex(m => m.name === getMemData(candA).name); if (idxA > -1) newDataA.splice(idxA, 1); }
-        if (candB) { const idxB = newDataB.findIndex(m => m.name === getMemData(candB).name); if (idxB > -1) newDataB.splice(idxB, 1); }
-
-        const capA = getInt(carA.dataset.capacity), capB = getInt(carB.dataset.capacity);
+        if (candA) newDataA = newDataA.filter(m => m.name !== getMemData(candA).name);
+        if (candB) newDataB = newDataB.filter(m => m.name !== getMemData(candB).name);
         if (candB) newDataA.push(getMemData(candB));
         if (candA) newDataB.push(getMemData(candA));
-        if (newDataA.length > capA || newDataB.length > capB) continue;
-
+        if (newDataA.length > getInt(carA.dataset.capacity) || newDataB.length > getInt(carB.dataset.capacity)) continue;
         const scoreAfter = calcGroupScore(newDataA, driverA, opts) + calcGroupScore(newDataB, driverB, opts);
-        if (scoreAfter > scoreBefore) performSwap(carA, candA, carB, candB);
-        else if (scoreAfter === scoreBefore && Math.random() < 0.1) performSwap(carA, candA, carB, candB);
+        if (scoreAfter > scoreBefore || (scoreAfter === scoreBefore && Math.random() < 0.1)) performSwap(carA, candA, carB, candB);
     }
 }
-
 function performSwap(carA, memElA, carB, memElB) {
-    const dataA = memElA ? getMemData(memElA) : null;
-    const dataB = memElB ? getMemData(memElB) : null;
-    if (memElA) memElA.remove();
-    if (memElB) memElB.remove();
-    if (dataA) addMemberToCar(dataA, carB);
-    if (dataB) addMemberToCar(dataB, carA);
+    const dataA = memElA ? getMemData(memElA) : null, dataB = memElB ? getMemData(memElB) : null;
+    if (memElA) memElA.remove(); if (memElB) memElB.remove();
+    if (dataA) addMemberToCar(dataA, carB); if (dataB) addMemberToCar(dataB, carA);
 }
-
-function getCarTotalScore(car, opts) {
-    const mems = getCarMembersData(car);
-    const driver = getDriverData(car);
-    return calcGroupScore(mems, driver, opts);
-}
-
+function getCarTotalScore(car, opts) { return calcGroupScore(getCarMembersData(car), getDriverData(car), opts); }
 function calcGroupScore(mems, driver, opts) {
     let score = 0;
     const occupants = [driver, ...mems];
-    const passengers = mems; 
-
-    if (passengers.length > 0) score += 100;
+    if (mems.length > 0) score += 100;
     if (opts.g) {
-        const freshCount = passengers.filter(m => m.isFreshman).length;
-        const seniorCount = passengers.filter(m => !m.isFreshman).length;
-        if (freshCount > 0 && seniorCount > 0) score -= 20000; 
-        else score += 5000;
-        if (freshCount === 1) score -= 5000; 
-        if (freshCount >= 2) score += (freshCount * 500);
+        const freshCount = mems.filter(m => m.isFreshman).length;
+        const seniorCount = mems.filter(m => !m.isFreshman).length;
+        if (freshCount > 0 && seniorCount > 0) score -= 20000; else score += 5000;
+        if (freshCount === 1) score -= 5000; if (freshCount >= 2) score += (freshCount * 500);
     }
-
     const targetFemale = opts.f, targetMale = opts.m;
     if (targetFemale || targetMale) {
         const females = occupants.filter(o => o.gender === 'female').length;
         const males = occupants.filter(o => o.gender === 'male').length;
         if (targetFemale && females > 0 && males > 0) score -= 50000;
         if (targetMale && males > 0 && females > 0) score -= 50000;
-        
-        if (targetFemale && females > 0) {
-            if (females === 1) score -= 10000; 
-            else score += 5000; 
-        }
-        if (targetMale && males > 0) {
-            if (males === 1) score -= 10000;
-            else score += 5000;
-        }
+        if ((targetFemale && females === 1) || (targetMale && males === 1)) score -= 10000;
     }
     return score;
 }
-
 function calculateMemberScore(member, occupants, opts) {
     let score = 0;
     const passengers = occupants.filter(o => !o.isDriver);
-    if (passengers.length === 0) score += 50;
-    else score += 100;
-
+    if (passengers.length === 0) score += 50; else score += 100;
     if (opts.g) {
         const sameGrade = passengers.filter(o => o.isFreshman === member.isFreshman).length;
-        const diffGrade = passengers.filter(o => o.isFreshman !== member.isFreshman).length;
-        if (diffGrade > 0) score -= 10000; 
+        if (passengers.filter(o => o.isFreshman !== member.isFreshman).length > 0) score -= 10000;
         if (sameGrade > 0) score += 5000;
     }
     if ((opts.f && member.gender === 'female') || (opts.m && member.gender === 'male')) {
-        const diffGender = occupants.filter(o => o.gender !== member.gender && o.gender !== 'unknown').length;
-        if (diffGender > 0) score -= 20000; 
-        else {
-            const sameGender = occupants.filter(o => o.gender === member.gender).length;
-            score += 5000;
-        }
+        if (occupants.filter(o => o.gender !== member.gender && o.gender !== 'unknown').length > 0) score -= 20000;
+        else if (occupants.filter(o => o.gender === member.gender).length > 0) score += 5000;
     }
     return score;
 }
@@ -550,8 +513,13 @@ function executeBatch() {
     const p=id=>$(id).value.split(/\n/).map(s=>s.trim()).filter(Boolean);
     const m=p('#batchMembers'), f=p('#batchFreshmen'), d=p('#batchDrivers');
     if(!m.length&&!f.length&&!d.length) return alert('空です');
-    m.forEach(n=>detectGender(n,addMember(n))); f.forEach(n=>detectGender(n,addMember(n,'','unknown',true)));
-    d.forEach(n=>{addCar(n,3); detectGender(n,$('.driver-seat',$$('.car-box')[$$('.car-box').length-1]),true);});
+    m.forEach(n=>detectGender(addMember(n).dataset.name));
+    f.forEach(n=>detectGender(addMember(n,'','unknown',true).dataset.name));
+    d.forEach(n=>{
+        addCar(n,3);
+        const cars = $$('.car-box');
+        detectGender($('.driver-seat', cars[cars.length-1]).dataset.name);
+    });
     save(); modals.batch.hide(); alert(`完了: 同乗${m.length+f.length} 車${d.length}`);
 }
 
@@ -559,8 +527,8 @@ function handleEdit(type, el) {
     const box=el.closest('.car-box'), card=el.closest('.member-card');
     const MAP = {
         capacity: { t:'定員変更', v:()=>box.dataset.capacity, set:v=>{if(getInt(v)>0)box.dataset.capacity=getInt(v);} },
-        carName: { t:'車名変更', v:()=>$('.driver-name-disp',box).innerText, set:v=>{if(v){$('.driver-name-disp',box).innerText=v;$('.car-name-text',box).innerText=v+' 車';}} },
-        name: { t:'名前修正', v:()=>$('.member-name-text',card).innerText, set:v=>{if(v)$('.member-name-text',card).innerText=v;} },
+        carName: { t:'車名変更', v:()=>$('.driver-name-disp',box).innerText, set:v=>{if(v){$('.driver-name-disp',box).innerText=v;$('.car-name-text',box).innerText=v+' 車';box.querySelector('.driver-seat').dataset.name=v;}} },
+        name: { t:'名前修正', v:()=>$('.member-name-text',card).innerText, set:v=>{if(v){$('.member-name-text',card).innerText=v;card.dataset.name=v;}} },
         memo: { t:'メモ', v:()=>$('.memo-popup',card).innerText, set:v=>upMemo(card,v) },
         driverMemo: { t:'運転手メモ', v:()=>$('.driver-memo-text',el.closest('.driver-seat')).innerText, set:v=>upMemo(el.closest('.driver-seat'),v,'.driver-memo-text') }
     };
@@ -568,7 +536,6 @@ function handleEdit(type, el) {
     saveCb=()=>{c.set($('#editModalInput').value); updateUI(); save(); modals.edit.hide();};
     modals.edit.show(); setTimeout(()=>$('#editModalInput').focus(),500);
 }
-
 const upMemo = (p,v,s='.memo-popup') => { const m=$(s,p),i=$('.memo-indicator',p); m.innerText=v; m.style.display=v?'block':'none'; i.classList.toggle('empty',!v); };
 function updateUI() {
     $$('.car-box').forEach(b => {
@@ -582,38 +549,50 @@ function updateUI() {
 
 function getMemData(el) { return {name:$('.member-name-text',el).innerText, memo:$('.memo-popup',el).innerText, gender:el.dataset.gender, isFreshman:el.dataset.freshman==='true', locked:el.dataset.locked==='true'}; }
 function getData() { return { waiting: Array.from($$('#waiting-list .member-card')).map(getMemData), cars: Array.from($$('.car-box')).map(c=>({ name:$('.driver-name-disp',c).innerText, capacity:c.dataset.capacity, driverMemo:$('.driver-memo-text',c).innerText, driverGender:$('.driver-seat',c).dataset.gender, members:[...$$('.passenger-seat .member-card',c),...$$('.rear-seats .member-card',c)].map(getMemData) })) }; }
-function save() { 
-    const d = getData();
-    L.setItem(CFG.STORE, J.stringify(d)); 
-    // Firebaseへ送信（リモート更新中でなければ）
-    if (!isRemoteUpdate && dbRef) {
-        set(dbRef, d).catch(e => console.error(e));
-    }
-}
+
 function load() { 
-    // 初回ロード時はFirebaseのリスナーを開始
     onValue(dbRef, (snapshot) => {
         const val = snapshot.val();
         if (val) {
-            isRemoteUpdate = true; // フラグを立てて無限ループ防止
+            isRemoteUpdate = true; 
             restore(val);
             isRemoteUpdate = false;
         } else {
-            // Firebaseにデータがない場合のみローカルストレージを見る（または既存データをアップロード）
             const local = J.parse(L.getItem(CFG.STORE));
             if(local) { restore(local); save(); } 
         }
     });
 }
+
+// 【重要】Firebaseの更新で、判明した性別を上書きしないロジックを追加
 function restore(d) { 
+    // 現在の状態をバックアップ（名前をキーにして性別を保存）
+    const knownGenders = {};
+    const scan = (el) => { if(el && el.dataset.name && el.dataset.gender!=='unknown') knownGenders[el.dataset.name] = el.dataset.gender; };
+    $$('.member-card').forEach(scan);
+    $$('.driver-seat').forEach(scan);
+
     $('#waiting-list').innerHTML=''; 
     $('#cars-container').innerHTML=''; 
-    const n=m=>typeof m==='string'?{name:m}:m; 
+    const n = m => {
+        let obj = typeof m==='string' ? {name:m} : m;
+        // もしFirebaseからのデータがunknownでも、ローカルで判明済みならそれを採用
+        if (knownGenders[obj.name] && (obj.gender === 'unknown' || !obj.gender)) {
+            obj.gender = knownGenders[obj.name];
+        }
+        return obj;
+    };
+
     (d.waiting||[]).forEach(m=>{const x=n(m);addMember(x.name,x.memo,x.gender,x.isFreshman, $('#waiting-list'), x.locked);}); 
-    (d.cars||[]).forEach(c=>addCar(c.name,c.capacity,(c.members||[]).map(n),c.driverMemo,c.driverGender)); 
+    (d.cars||[]).forEach(c=>{
+        // 運転手の性別も同様に保護
+        let dG = c.driverGender;
+        if(knownGenders[c.name] && (dG === 'unknown' || !dG)) dG = knownGenders[c.name];
+        addCar(c.name,c.capacity,(c.members||[]).map(n),c.driverMemo,dG);
+    }); 
     updateUI(); 
-    // ここでの save() は削除 (無限ループ防止のため)
 }
+
 function copy(t) { navigator.clipboard.writeText(t).then(()=>alert('コピー完了'),()=>alert('失敗')); }
 function copyLine() {
     const d=getData(); let t="【山歩会 車割表】\n\n";
