@@ -193,7 +193,35 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCBJhqD5T05TTQqWw3d2bFbr6keSe9mRyE",
+  authDomain: "syawari-maker.firebaseapp.com",
+  databaseURL: "https://syawari-maker-default-rtdb.firebaseio.com",
+  projectId: "syawari-maker",
+  storageBucket: "syawari-maker.firebasestorage.app",
+  messagingSenderId: "1050069471490",
+  appId: "1:1050069471490:web:fd91fb2b0b54edb46ef21b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+let dbRef;
+let isRemoteUpdate = false;
+
+// ルームIDの取得または生成
+const urlParams = new URLSearchParams(window.location.search);
+let roomId = urlParams.get('room');
+if (!roomId) {
+    roomId = Math.random().toString(36).substring(2, 8);
+    const newUrl = `${window.location.pathname}?room=${roomId}`;
+    window.history.replaceState(null, null, newUrl);
+}
+dbRef = ref(db, 'rooms/' + roomId);
+
 const D=document, L=localStorage, J=JSON;
 const $=(s,p=D)=>p.querySelector(s), $$=(s,p=D)=>p.querySelectorAll(s), ce=(t,c)=>{const e=D.createElement(t);if(c)e.className=c;return e}, getInt=v=>parseInt(v)||0;
 const CFG = {
@@ -245,7 +273,7 @@ D.addEventListener('DOMContentLoaded', () => {
                 }
             },
             reset: () => { if(confirm('リセット？')) { L.removeItem(CFG.STORE); location.href = location.pathname; }},
-            copyUrl: () => copy(location.origin+location.pathname+'?data='+btoa(unescape(encodeURIComponent(J.stringify(getData())))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')),
+            copyUrl: () => copy(window.location.href),
             copyLine: () => copyLine()
         };
         if(ACTIONS[act]) ACTIONS[act]();
@@ -256,8 +284,7 @@ D.addEventListener('DOMContentLoaded', () => {
     $('#editModalInput').onkeypress = e => { if(e.key==='Enter' && saveCb) saveCb(); };
     $('#newMemberName').onkeypress = e => { if(e.key==='Enter') addMember(); };
 
-    const q = new URLSearchParams(location.search).get('data');
-    if(q) { try { restore(J.parse(decodeURIComponent(escape(atob(q.replace(/-/g,'+').replace(/_/g,'/')))))); history.replaceState({},D.title,location.pathname); } catch(e){load();} } else load();
+    load(); // Firebase同期を開始
 
     setupSortable($('#waiting-list'));
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
@@ -270,13 +297,28 @@ const renderGender = (el,g) => { el.className=`fas gender-btn ${CFG.ICONS[g]}`; 
 async function detectGender(name, el, isDriver) {
     if (!name) return;
     try {
-        const d = await (await fetch(`https://genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`)).json();
+        // APIは元のまま (ユーザー様の環境で動いている実績があるため)
+        const res = await fetch(`https://genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`);
+        const d = await res.json();
+        
         if (d.gender) {
             el.dataset.gender = d.gender;
-            renderGender($(isDriver?'.gender-btn':'.member-card .gender-btn', el), d.gender);
-            save();
+            
+            // 【修正ポイント】ここが以前のバグの原因でした。
+            // 以前のコード: $(isDriver?'.gender-btn':'.member-card .gender-btn', el)
+            // これだと「カードの中にある別のカード」を探してしまい、見つかりませんでした。
+            // 修正版: シンプルに「その要素の中にあるボタン」を探します。
+            const btn = el.querySelector('.gender-btn');
+            
+            if (btn) {
+                renderGender(btn, d.gender);
+                save(); // 保存
+            }
         }
-    } catch {}
+    } catch (e) {
+        // もし動かない場合、F12キーのコンソールにエラー理由が出ます
+        console.error("Gender API Error:", e);
+    }
 }
 function toggleGender(btn) {
     const p = btn.closest(btn.closest('.member-card') ? '.member-card' : '.driver-seat');
@@ -528,9 +570,38 @@ function updateUI() {
 
 function getMemData(el) { return {name:$('.member-name-text',el).innerText, memo:$('.memo-popup',el).innerText, gender:el.dataset.gender, isFreshman:el.dataset.freshman==='true', locked:el.dataset.locked==='true'}; }
 function getData() { return { waiting: Array.from($$('#waiting-list .member-card')).map(getMemData), cars: Array.from($$('.car-box')).map(c=>({ name:$('.driver-name-disp',c).innerText, capacity:c.dataset.capacity, driverMemo:$('.driver-memo-text',c).innerText, driverGender:$('.driver-seat',c).dataset.gender, members:[...$$('.passenger-seat .member-card',c),...$$('.rear-seats .member-card',c)].map(getMemData) })) }; }
-function save() { L.setItem(CFG.STORE, J.stringify(getData())); }
-function load() { restore(J.parse(L.getItem(CFG.STORE))||{}); }
-function restore(d) { $('#waiting-list').innerHTML=''; $('#cars-container').innerHTML=''; const n=m=>typeof m==='string'?{name:m}:m; (d.waiting||[]).forEach(m=>{const x=n(m);addMember(x.name,x.memo,x.gender,x.isFreshman, $('#waiting-list'), x.locked);}); (d.cars||[]).forEach(c=>addCar(c.name,c.capacity,(c.members||[]).map(n),c.driverMemo,c.driverGender)); updateUI(); save(); }
+function save() { 
+    const d = getData();
+    L.setItem(CFG.STORE, J.stringify(d)); 
+    // Firebaseへ送信（リモート更新中でなければ）
+    if (!isRemoteUpdate && dbRef) {
+        set(dbRef, d).catch(e => console.error(e));
+    }
+}
+function load() { 
+    // 初回ロード時はFirebaseのリスナーを開始
+    onValue(dbRef, (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+            isRemoteUpdate = true; // フラグを立てて無限ループ防止
+            restore(val);
+            isRemoteUpdate = false;
+        } else {
+            // Firebaseにデータがない場合のみローカルストレージを見る（または既存データをアップロード）
+            const local = J.parse(L.getItem(CFG.STORE));
+            if(local) { restore(local); save(); } 
+        }
+    });
+}
+function restore(d) { 
+    $('#waiting-list').innerHTML=''; 
+    $('#cars-container').innerHTML=''; 
+    const n=m=>typeof m==='string'?{name:m}:m; 
+    (d.waiting||[]).forEach(m=>{const x=n(m);addMember(x.name,x.memo,x.gender,x.isFreshman, $('#waiting-list'), x.locked);}); 
+    (d.cars||[]).forEach(c=>addCar(c.name,c.capacity,(c.members||[]).map(n),c.driverMemo,c.driverGender)); 
+    updateUI(); 
+    // ここでの save() は削除 (無限ループ防止のため)
+}
 function copy(t) { navigator.clipboard.writeText(t).then(()=>alert('コピー完了'),()=>alert('失敗')); }
 function copyLine() {
     const d=getData(); let t="【山歩会 車割表】\n\n";
