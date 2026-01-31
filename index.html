@@ -1,206 +1,131 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>山歩会 車割メーカー</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            /* ベースカラー */
-            --bg-body: #f4f7f6;
-            --text-main: #333;
-            --bg-card: #fff;
-            --border-color: #e0e0e0;
-            --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            
-            /* エリア背景 */
-            --driver-bg: #f0f2f5;
-            --driver-text: #495057;
-            --seat-bg: #f8f9fa;
-            --drag-over-bg: #e9ecef;
-            --share-bar-bg: rgba(255,255,255,0.95);
-
-            /* 入力・モーダル */
-            --input-bg: #fff;
-            --input-text: #495057;
-            --input-border: #ced4da;
-            --ghost-bg: #c8c8c8;
-            --modal-bg: #fff;
-            --modal-border: #dee2e6;
-
-            /* 性別カラー（パステル調） */
-            --bg-male: #e3f2fd;
-            --border-male: #90caf9;
-            --text-male: #0d47a1;
-
-            --bg-female: #fce4ec;
-            --border-female: #f48fb1;
-            --text-female: #880e4f;
-
-            /* 運転席カラー */
-            --driver-bg-male: #bbdefb;
-            --driver-text-male: #0d47a1;
-            --driver-bg-female: #f8bbd0;
-            --driver-text-female: #880e4f;
-
-            --freshman-color: #2e7d32;
-            --locked-color: #ffc107;
-            
-            color-scheme: light;
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #121212;
-            --text-main: #e0e0e0;
-            --bg-card: #2a2a2a;
-            --border-color: #444;
-            --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            
-            --driver-bg: #333;
-            --driver-text: #ccc;
-            --seat-bg: #222;
-            --drag-over-bg: #3a3a3a;
-            --share-bar-bg: rgba(30,30,30,0.95);
-
-            --input-bg: #333;
-            --input-text: #e0e0e0;
-            --input-border: #555;
-            --ghost-bg: #555;
-            --modal-bg: #2a2a2a;
-            --modal-border: #444;
-
-            --bg-male: rgba(13, 71, 161, 0.3);
-            --border-male: #1565c0;
-            --text-male: #90caf9;
-
-            --bg-female: rgba(136, 14, 79, 0.3);
-            --border-female: #ad1457;
-            --text-female: #f48fb1;
-
-            --driver-bg-male: rgba(13, 71, 161, 0.5);
-            --driver-text-male: #90caf9;
-            --driver-bg-female: rgba(136, 14, 79, 0.5);
-            --driver-text-female: #f48fb1;
-
-            --freshman-color: #81c784;
-            color-scheme: dark;
-        }
-
-        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; padding-bottom: 100px; transition: background-color 0.3s, color 0.3s; font-size: 0.95rem; }
-        .form-control, .form-select, .input-group-text { background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border); }
-        .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
-
-        /* メンバーカード */
-        .member-card { 
-            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; 
-            padding: 8px 10px; cursor: grab; box-shadow: var(--card-shadow); color: var(--text-main); 
-            margin-bottom: 0; display: flex; flex-direction: column; touch-action: manipulation; 
-            transition: all 0.2s;
-        }
-        .member-card:active { cursor: grabbing; transform: scale(0.98); }
-        .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
-        .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
-        
-        /* ロック時のスタイル強化 */
-        .member-card[data-locked="true"] { 
-            border-color: var(--locked-color); border-width: 2px; 
-            box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
-        }
-        .lock-btn { color: #aaa; margin-right: 8px; transition: color 0.2s; }
-        .lock-btn:hover { color: var(--text-main); }
-        .member-card[data-locked="true"] .lock-btn { color: var(--locked-color); opacity: 1; }
-
-        .card-top-row { display: flex; align-items: center; font-size: 1rem; line-height: 1.2; width: 100%; }
-        .member-name-text { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; }
-        .card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; font-size: 0.85rem; }
-        
-        .action-btn { cursor: pointer; padding: 2px 4px; color: #aaa; transition: color 0.2s; }
-        .action-btn:hover { color: var(--text-main); }
-        .edit-name-btn { cursor: pointer; font-size: 0.8em; color: inherit; opacity: 0.6; transition: opacity 0.2s; }
-        .edit-name-btn:hover { opacity: 1; }
-        
-        .gender-btn { cursor: pointer; margin-right: 4px; font-size: 1.1em; }
-        [data-gender="male"] .gender-btn { color: #1976d2; } [data-gender="female"] .gender-btn { color: #c2185b; }
-        
-        .freshman-icon { color: var(--freshman-color); margin-right: 4px; font-size: 1em; }
-        
-        .memo-indicator { font-size: 0.9rem; color: #ffc107; cursor: pointer; margin-right: 6px; transition: transform 0.2s; }
-        .memo-indicator:hover { transform: scale(1.1); }
-        .memo-indicator.empty { color: var(--border-color); opacity: 0.6; }
-        
-        .memo-popup { 
-            font-size: 0.8rem; color: #555; background: #fff9c4; padding: 4px 6px; 
-            border-radius: 4px; border: 1px solid #ffe082; margin-top: 4px; display: none; width: 100%; 
-            word-break: break-all; line-height: 1.2; 
-        }
-        [data-theme="dark"] .memo-popup { background: #423c18; color: #fff9c4; border-color: #635b2e; }
-
-        /* 車ボックス */
-        .car-box { 
-            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; 
-            padding: 12px; position: relative; box-shadow: var(--card-shadow); 
-        }
-        .car-header { 
-            font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; 
-            align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); font-size: 1.05rem; 
-        }
-        .car-box.over-capacity { border-color: #dc3545; background-color: rgba(220,53,69,0.05); }
-        
-        .car-interior-layout { display: flex; flex-direction: column; gap: 8px; }
-        .front-row { display: flex; gap: 8px; }
-        
-        /* 座席エリア */
-        .seat-area { 
-            flex: 1; min-height: 60px; border-radius: 8px; padding: 4px; background-color: var(--seat-bg); transition: background-color 0.2s; 
-        }
-        .sortable-area { border: 2px dashed var(--border-color); }
-        .sortable-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
-        
-        .rear-seats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
-        
-        /* 運転席 */
-        .driver-seat { 
-            background-color: var(--driver-bg); color: var(--driver-text); border: 1px solid var(--border-color); 
-            border-radius: 8px; padding: 8px; display: flex; flex-direction: column; font-size: 0.95rem; user-select: none; 
-        }
-        .driver-seat[data-gender="male"] { background: var(--driver-bg-male); color: var(--driver-text-male); border-color: var(--border-male); }
-        .driver-seat[data-gender="female"] { background: var(--driver-bg-female); color: var(--driver-text-female); border-color: var(--border-female); }
-        .driver-label { font-size: 0.7em; opacity: 0.8; text-align: right; margin-bottom: 4px; line-height: 1; font-weight: bold; letter-spacing: 0.5px;}
-        
-        /* 待機エリア */
-        .waiting-area { 
-            background-color: rgba(0,0,0,0.03); border-radius: 10px; padding: 10px; min-height: 100px; 
-            display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; border: 2px dashed var(--border-color);
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-        [data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.03); }
-        .waiting-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
-        .waiting-area .member-card { width: calc(33.333% - 6px); }
-        @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
-        
-        /* シェアバー */
-        .share-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg); 
-            border-top: 1px solid var(--border-color); padding: 12px 15px 15px; z-index: 1000; 
-            backdrop-filter: blur(5px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
-        
-        .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .dropdown-item { color: var(--text-main); }
-        .dropdown-item:hover { background-color: var(--drag-over-bg); color: var(--text-main); }
-        .dropdown-header { color: var(--text-main); opacity: 0.7; font-weight: bold; }
-        
-        .modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--modal-border); border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal-header, .modal-footer { border-color: var(--modal-border); }
-        .btn-close { filter: invert(0); } [data-theme="dark"] .btn-close { filter: invert(1); }
-
-        /* ボタンのアイコンサイズ調整 */
-        .btn-group .btn i, .btn-outline-danger i { font-size: 1.1em; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>山歩会 車割メーカー</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+    --bg-body: #f4f7f6;
+    --text-main: #333;
+    --bg-card: #fff;
+    --border-color: #e0e0e0;
+    --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    --driver-bg: #f0f2f5;
+    --driver-text: #495057;
+    --seat-bg: #f8f9fa;
+    --drag-over-bg: #e9ecef;
+    --share-bar-bg: rgba(255,255,255,0.95);
+    --input-bg: #fff;
+    --input-text: #495057;
+    --input-border: #ced4da;
+    --ghost-bg: #c8c8c8;
+    --modal-bg: #fff;
+    --modal-border: #dee2e6;
+    --bg-male: #e3f2fd;
+    --border-male: #90caf9;
+    --text-male: #0d47a1;
+    --bg-female: #fce4ec;
+    --border-female: #f48fb1;
+    --text-female: #880e4f;
+    --driver-bg-male: #bbdefb;
+    --driver-text-male: #0d47a1;
+    --driver-bg-female: #f8bbd0;
+    --driver-text-female: #880e4f;
+    --freshman-color: #2e7d32;
+    --locked-color: #ffc107;
+    color-scheme: light;
+}
+[data-theme="dark"] {
+    --bg-body: #121212;
+    --text-main: #e0e0e0;
+    --bg-card: #2a2a2a;
+    --border-color: #444;
+    --card-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    --driver-bg: #333;
+    --driver-text: #ccc;
+    --seat-bg: #222;
+    --drag-over-bg: #3a3a3a;
+    --share-bar-bg: rgba(30,30,30,0.95);
+    --input-bg: #333;
+    --input-text: #e0e0e0;
+    --input-border: #555;
+    --ghost-bg: #555;
+    --modal-bg: #2a2a2a;
+    --modal-border: #444;
+    --bg-male: rgba(13, 71, 161, 0.3);
+    --border-male: #1565c0;
+    --text-male: #90caf9;
+    --bg-female: rgba(136, 14, 79, 0.3);
+    --border-female: #ad1457;
+    --text-female: #f48fb1;
+    --driver-bg-male: rgba(13, 71, 161, 0.5);
+    --driver-text-male: #90caf9;
+    --driver-bg-female: rgba(136, 14, 79, 0.5);
+    --driver-text-female: #f48fb1;
+    --freshman-color: #81c784;
+    color-scheme: dark;
+}
+[data-theme="dark"] .text-secondary { color: #a0a0a0 !important; }
+[data-theme="dark"] .btn-close { filter: invert(1); }
+body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; padding-bottom: 100px; transition: background-color 0.3s, color 0.3s; font-size: 0.95rem; }
+.form-control, .form-select, .input-group-text { background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border); }
+.form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); background-color: var(--input-bg); color: var(--input-text); }
+.form-control::placeholder { color: var(--input-text); opacity: 0.6; }
+.member-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; cursor: grab; box-shadow: var(--card-shadow); color: var(--text-main); margin-bottom: 0; display: flex; flex-direction: column; touch-action: manipulation; transition: all 0.2s; }
+.member-card:active { cursor: grabbing; transform: scale(0.98); }
+.member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
+.member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
+.member-card[data-locked="true"] { border-color: var(--locked-color); border-width: 2px; box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+.lock-btn { color: #aaa; margin-right: 8px; transition: color 0.2s; }
+.lock-btn:hover { color: var(--text-main); }
+.member-card[data-locked="true"] .lock-btn { color: var(--locked-color); opacity: 1; }
+.card-top-row { display: flex; align-items: center; font-size: 1rem; line-height: 1.2; width: 100%; }
+.member-name-text { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; }
+.card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; font-size: 0.85rem; }
+.action-btn { cursor: pointer; padding: 2px 4px; color: #aaa; transition: color 0.2s; }
+.action-btn:hover { color: var(--text-main); }
+.edit-name-btn { cursor: pointer; font-size: 0.8em; color: inherit; opacity: 0.6; transition: opacity 0.2s; }
+.edit-name-btn:hover { opacity: 1; }
+.gender-btn { cursor: pointer; margin-right: 4px; font-size: 1.1em; }
+[data-gender="male"] .gender-btn { color: #1976d2; } [data-gender="female"] .gender-btn { color: #c2185b; }
+.freshman-icon { color: var(--freshman-color); margin-right: 4px; font-size: 1em; }
+.memo-indicator { font-size: 0.9rem; color: #ffc107; cursor: pointer; margin-right: 6px; transition: transform 0.2s; }
+.memo-indicator:hover { transform: scale(1.1); }
+.memo-indicator.empty { color: var(--border-color); opacity: 0.6; }
+.memo-popup { font-size: 0.8rem; color: #555; background: #fff9c4; padding: 4px 6px; border-radius: 4px; border: 1px solid #ffe082; margin-top: 4px; display: none; width: 100%; word-break: break-all; line-height: 1.2; }
+[data-theme="dark"] .memo-popup { background: #423c18; color: #fff9c4; border-color: #635b2e; }
+.car-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; position: relative; box-shadow: var(--card-shadow); }
+.car-header { font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); font-size: 1.05rem; }
+.car-box.over-capacity { border-color: #dc3545; background-color: rgba(220,53,69,0.05); }
+.car-interior-layout { display: flex; flex-direction: column; gap: 8px; }
+.front-row { display: flex; gap: 8px; }
+.seat-area { flex: 1; min-height: 60px; border-radius: 8px; padding: 4px; background-color: var(--seat-bg); transition: background-color 0.2s; }
+.sortable-area { border: 2px dashed var(--border-color); }
+.sortable-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
+.rear-seats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+.driver-seat { background-color: var(--driver-bg); color: var(--driver-text); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; font-size: 0.95rem; user-select: none; }
+.driver-seat[data-gender="male"] { background: var(--driver-bg-male); color: var(--driver-text-male); border-color: var(--border-male); }
+.driver-seat[data-gender="female"] { background: var(--driver-bg-female); color: var(--driver-text-female); border-color: var(--border-female); }
+.driver-label { font-size: 0.7em; opacity: 0.8; text-align: right; margin-bottom: 4px; line-height: 1; font-weight: bold; letter-spacing: 0.5px;}
+.waiting-area { background-color: rgba(0,0,0,0.03); border-radius: 10px; padding: 10px; min-height: 100px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; border: 2px dashed var(--border-color); transition: background-color 0.2s, border-color 0.2s; }
+[data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.03); }
+.waiting-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
+.waiting-area .member-card { width: calc(33.333% - 6px); }
+@media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
+.share-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg); border-top: 1px solid var(--border-color); padding: 12px 15px 15px; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
+.sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
+.dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: var(--text-main); }
+.dropdown-item { color: var(--text-main); }
+.dropdown-item:hover { background-color: var(--drag-over-bg); color: var(--text-main); }
+.dropdown-header { color: var(--text-main); opacity: 0.7; font-weight: bold; }
+.dropdown-menu .form-check-label { color: var(--text-main); cursor: pointer; }
+.modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--modal-border); border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+.modal-header, .modal-footer { border-color: var(--modal-border); }
+.btn-group .btn i, .btn-outline-danger i { font-size: 1.1em; }
+</style>
 </head>
 <body data-theme="light">
 <div class="container py-3">
@@ -223,7 +148,7 @@
             <div class="input-group input-group-sm">
                 <span class="input-group-text"><i class="fas fa-car"></i></span>
                 <input type="text" id="newCarName" class="form-control" placeholder="運転手">
-                <input type="number" id="newCarCapacity" class="form-control" placeholder="定員" value="3" style="max-width:60px;">
+                <input type="number" id="newCarCapacity" class="form-control" placeholder="定員" value="3" style="max-width:80px;">
                 <button class="btn btn-success" data-action="addCar">車追加</button>
             </div>
         </div>
@@ -280,16 +205,13 @@ let modals={}, saveCb;
 D.addEventListener('DOMContentLoaded', () => {
     modals = { edit: new bootstrap.Modal($('#commonEditModal')), batch: new bootstrap.Modal($('#batchImportModal')) };
     
-    // Global Event Delegation
     D.body.onclick = e => {
         const t = e.target, d = t.dataset;
-        const act = d.action || t.getAttribute('action'); // btn or icon
+        const act = d.action || t.getAttribute('action'); 
         const cls = t.classList;
         
-        // Handle Icons inside cards/cars
         if (cls.contains('gender-btn')) { toggleGender(t); return; }
         if (cls.contains('edit-btn') || cls.contains('edit-name-btn') || d.edit) { handleEdit(d.edit || (cls.contains('edit-name-btn')?(t.closest('.member-card')?'name':'carName'):(t.closest('.driver-seat')?'driverMemo':'memo')), t); return; }
-        // ★追加: ロックボタンのハンドリング
         if (cls.contains('lock-btn')) { toggleLock(t.closest('.member-card')); return; }
         
         if (!act) return;
@@ -297,29 +219,25 @@ D.addEventListener('DOMContentLoaded', () => {
         const box = t.closest('.car-box'), card = t.closest('.member-card');
         const ACTIONS = {
             delete: () => {
-                // ★修正: ロック中は削除禁止
                 if(card && card.dataset.locked==='true') return alert('ロックされています');
                 if(card && card.closest('#waiting-list') && confirm('削除しますか？')) card.remove();
                 else if(card) $('#waiting-list').appendChild(card);
                 else if(box && confirm('車を削除しますか？')) { 
-                    // ★修正: ロックされていないメンバーだけ移動
                     $$('.member-card', box).forEach(m => {
                          if(m.dataset.locked!=='true') $('#waiting-list').appendChild(m);
                          else if(confirm(`${$('.member-name-text',m).innerText}はロックされていますが、削除してよろしいですか？`)) $('#waiting-list').appendChild(m);
                     }); 
-                    // 車自体は消すので、残ったロックメンバーも強制移動（または確認）
                     if($$('.member-card', box).length === 0) box.closest('.col-md-6').remove();
                 }
                 updateUI(); save();
             },
             return: () => { 
-                if(card.dataset.locked==='true') return; // ロック時は戻さない
+                if(card.dataset.locked==='true') return;
                 $('#waiting-list').appendChild(card); updateUI(); save(); 
             },
             batch: () => { $$('.batch-textarea').forEach(e=>e.value=''); modals.batch.show(); },
             addCar: () => addCar(), addMember: () => addMember(),
             auto: () => autoAssign(d.mode),
-            // ★修正: 全解除のロジック（ロックを除外）
             clear: () => { 
                 if(confirm('ロックされていないメンバーを全解除しますか？')) { 
                     $$('.car-interior-layout .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m)); 
@@ -335,8 +253,8 @@ D.addEventListener('DOMContentLoaded', () => {
 
     $('#saveEditBtn').onclick = () => { saveCb && saveCb(); };
     $('#execBatchBtn').onclick = executeBatch;
-    $('#editModalInput').onkeypress = e => e.key==='Enter' && saveCb && saveCb();
-    $('#newMemberName').onkeypress = e => e.key==='Enter' && addMember();
+    $('#editModalInput').onkeypress = e => { if(e.key==='Enter' && saveCb) saveCb(); };
+    $('#newMemberName').onkeypress = e => { if(e.key==='Enter') addMember(); };
 
     const q = new URLSearchParams(location.search).get('data');
     if(q) { try { restore(J.parse(decodeURIComponent(escape(atob(q.replace(/-/g,'+').replace(/_/g,'/')))))); history.replaceState({},D.title,location.pathname); } catch(e){load();} } else load();
@@ -348,7 +266,6 @@ D.addEventListener('DOMContentLoaded', () => {
     mql.addEventListener('change', checkTheme);
 });
 
-/* Logic */
 const renderGender = (el,g) => { el.className=`fas gender-btn ${CFG.ICONS[g]}`; el.title=CFG.TITLES[g]; };
 async function detectGender(name, el, isDriver) {
     if (!name) return;
@@ -366,8 +283,6 @@ function toggleGender(btn) {
     const next = {unknown:'male',male:'female',female:'unknown'}[p.dataset.gender]||'male';
     p.dataset.gender = next; renderGender(btn, next); save();
 }
-
-// ★追加: ロック切り替え関数
 function toggleLock(card) {
     const isLocked = card.dataset.locked === 'true';
     card.dataset.locked = !isLocked;
@@ -377,7 +292,6 @@ function toggleLock(card) {
     save();
 }
 
-// ★修正: ロック情報を引数に追加し、HTMLにボタンを追加
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
     const name = n || $('#newMemberName').value; if(!name) return;
     const d = ce('div', 'member-card'); Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
@@ -394,7 +308,6 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     $('#cars-container').appendChild(col);
     const [pS, rS] = [$('.passenger-seat',col), $('.rear-seats',col)];
     setupSortable(pS); setupSortable(rS);
-    // ★修正: 復元時にlocked状態も渡す
     mems.forEach((m,i) => addMember(m.name,m.memo,m.gender,m.isFreshman,i===0?pS:rS, m.locked));
     if(!n) { $('#newCarName').value=''; detectGender(name,$('.driver-seat',col),true); save(); }
     updateUI();
@@ -403,111 +316,180 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
 function setupSortable(el) { new Sortable(el,{group:'shared',animation:150,ghostClass:'sortable-ghost',delay:100,delayOnTouchOnly:true,onEnd:()=>{updateUI();save();}}); }
 
 function autoAssign(mode) {
-    const opts = { f:$('#optFemale').checked, m:$('#optMale').checked, g:$('#optGrade').checked };
-    // ★修正: ロックされていないメンバーだけを回収する
-    const getM = el => Array.from(el.children).filter(c => c.dataset.locked !== 'true').map(c=>{const d=getMemData(c);c.remove();return d;});
-    
+    const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
+    const isSmartMode = opts.f || opts.m || opts.g;
+    const getM = el => Array.from(el.children).filter(c => c.dataset.locked !== 'true').map(c => { const d = getMemData(c); c.remove(); return d; });
     let mems = getM($('#waiting-list'));
-    
+
+    if (mode === 'shuffle') {
+        if (!confirm("ロックされていないメンバーを再編成しますか？")) {
+            mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); 
+            return;
+        }
+        $$('.car-box').forEach(c => { mems.push(...getM($('.passenger-seat', c)), ...getM($('.rear-seats', c))); });
+    }
+
+    if (!mems.length) return;
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+    mems = shuffle(mems); 
+    let cars = shuffle(Array.from($$('.car-box')));
 
-    if(mode === 'shuffle') {
-        if(!confirm("ロックされていないメンバーを再編成しますか？")) {
-            mems.forEach(m => addMember(m.name,m.memo,m.gender,m.isFreshman, $('#waiting-list'), m.locked)); return;
-        }
-        $$('.car-box').forEach(c => { mems.push(...getM($('.passenger-seat',c)), ...getM($('.rear-seats',c))); });
-    }
-    if(!mems.length) return;
-
-    mems = shuffle(mems);
-    const scoreSort = m => (opts.g && m.isFreshman ? -10000 : 0) + (opts.f && m.gender === 'female' ? -1000 : 0) + (opts.m && m.gender === 'male' ? -100 : 0);
-    if(opts.f||opts.m||opts.g) mems.sort((a,b) => scoreSort(a) - scoreSort(b));
-
-    const cars = shuffle(Array.from($$('.car-box')));
-
-    mems.forEach(m => {
-        let candidates = [], maxScore = -Infinity;
-
-        cars.forEach(c => {
-            if($$('.member-card', c).length >= getInt(c.dataset.capacity)) return;
-            let s = 0;
-            const cMems = [...$$('.passenger-seat .member-card',c), ...$$('.rear-seats .member-card',c)].map(getMemData);
-            const dG = $('.driver-seat', c).dataset.gender;
-
-            if(opts.g) {
-                if(cMems.length > 0) {
-                    const hasSame = cMems.some(x => x.isFreshman === m.isFreshman);
-                    const hasDiff = cMems.some(x => x.isFreshman !== m.isFreshman);
-                    if (hasSame && !hasDiff) s += 5000;
-                    else if (hasDiff) s -= 5000;
-                    else s -= 2000;
-                }
+    if (!isSmartMode) {
+        mems.forEach(member => {
+            const availableCars = cars.filter(c => {
+                const count = getCarMembers(c).length;
+                return count < getInt(c.dataset.capacity);
+            });
+            if (availableCars.length > 0) {
+                const car = availableCars[Math.floor(Math.random() * availableCars.length)];
+                addMemberToCar(member, car);
+            } else {
+                addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
             }
-
-            const checkGender = (targetG) => {
-                if(m.gender === targetG) {
-                    if (dG === targetG) s += 500; else if (dG !== 'unknown') s -= 100;
-                    if (cMems.length > 0) {
-                        const sameCount = cMems.filter(x => x.gender === targetG).length;
-                        const diffCount = cMems.filter(x => x.gender !== targetG && x.gender !== 'unknown').length;
-                        if (sameCount > 0) s += 500 + (sameCount * 10);
-                        if (diffCount > 0) s -= 300 + (diffCount * 50);
-                    }
-                }
-            };
-            if(opts.f) checkGender('female');
-            if(opts.m) checkGender('male');
-
-            if (s > maxScore) { maxScore = s; candidates = [c]; }
-            else if (s === maxScore) candidates.push(c);
         });
-
-        const bestCar = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : null;
-        const target = bestCar ? ($('.passenger-seat', bestCar).children.length ? $('.rear-seats', bestCar) : $('.passenger-seat', bestCar)) : $('#waiting-list');
-        // ★修正: 再配置時もロック状態(基本falseだが念のため)を維持
-        addMember(m.name, m.memo, m.gender, m.isFreshman, target, m.locked);
-    });
-
-    cars.forEach(c => {
-        const memsC = [...$$('.passenger-seat .member-card', c), ...$$('.rear-seats .member-card', c)];
-        // ロックされている人がいる車はソロ移動の対象外にした方が安全だが、ここでは「1人だけ」の条件で縛っているので
-        // ロック関係なく、1人なら動かす（ただし動かす対象がロックされていたら動かせない）
-        if(memsC.length !== 1) return;
-        const solo = memsC[0];
-        if(solo.dataset.locked === 'true') return; // ★追加: ソロでもロックされてたら動かさない
-        
-        const soloG = solo.dataset.gender, soloF = solo.dataset.freshman==='true';
-        const dG = $('.driver-seat', c).dataset.gender;
-        
-        if(opts.f && soloG === 'female' && dG !== 'female') tryMove(solo, c, 'female', soloF);
-        if(opts.m && soloG === 'male' && dG !== 'male') tryMove(solo, c, 'male', soloF);
-    });
-    
-    function tryMove(el, currentCar, gender, isFresh) {
-        for(let other of cars) {
-            if(other === currentCar) continue;
-            if($$('.member-card', other).length >= getInt(other.dataset.capacity)) continue;
-            const oMems = [...$$('.passenger-seat .member-card', other), ...$$('.rear-seats .member-card', other)];
-            const odG = $('.driver-seat', other).dataset.gender;
-            
-            if(opts.g) {
-                const otherF = oMems.filter(x => x.dataset.freshman === 'true').length;
-                const otherS = oMems.length - otherF;
-                if (isFresh && otherS > 0 && otherF === 0) continue; 
-                if (!isFresh && otherF > 0 && otherS === 0) continue;
-            }
-
-            const hasFriend = oMems.some(x => x.dataset.gender === gender) || odG === gender;
-            if(hasFriend) {
-                const t = $('.passenger-seat', other).children.length ? $('.rear-seats', other) : $('.passenger-seat', other);
-                t.appendChild(el);
-                return;
-            }
-        }
+        updateUI(); save(); return;
     }
 
-    updateUI();
-    save();
+    mems.sort((a, b) => {
+        let pA = 0, pB = 0;
+        if (opts.f && a.gender === 'female') pA += 20;
+        if (opts.m && a.gender === 'male') pA += 20;
+        if (opts.g && a.isFreshman) pA += 10;
+        if (opts.f && b.gender === 'female') pB += 20;
+        if (opts.m && b.gender === 'male') pB += 20;
+        if (opts.g && b.isFreshman) pB += 10;
+        return pB - pA;
+    });
+
+    mems.forEach(member => {
+        let bestCar = null;
+        let bestScore = -Infinity;
+        cars.forEach(car => {
+            if (getCarMembers(car).length >= getInt(car.dataset.capacity)) return;
+            const currentMems = getCarMembersData(car);
+            const driver = getDriverData(car);
+            const score = calculateMemberScore(member, [driver, ...currentMems], opts);
+            if (score > bestScore) { bestScore = score; bestCar = car; }
+        });
+        if (bestCar) addMemberToCar(member, bestCar);
+        else addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
+    });
+
+    optimizeDistribution(cars, opts);
+    updateUI(); save();
+}
+
+function addMemberToCar(member, carElement) {
+    const target = ($('.passenger-seat', carElement).children.length ? $('.rear-seats', carElement) : $('.passenger-seat', carElement));
+    addMember(member.name, member.memo, member.gender, member.isFreshman, target, member.locked);
+}
+function getCarMembers(car) { return [...$$('.passenger-seat .member-card', car), ...$$('.rear-seats .member-card', car)]; }
+function getCarMembersData(car) { return getCarMembers(car).map(getMemData); }
+function getDriverData(car) { return { gender: $('.driver-seat', car).dataset.gender, isFreshman: false, isDriver: true }; }
+
+function optimizeDistribution(cars, opts) {
+    const iterations = 500; 
+    for (let i = 0; i < iterations; i++) {
+        const carA = cars[Math.floor(Math.random() * cars.length)];
+        const carB = cars[Math.floor(Math.random() * cars.length)];
+        if (carA === carB) continue;
+
+        const memsA = getCarMembers(carA), memsB = getCarMembers(carB);
+        const candA = memsA.length > 0 ? memsA[Math.floor(Math.random() * memsA.length)] : null;
+        const candB = memsB.length > 0 ? memsB[Math.floor(Math.random() * memsB.length)] : null;
+
+        if (!candA && !candB) continue;
+        if ((candA && candA.dataset.locked === 'true') || (candB && candB.dataset.locked === 'true')) continue;
+
+        const scoreBefore = getCarTotalScore(carA, opts) + getCarTotalScore(carB, opts);
+        const dataA = getCarMembersData(carA), dataB = getCarMembersData(carB);
+        const driverA = getDriverData(carA), driverB = getDriverData(carB);
+        let newDataA = [...dataA], newDataB = [...dataB];
+
+        if (candA) { const idxA = newDataA.findIndex(m => m.name === getMemData(candA).name); if (idxA > -1) newDataA.splice(idxA, 1); }
+        if (candB) { const idxB = newDataB.findIndex(m => m.name === getMemData(candB).name); if (idxB > -1) newDataB.splice(idxB, 1); }
+
+        const capA = getInt(carA.dataset.capacity), capB = getInt(carB.dataset.capacity);
+        if (candB) newDataA.push(getMemData(candB));
+        if (candA) newDataB.push(getMemData(candA));
+        if (newDataA.length > capA || newDataB.length > capB) continue;
+
+        const scoreAfter = calcGroupScore(newDataA, driverA, opts) + calcGroupScore(newDataB, driverB, opts);
+        if (scoreAfter > scoreBefore) performSwap(carA, candA, carB, candB);
+        else if (scoreAfter === scoreBefore && Math.random() < 0.1) performSwap(carA, candA, carB, candB);
+    }
+}
+
+function performSwap(carA, memElA, carB, memElB) {
+    const dataA = memElA ? getMemData(memElA) : null;
+    const dataB = memElB ? getMemData(memElB) : null;
+    if (memElA) memElA.remove();
+    if (memElB) memElB.remove();
+    if (dataA) addMemberToCar(dataA, carB);
+    if (dataB) addMemberToCar(dataB, carA);
+}
+
+function getCarTotalScore(car, opts) {
+    const mems = getCarMembersData(car);
+    const driver = getDriverData(car);
+    return calcGroupScore(mems, driver, opts);
+}
+
+function calcGroupScore(mems, driver, opts) {
+    let score = 0;
+    const occupants = [driver, ...mems];
+    const passengers = mems; 
+
+    if (passengers.length > 0) score += 100;
+    if (opts.g) {
+        const freshCount = passengers.filter(m => m.isFreshman).length;
+        const seniorCount = passengers.filter(m => !m.isFreshman).length;
+        if (freshCount > 0 && seniorCount > 0) score -= 20000; 
+        else score += 5000;
+        if (freshCount === 1) score -= 5000; 
+        if (freshCount >= 2) score += (freshCount * 500);
+    }
+
+    const targetFemale = opts.f, targetMale = opts.m;
+    if (targetFemale || targetMale) {
+        const females = occupants.filter(o => o.gender === 'female').length;
+        const males = occupants.filter(o => o.gender === 'male').length;
+        if (targetFemale && females > 0 && males > 0) score -= 50000;
+        if (targetMale && males > 0 && females > 0) score -= 50000;
+        
+        if (targetFemale && females > 0) {
+            if (females === 1) score -= 10000; 
+            else score += 5000; 
+        }
+        if (targetMale && males > 0) {
+            if (males === 1) score -= 10000;
+            else score += 5000;
+        }
+    }
+    return score;
+}
+
+function calculateMemberScore(member, occupants, opts) {
+    let score = 0;
+    const passengers = occupants.filter(o => !o.isDriver);
+    if (passengers.length === 0) score += 50;
+    else score += 100;
+
+    if (opts.g) {
+        const sameGrade = passengers.filter(o => o.isFreshman === member.isFreshman).length;
+        const diffGrade = passengers.filter(o => o.isFreshman !== member.isFreshman).length;
+        if (diffGrade > 0) score -= 10000; 
+        if (sameGrade > 0) score += 5000;
+    }
+    if ((opts.f && member.gender === 'female') || (opts.m && member.gender === 'male')) {
+        const diffGender = occupants.filter(o => o.gender !== member.gender && o.gender !== 'unknown').length;
+        if (diffGender > 0) score -= 20000; 
+        else {
+            const sameGender = occupants.filter(o => o.gender === member.gender).length;
+            score += 5000;
+        }
+    }
+    return score;
 }
 
 function executeBatch() {
@@ -544,7 +526,6 @@ function updateUI() {
     $$('#waiting-list .state-action-btn').forEach(e=>{e.className='fas fa-times action-btn delete-btn state-action-btn';e.title='削除';e.setAttribute('data-action','delete');});
 }
 
-// ★修正: locked情報の取得と保存
 function getMemData(el) { return {name:$('.member-name-text',el).innerText, memo:$('.memo-popup',el).innerText, gender:el.dataset.gender, isFreshman:el.dataset.freshman==='true', locked:el.dataset.locked==='true'}; }
 function getData() { return { waiting: Array.from($$('#waiting-list .member-card')).map(getMemData), cars: Array.from($$('.car-box')).map(c=>({ name:$('.driver-name-disp',c).innerText, capacity:c.dataset.capacity, driverMemo:$('.driver-memo-text',c).innerText, driverGender:$('.driver-seat',c).dataset.gender, members:[...$$('.passenger-seat .member-card',c),...$$('.rear-seats .member-card',c)].map(getMemData) })) }; }
 function save() { L.setItem(CFG.STORE, J.stringify(getData())); }
