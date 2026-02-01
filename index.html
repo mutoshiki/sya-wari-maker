@@ -75,24 +75,20 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); background-color: var(--input-bg); color: var(--input-text); }
 .form-control::placeholder { color: var(--input-text); opacity: 0.6; }
 
-/* --- 修正箇所: カードとハンドルのスタイル --- */
 .member-card { 
     background: var(--bg-card); 
     border: 1px solid var(--border-color); 
     border-radius: 8px; 
-    /* 左側にハンドル用のスペースを確保 */
     padding: 8px 10px 8px 34px; 
-    position: relative; /* ハンドルの絶対配置用 */
+    position: relative; 
     box-shadow: var(--card-shadow); 
     color: var(--text-main); 
     margin-bottom: 0; 
     display: flex; 
     flex-direction: column; 
-    transition: all 0.2s; /* これがドラッグ中に悪さをするので後述のfallbackで打ち消します */
-    touch-action: pan-y; /* カード本体はスクロール可能にする */
+    transition: all 0.2s; 
+    touch-action: pan-y;
 }
-
-/* 並べ替え専用の持ち手（ハンドル） */
 .handle {
     position: absolute;
     left: 0;
@@ -108,7 +104,7 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
     color: #adb5bd;
-    touch-action: none; /* ここを触った時はスクロールさせない（ドラッグ優先） */
+    touch-action: none;
 }
 .handle:active {
     cursor: grabbing;
@@ -116,8 +112,6 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
     color: #6c757d;
 }
 [data-theme="dark"] .handle { background-color: rgba(255,255,255,0.03); }
-/* -------------------------------------- */
-
 .member-card:active { transform: scale(1.0); }
 .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
@@ -161,24 +155,16 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .share-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--share-bar-bg); border-top: 1px solid var(--border-color); padding: 12px 15px 15px; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
 .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
 .sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; }
-
-/* --- 修正箇所: スマホでのドラッグ移動中のクローン要素のスタイル修正 --- */
 .sortable-fallback { 
     opacity: 1 !important; 
     background: var(--bg-card); 
     box-shadow: 0 15px 30px rgba(0,0,0,0.3); 
     transform: scale(1.02); 
     cursor: grabbing; 
-    
-    /* 重要: アニメーションを無効化して指への追従性を高める */
     transition: none !important; 
-    /* 重要: 最前面に表示 */
     z-index: 9999 !important;
-    /* 重要: タッチイベントを透過させて背後の要素（ドロップ先）を認識させる */
     pointer-events: none;
 }
-/* ---------------------------------------------------------------- */
-
 .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: var(--text-main); }
 .dropdown-item { color: var(--text-main); }
 .dropdown-item:hover { background-color: var(--drag-over-bg); color: var(--text-main); }
@@ -431,7 +417,6 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
     d.setAttribute('data-name', name); 
 
-    // カードの先頭にハンドル（持ち手）
     d.innerHTML = `
         <div class="handle"><i class="fas fa-grip-vertical"></i></div>
         <div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[g]}" title="${CFG.TITLES[g]}"></i>${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div>
@@ -456,7 +441,6 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     updateUI();
 }
 
-// --- 修正箇所: スマホでのドラッグ改善（fallbackOnBody追加） ---
 function setupSortable(el) { 
     new Sortable(el,{
         group: 'shared',
@@ -464,56 +448,93 @@ function setupSortable(el) {
         handle: '.handle', 
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
-        fallbackClass: 'sortable-fallback', // クラス名を明示
-        forceFallback: true, // スマホのネイティブDnDのバグを回避
-        fallbackOnBody: true, // 重要: ドラッグ中の要素をbody直下に置くことで、overflowなどで隠れるのを防ぐ
-        touchStartThreshold: 3, // 少しのブレでは反応しないようにする（誤タップ防止）
+        fallbackClass: 'sortable-fallback',
+        forceFallback: true,
+        fallbackOnBody: true,
+        touchStartThreshold: 3,
         scroll: true, 
-        scrollSensitivity: 30, // スマホでのスクロール感度調整
+        scrollSensitivity: 30,
         delay: 0, 
         onEnd: () => { updateUI(); save(); }
     }); 
 }
-// --------------------------------------
 
 function autoAssign(mode) {
     const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
     const isSmartMode = opts.f || opts.m || opts.g;
+    
+    // ロックされていないメンバーを全回収
     const getM = el => Array.from(el.children).filter(c => c.dataset.locked !== 'true').map(c => { const d = getMemData(c); c.remove(); return d; });
     let mems = getM($('#waiting-list'));
+    
     if (mode === 'shuffle') {
-        if (!confirm("ロックされていないメンバーを再編成しますか？")) { mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); return; }
+        if (!confirm("ロックされていないメンバーを再編成しますか？")) { 
+            mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); 
+            return; 
+        }
         $$('.car-box').forEach(c => { mems.push(...getM($('.passenger-seat', c)), ...getM($('.rear-seats', c))); });
     }
+    
     if (!mems.length) return;
+    
+    // Fisher-Yates shuffle
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
     mems = shuffle(mems); 
-    let cars = shuffle(Array.from($$('.car-box')));
+    let cars = Array.from($$('.car-box'));
+    // 車の並び順が影響しないように車リストもシャッフルする
+    cars = shuffle(cars);
 
+    // --- 完全ランダム（条件指定なし）の場合の修正ロジック ---
     if (!isSmartMode) {
-        mems.forEach(member => {
-            const availableCars = cars.filter(c => getCarMembers(c).length < getInt(c.dataset.capacity));
-            if (availableCars.length > 0) addMemberToCar(member, availableCars[Math.floor(Math.random() * availableCars.length)]);
-            else addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
+        // 全ての車の「空き座席」をリスト化する（例: [車A, 車A, 車B, 車C, 車C...]）
+        let allSlots = [];
+        cars.forEach(c => {
+            const currentMembers = getCarMembers(c).length; // ロックされたメンバー分
+            const capacity = getInt(c.dataset.capacity);
+            const available = capacity - currentMembers;
+            for(let i=0; i<available; i++) allSlots.push(c);
         });
+        
+        // 座席リストをシャッフル（これが「完全ランダム」の肝）
+        allSlots = shuffle(allSlots);
+        
+        // メンバーを座席に割り当てていく
+        mems.forEach((member, i) => {
+            if (i < allSlots.length) {
+                // 空き座席がある場合
+                const targetCar = allSlots[i];
+                addMemberToCar(member, targetCar);
+            } else {
+                // 座席が足りない場合は待機リストへ
+                addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
+            }
+        });
+        
         updateUI(); save(); return;
     }
+
+    // --- 条件あり（スマート割り当て）の場合 ---
+    // 従来通り、スコアの高い順に初期配置
     mems.sort((a, b) => {
         let pA = 0, pB = 0;
         if (opts.f && a.gender === 'female') pA += 20; if (opts.m && a.gender === 'male') pA += 20; if (opts.g && a.isFreshman) pA += 10;
         if (opts.f && b.gender === 'female') pB += 20; if (opts.m && b.gender === 'male') pB += 20; if (opts.g && b.isFreshman) pB += 10;
         return pB - pA;
     });
+    
     mems.forEach(member => {
         let bestCar = null, bestScore = -Infinity;
         cars.forEach(car => {
             if (getCarMembers(car).length >= getInt(car.dataset.capacity)) return;
             const score = calculateMemberScore(member, [getDriverData(car), ...getCarMembersData(car)], opts);
-            if (score > bestScore) { bestScore = score; bestCar = car; }
+            // ランダム要素を少し入れて、同じスコアなら分散させる
+            const jitter = Math.random(); 
+            if (score + jitter > bestScore) { bestScore = score + jitter; bestCar = car; }
         });
         if (bestCar) addMemberToCar(member, bestCar);
         else addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
     });
+    
     optimizeDistribution(cars, opts);
     updateUI(); save();
 }
@@ -527,27 +548,43 @@ function getCarMembersData(car) { return getCarMembers(car).map(getMemData); }
 function getDriverData(car) { return { gender: $('.driver-seat', car).dataset.gender, isFreshman: false, isDriver: true }; }
 
 function optimizeDistribution(cars, opts) {
-    for (let i = 0; i < 500; i++) {
+    // 試行回数を増やしてより最適解に近づける
+    for (let i = 0; i < 1000; i++) {
         const carA = cars[Math.floor(Math.random() * cars.length)];
         const carB = cars[Math.floor(Math.random() * cars.length)];
         if (carA === carB) continue;
+        
         const memsA = getCarMembers(carA), memsB = getCarMembers(carB);
+        // 交換候補を選ぶ（空の場合もあり＝移動）
         const candA = memsA.length ? memsA[Math.floor(Math.random() * memsA.length)] : null;
         const candB = memsB.length ? memsB[Math.floor(Math.random() * memsB.length)] : null;
+        
         if (!candA && !candB) continue;
         if ((candA && candA.dataset.locked==='true') || (candB && candB.dataset.locked==='true')) continue;
 
         const scoreBefore = getCarTotalScore(carA, opts) + getCarTotalScore(carB, opts);
+        
         const dataA = getCarMembersData(carA), dataB = getCarMembersData(carB);
         const driverA = getDriverData(carA), driverB = getDriverData(carB);
+        
         let newDataA = [...dataA], newDataB = [...dataB];
+        
+        // 仮の移動・交換を行う
         if (candA) newDataA = newDataA.filter(m => m.name !== getMemData(candA).name);
         if (candB) newDataB = newDataB.filter(m => m.name !== getMemData(candB).name);
+        
         if (candB) newDataA.push(getMemData(candB));
         if (candA) newDataB.push(getMemData(candA));
+        
+        // 定員オーバーチェック
         if (newDataA.length > getInt(carA.dataset.capacity) || newDataB.length > getInt(carB.dataset.capacity)) continue;
+        
         const scoreAfter = calcGroupScore(newDataA, driverA, opts) + calcGroupScore(newDataB, driverB, opts);
-        if (scoreAfter > scoreBefore || (scoreAfter === scoreBefore && Math.random() < 0.1)) performSwap(carA, candA, carB, candB);
+        
+        // スコアが上がるか、同点でも20%の確率で交換（局所解からの脱出用）
+        if (scoreAfter > scoreBefore || (scoreAfter === scoreBefore && Math.random() < 0.2)) {
+            performSwap(carA, candA, carB, candB);
+        }
     }
 }
 function performSwap(carA, memElA, carB, memElB) {
@@ -560,18 +597,29 @@ function calcGroupScore(mems, driver, opts) {
     let score = 0;
     const occupants = [driver, ...mems];
     if (mems.length > 0) score += 100;
+    
+    // 学年チェック
     if (opts.g) {
         const freshCount = mems.filter(m => m.isFreshman).length;
         const seniorCount = mems.filter(m => !m.isFreshman).length;
+        // 1年生と上級生が混ざると大幅減点（できるだけ固めるため）
         if (freshCount > 0 && seniorCount > 0) score -= 20000; else score += 5000;
-        if (freshCount === 1) score -= 5000; if (freshCount >= 2) score += (freshCount * 500);
+        // 1年生が1人ぼっちは避ける
+        if (freshCount === 1) score -= 5000; 
+        if (freshCount >= 2) score += (freshCount * 500);
     }
+    
+    // 男女チェック
     const targetFemale = opts.f, targetMale = opts.m;
     if (targetFemale || targetMale) {
         const females = occupants.filter(o => o.gender === 'female').length;
         const males = occupants.filter(o => o.gender === 'male').length;
+        
+        // 異性が混在する場合
         if (targetFemale && females > 0 && males > 0) score -= 50000;
         if (targetMale && males > 0 && females > 0) score -= 50000;
+        
+        // 紅一点・黒一点を避ける
         if ((targetFemale && females === 1) || (targetMale && males === 1)) score -= 10000;
     }
     return score;
@@ -579,13 +627,18 @@ function calcGroupScore(mems, driver, opts) {
 function calculateMemberScore(member, occupants, opts) {
     let score = 0;
     const passengers = occupants.filter(o => !o.isDriver);
+    // 助手席よりは後部座席優先のロジック（微調整）
     if (passengers.length === 0) score += 50; else score += 100;
+    
     if (opts.g) {
+        // 同じ学年がいるとプラス
         const sameGrade = passengers.filter(o => o.isFreshman === member.isFreshman).length;
         if (passengers.filter(o => o.isFreshman !== member.isFreshman).length > 0) score -= 10000;
         if (sameGrade > 0) score += 5000;
     }
+    
     if ((opts.f && member.gender === 'female') || (opts.m && member.gender === 'male')) {
+        // 異性がいる車は避ける
         if (occupants.filter(o => o.gender !== member.gender && o.gender !== 'unknown').length > 0) score -= 20000;
         else if (occupants.filter(o => o.gender === member.gender).length > 0) score += 5000;
     }
