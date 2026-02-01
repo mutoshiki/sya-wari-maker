@@ -88,7 +88,7 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
     margin-bottom: 0; 
     display: flex; 
     flex-direction: column; 
-    transition: all 0.2s;
+    transition: all 0.2s; /* これがドラッグ中に悪さをするので後述のfallbackで打ち消します */
     touch-action: pan-y; /* カード本体はスクロール可能にする */
 }
 
@@ -103,7 +103,7 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
     align-items: center;
     justify-content: center;
     cursor: grab;
-    background-color: rgba(0,0,0,0.03); /* 少し色を付けて認識しやすく */
+    background-color: rgba(0,0,0,0.03); 
     border-right: 1px solid var(--border-color);
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
@@ -118,7 +118,7 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 [data-theme="dark"] .handle { background-color: rgba(255,255,255,0.03); }
 /* -------------------------------------- */
 
-.member-card:active { transform: scale(1.0); /* scaleさせない方が安定する */ }
+.member-card:active { transform: scale(1.0); }
 .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
 .member-card[data-locked="true"] { border-color: var(--locked-color); border-width: 2px; box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
@@ -162,8 +162,22 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.6; border: 2px dashed #888; }
 .sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; }
 
-/* スマホでのドラッグ移動中のクローン要素のスタイル */
-.sortable-fallback { opacity: 0.9 !important; background: var(--bg-card); box-shadow: 0 10px 20px rgba(0,0,0,0.2); transform: scale(1.02); cursor: grabbing; }
+/* --- 修正箇所: スマホでのドラッグ移動中のクローン要素のスタイル修正 --- */
+.sortable-fallback { 
+    opacity: 1 !important; 
+    background: var(--bg-card); 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3); 
+    transform: scale(1.02); 
+    cursor: grabbing; 
+    
+    /* 重要: アニメーションを無効化して指への追従性を高める */
+    transition: none !important; 
+    /* 重要: 最前面に表示 */
+    z-index: 9999 !important;
+    /* 重要: タッチイベントを透過させて背後の要素（ドロップ先）を認識させる */
+    pointer-events: none;
+}
+/* ---------------------------------------------------------------- */
 
 .dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: var(--text-main); }
 .dropdown-item { color: var(--text-main); }
@@ -417,7 +431,7 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
     d.setAttribute('data-name', name); 
 
-    // 修正: カードの先頭にハンドル（持ち手）を追加
+    // カードの先頭にハンドル（持ち手）
     d.innerHTML = `
         <div class="handle"><i class="fas fa-grip-vertical"></i></div>
         <div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[g]}" title="${CFG.TITLES[g]}"></i>${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div>
@@ -442,16 +456,21 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     updateUI();
 }
 
-// --- 修正箇所: ハンドル指定とFallback設定 ---
+// --- 修正箇所: スマホでのドラッグ改善（fallbackOnBody追加） ---
 function setupSortable(el) { 
     new Sortable(el,{
         group: 'shared',
         animation: 150,
-        handle: '.handle', // 追加: このクラスを持つ要素だけがドラッグ可能
+        handle: '.handle', 
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
-        forceFallback: true, // 追加: スマホのネイティブDnDのバグを回避し、JSで制御する
-        delay: 0, // ハンドルがあるので遅延は不要（即時反応）
+        fallbackClass: 'sortable-fallback', // クラス名を明示
+        forceFallback: true, // スマホのネイティブDnDのバグを回避
+        fallbackOnBody: true, // 重要: ドラッグ中の要素をbody直下に置くことで、overflowなどで隠れるのを防ぐ
+        touchStartThreshold: 3, // 少しのブレでは反応しないようにする（誤タップ防止）
+        scroll: true, 
+        scrollSensitivity: 30, // スマホでのスクロール感度調整
+        delay: 0, 
         onEnd: () => { updateUI(); save(); }
     }); 
 }
