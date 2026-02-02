@@ -120,14 +120,12 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .lock-btn:hover { color: var(--text-main); }
 .member-card[data-locked="true"] .lock-btn { color: var(--locked-color); opacity: 1; }
 .card-top-row { display: flex; align-items: center; font-size: 1rem; line-height: 1.2; width: 100%; }
-.member-name-text { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; }
+.member-name-text { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; cursor: pointer; }
 .card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; font-size: 0.85rem; }
 .action-btn { cursor: pointer; padding: 2px 4px; color: #aaa; transition: color 0.2s; }
 .action-btn:hover { color: var(--text-main); }
 .edit-name-btn { cursor: pointer; font-size: 0.8em; color: inherit; opacity: 0.6; transition: opacity 0.2s; }
 .edit-name-btn:hover { opacity: 1; }
-.gender-btn { cursor: pointer; margin-right: 4px; font-size: 1.1em; }
-[data-gender="male"] .gender-btn { color: #1976d2; } [data-gender="female"] .gender-btn { color: #c2185b; }
 .freshman-icon { color: var(--freshman-color); margin-right: 4px; font-size: 1em; }
 .memo-indicator { font-size: 0.9rem; color: #ffc107; cursor: pointer; margin-right: 6px; transition: transform 0.2s; }
 .memo-indicator:hover { transform: scale(1.1); }
@@ -147,6 +145,7 @@ body { background-color: var(--bg-body); color: var(--text-main); font-family: '
 .driver-seat[data-gender="male"] { background: var(--driver-bg-male); color: var(--driver-text-male); border-color: var(--border-male); }
 .driver-seat[data-gender="female"] { background: var(--driver-bg-female); color: var(--driver-text-female); border-color: var(--border-female); }
 .driver-label { font-size: 0.7em; opacity: 0.8; text-align: right; margin-bottom: 4px; line-height: 1; font-weight: bold; letter-spacing: 0.5px;}
+.driver-name-disp { cursor: pointer; }
 .waiting-area { background-color: rgba(0,0,0,0.03); border-radius: 10px; padding: 10px; min-height: 100px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; border: 2px dashed var(--border-color); transition: background-color 0.2s, border-color 0.2s; }
 [data-theme="dark"] .waiting-area { background-color: rgba(255,255,255,0.03); }
 .waiting-area.drag-over { background-color: var(--drag-over-bg); border-color: #0d6efd; }
@@ -291,7 +290,9 @@ D.addEventListener('DOMContentLoaded', () => {
         const act = d.action || t.getAttribute('action'); 
         const cls = t.classList;
         
-        if (cls.contains('gender-btn')) { toggleGender(t); return; }
+        // 名前をクリックすると性別が切り替わるように変更（アイコン削除に伴う対応）
+        if (cls.contains('member-name-text') || cls.contains('driver-name-disp')) { toggleGender(t); return; }
+        
         if (cls.contains('edit-btn') || cls.contains('edit-name-btn') || d.edit) { handleEdit(d.edit || (cls.contains('edit-name-btn')?(t.closest('.member-card')?'name':'carName'):(t.closest('.driver-seat')?'driverMemo':'memo')), t); return; }
         if (cls.contains('lock-btn')) { toggleLock(t.closest('.member-card')); return; }
         
@@ -367,8 +368,7 @@ async function processGenderQueue() {
                         const card = el.closest('.member-card') || el.closest('.driver-seat');
                         if (card) {
                             card.dataset.gender = gender;
-                            const btn = card.querySelector('.gender-btn');
-                            if (btn) renderGender(btn, gender);
+                            // アイコンはなくなったので描画処理は不要
                         }
                     });
                     save(); 
@@ -395,12 +395,11 @@ async function fetchGenderFromApi(name) {
     return 'unknown';
 }
 
-const renderGender = (el,g) => { el.className=`fas gender-btn ${CFG.ICONS[g]}`; el.title=CFG.TITLES[g]; };
- 
-function toggleGender(btn) {
-    const p = btn.closest(btn.closest('.member-card') ? '.member-card' : '.driver-seat');
+function toggleGender(target) {
+    const p = target.closest(target.closest('.member-card') ? '.member-card' : '.driver-seat');
     const next = {unknown:'male',male:'female',female:'unknown'}[p.dataset.gender]||'male';
-    p.dataset.gender = next; renderGender(btn, next); save();
+    p.dataset.gender = next; 
+    save();
 }
 function toggleLock(card) {
     const isLocked = card.dataset.locked === 'true';
@@ -417,9 +416,10 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     Object.assign(d.dataset, {gender:g, freshman:f, locked:locked});
     d.setAttribute('data-name', name); 
 
+    // 性別アイコンを削除 (card-top-row内)
     d.innerHTML = `
         <div class="handle"><i class="fas fa-grip-vertical"></i></div>
-        <div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[g]}" title="${CFG.TITLES[g]}"></i>${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div>
+        <div class="card-top-row">${f?'<i class="fas fa-leaf freshman-icon" title="1年生"></i>':''}<span class="member-name-text" title="${name}">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${m}</div>
         <div class="card-bottom-row"><div class="d-flex align-items-center"><i class="fas fa-sticky-note memo-indicator ${m?'':'empty'} edit-btn"></i></div><div class="d-flex align-items-center"><i class="fas ${locked?'fa-lock':'fa-unlock'} action-btn lock-btn" title="${locked?'固定中':'固定解除'}"></i><i class="fas action-btn state-action-btn" data-action="${parent.id==='waiting-list'?'delete':'return'}"></i></div></div>
     `;
@@ -432,7 +432,8 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
 function addCar(n, cap, mems=[], dm='', dg='unknown') {
     const name = n || $('#newCarName').value, c = cap || $('#newCarCapacity').value; if(!name) return;
     const col = ce('div', 'col-md-6 mb-2');
-    col.innerHTML = `<div class="car-box" data-capacity="${c}"><div class="car-header"><div class="d-flex align-items-center"><i class="fas fa-car text-primary me-2"></i><span class="car-name-text">${name} 車</span></div><div><span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" data-edit="capacity">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn" data-action="delete"></i></div></div><div class="car-interior-layout"><div class="front-row"><div class="seat-area sortable-area passenger-seat"></div><div class="seat-area driver-seat" data-gender="${dg}" data-name="${name}"><div class="w-100"><span class="driver-label">DRIVER</span><div class="card-top-row"><i class="fas gender-btn ${CFG.ICONS[dg]}" title="driver"></i><span class="driver-name-disp fw-bold text-truncate" style="flex:1; margin:0 4px;">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div></div><div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${dm}</div><div class="card-bottom-row mt-1 w-100" style="border-top:1px dashed rgba(0,0,0,0.1); padding-top:2px;"><i class="fas fa-sticky-note memo-indicator ${dm?'':'empty'} edit-btn"></i></div></div></div><div class="seat-area sortable-area rear-seats"></div></div></div>`;
+    // 性別アイコンを削除 (driver-seat内)
+    col.innerHTML = `<div class="car-box" data-capacity="${c}"><div class="car-header"><div class="d-flex align-items-center"><i class="fas fa-car text-primary me-2"></i><span class="car-name-text">${name} 車</span></div><div><span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" data-edit="capacity">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn" data-action="delete"></i></div></div><div class="car-interior-layout"><div class="front-row"><div class="seat-area sortable-area passenger-seat"></div><div class="seat-area driver-seat" data-gender="${dg}" data-name="${name}"><div class="w-100"><span class="driver-label">DRIVER</span><div class="card-top-row"><span class="driver-name-disp fw-bold text-truncate" style="flex:1; margin:0 4px;">${name}</span><i class="fas fa-pencil-alt edit-name-btn"></i></div></div><div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${dm}</div><div class="card-bottom-row mt-1 w-100" style="border-top:1px dashed rgba(0,0,0,0.1); padding-top:2px;"><i class="fas fa-sticky-note memo-indicator ${dm?'':'empty'} edit-btn"></i></div></div></div><div class="seat-area sortable-area rear-seats"></div></div></div>`;
     $('#cars-container').appendChild(col);
     const [pS, rS] = [$('.passenger-seat',col), $('.rear-seats',col)];
     setupSortable(pS); setupSortable(rS);
@@ -479,42 +480,57 @@ function autoAssign(mode) {
     
     // Fisher-Yates shuffle
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
-    mems = shuffle(mems); 
+    
     let cars = Array.from($$('.car-box'));
-    // 車の並び順が影響しないように車リストもシャッフルする
-    cars = shuffle(cars);
+    cars = shuffle(cars); 
 
-    // --- 完全ランダム（条件指定なし）の場合の修正ロジック ---
-    if (!isSmartMode) {
-        // 全ての車の「空き座席」をリスト化する（例: [車A, 車A, 車B, 車C, 車C...]）
-        let allSlots = [];
-        cars.forEach(c => {
-            const currentMembers = getCarMembers(c).length; // ロックされたメンバー分
-            const capacity = getInt(c.dataset.capacity);
-            const available = capacity - currentMembers;
-            for(let i=0; i<available; i++) allSlots.push(c);
+    // 新シャッフルロジック: 上級生サポート重視
+    if (mode === 'shuffle') {
+        const seniors = mems.filter(m => !m.isFreshman);
+        const freshmen = mems.filter(m => m.isFreshman);
+
+        shuffle(seniors);
+        shuffle(freshmen);
+
+        // 各車にまず「運転手以外の上級生」を1人ずつ配る（サポート役の確保）
+        cars.forEach(car => {
+            const cap = getInt(car.dataset.capacity);
+            const currentMems = getCarMembersData(car);
+            if (currentMems.length >= cap) return;
+            const hasSeniorPassenger = currentMems.some(m => !m.isFreshman);
+            if (!hasSeniorPassenger && seniors.length > 0) {
+                const s = seniors.pop();
+                addMemberToCar(s, car);
+            }
+        });
+
+        // 残りの全メンバー（1年生＋余った上級生）を混ぜてシャッフル
+        let remain = [...seniors, ...freshmen];
+        remain = shuffle(remain);
+
+        // 残りの空き座席に、チケット制で公平にランダム配置
+        let slots = [];
+        cars.forEach(car => {
+            const cap = getInt(car.dataset.capacity);
+            const cur = getCarMembers(car).length;
+            for(let i=0; i < (cap - cur); i++) slots.push(car);
         });
         
-        // 座席リストをシャッフル（これが「完全ランダム」の肝）
-        allSlots = shuffle(allSlots);
-        
-        // メンバーを座席に割り当てていく
-        mems.forEach((member, i) => {
-            if (i < allSlots.length) {
-                // 空き座席がある場合
-                const targetCar = allSlots[i];
-                addMemberToCar(member, targetCar);
+        slots = shuffle(slots);
+
+        remain.forEach((member, i) => {
+            if (i < slots.length) {
+                addMemberToCar(member, slots[i]);
             } else {
-                // 座席が足りない場合は待機リストへ
                 addMember(member.name, member.memo, member.gender, member.isFreshman, $('#waiting-list'), member.locked);
             }
         });
-        
-        updateUI(); save(); return;
+
+        updateUI(); save(); 
+        return;
     }
 
-    // --- 条件あり（スマート割り当て）の場合 ---
-    // 従来通り、スコアの高い順に初期配置
+    // スマート割り当て（条件あり）のロジック
     mems.sort((a, b) => {
         let pA = 0, pB = 0;
         if (opts.f && a.gender === 'female') pA += 20; if (opts.m && a.gender === 'male') pA += 20; if (opts.g && a.isFreshman) pA += 10;
@@ -527,7 +543,6 @@ function autoAssign(mode) {
         cars.forEach(car => {
             if (getCarMembers(car).length >= getInt(car.dataset.capacity)) return;
             const score = calculateMemberScore(member, [getDriverData(car), ...getCarMembersData(car)], opts);
-            // ランダム要素を少し入れて、同じスコアなら分散させる
             const jitter = Math.random(); 
             if (score + jitter > bestScore) { bestScore = score + jitter; bestCar = car; }
         });
@@ -548,14 +563,12 @@ function getCarMembersData(car) { return getCarMembers(car).map(getMemData); }
 function getDriverData(car) { return { gender: $('.driver-seat', car).dataset.gender, isFreshman: false, isDriver: true }; }
 
 function optimizeDistribution(cars, opts) {
-    // 試行回数を増やしてより最適解に近づける
     for (let i = 0; i < 1000; i++) {
         const carA = cars[Math.floor(Math.random() * cars.length)];
         const carB = cars[Math.floor(Math.random() * cars.length)];
         if (carA === carB) continue;
         
         const memsA = getCarMembers(carA), memsB = getCarMembers(carB);
-        // 交換候補を選ぶ（空の場合もあり＝移動）
         const candA = memsA.length ? memsA[Math.floor(Math.random() * memsA.length)] : null;
         const candB = memsB.length ? memsB[Math.floor(Math.random() * memsB.length)] : null;
         
@@ -568,20 +581,15 @@ function optimizeDistribution(cars, opts) {
         const driverA = getDriverData(carA), driverB = getDriverData(carB);
         
         let newDataA = [...dataA], newDataB = [...dataB];
-        
-        // 仮の移動・交換を行う
         if (candA) newDataA = newDataA.filter(m => m.name !== getMemData(candA).name);
         if (candB) newDataB = newDataB.filter(m => m.name !== getMemData(candB).name);
-        
         if (candB) newDataA.push(getMemData(candB));
         if (candA) newDataB.push(getMemData(candA));
         
-        // 定員オーバーチェック
         if (newDataA.length > getInt(carA.dataset.capacity) || newDataB.length > getInt(carB.dataset.capacity)) continue;
         
         const scoreAfter = calcGroupScore(newDataA, driverA, opts) + calcGroupScore(newDataB, driverB, opts);
         
-        // スコアが上がるか、同点でも20%の確率で交換（局所解からの脱出用）
         if (scoreAfter > scoreBefore || (scoreAfter === scoreBefore && Math.random() < 0.2)) {
             performSwap(carA, candA, carB, candB);
         }
@@ -593,20 +601,20 @@ function performSwap(carA, memElA, carB, memElB) {
     if (dataA) addMemberToCar(dataA, carB); if (dataB) addMemberToCar(dataB, carA);
 }
 function getCarTotalScore(car, opts) { return calcGroupScore(getCarMembersData(car), getDriverData(car), opts); }
+
 function calcGroupScore(mems, driver, opts) {
     let score = 0;
     const occupants = [driver, ...mems];
     if (mems.length > 0) score += 100;
     
-    // 学年チェック
+    // 学年チェック（上級生サポート重視）
     if (opts.g) {
         const freshCount = mems.filter(m => m.isFreshman).length;
         const seniorCount = mems.filter(m => !m.isFreshman).length;
-        // 1年生と上級生が混ざると大幅減点（できるだけ固めるため）
-        if (freshCount > 0 && seniorCount > 0) score -= 20000; else score += 5000;
-        // 1年生が1人ぼっちは避ける
-        if (freshCount === 1) score -= 5000; 
-        if (freshCount >= 2) score += (freshCount * 500);
+        if (seniorCount >= 1) score += 5000;
+        if (freshCount > 0 && seniorCount === 0) score -= 20000;
+        if (freshCount === 1) score -= 10000; 
+        if (freshCount >= 2) score += 2000;
     }
     
     // 男女チェック
@@ -614,31 +622,31 @@ function calcGroupScore(mems, driver, opts) {
     if (targetFemale || targetMale) {
         const females = occupants.filter(o => o.gender === 'female').length;
         const males = occupants.filter(o => o.gender === 'male').length;
-        
-        // 異性が混在する場合
         if (targetFemale && females > 0 && males > 0) score -= 50000;
         if (targetMale && males > 0 && females > 0) score -= 50000;
-        
-        // 紅一点・黒一点を避ける
         if ((targetFemale && females === 1) || (targetMale && males === 1)) score -= 10000;
     }
     return score;
 }
+
 function calculateMemberScore(member, occupants, opts) {
     let score = 0;
     const passengers = occupants.filter(o => !o.isDriver);
-    // 助手席よりは後部座席優先のロジック（微調整）
     if (passengers.length === 0) score += 50; else score += 100;
     
     if (opts.g) {
-        // 同じ学年がいるとプラス
-        const sameGrade = passengers.filter(o => o.isFreshman === member.isFreshman).length;
-        if (passengers.filter(o => o.isFreshman !== member.isFreshman).length > 0) score -= 10000;
-        if (sameGrade > 0) score += 5000;
+        if (!member.isFreshman) {
+            const hasSenior = passengers.some(m => !m.isFreshman);
+            if (!hasSenior) score += 5000; 
+        } else {
+            const freshInCar = passengers.filter(o => o.isFreshman).length;
+            const seniorInCar = passengers.filter(o => !o.isFreshman).length;
+            if (seniorInCar > 0) score += 3000;
+            if (freshInCar >= 1) score += 3000;
+        }
     }
     
     if ((opts.f && member.gender === 'female') || (opts.m && member.gender === 'male')) {
-        // 異性がいる車は避ける
         if (occupants.filter(o => o.gender !== member.gender && o.gender !== 'unknown').length > 0) score -= 20000;
         else if (occupants.filter(o => o.gender === member.gender).length > 0) score += 5000;
     }
