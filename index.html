@@ -290,7 +290,6 @@ D.addEventListener('DOMContentLoaded', () => {
         const act = d.action || t.getAttribute('action'); 
         const cls = t.classList;
         
-        // 名前をクリックすると性別が切り替わるように変更（アイコン削除に伴う対応）
         if (cls.contains('member-name-text') || cls.contains('driver-name-disp')) { toggleGender(t); return; }
         
         if (cls.contains('edit-btn') || cls.contains('edit-name-btn') || d.edit) { handleEdit(d.edit || (cls.contains('edit-name-btn')?(t.closest('.member-card')?'name':'carName'):(t.closest('.driver-seat')?'driverMemo':'memo')), t); return; }
@@ -317,7 +316,7 @@ D.addEventListener('DOMContentLoaded', () => {
             addCar: () => addCar(), addMember: () => addMember(),
             auto: () => autoAssign(d.mode),
             clear: () => { if(confirm('ロックされていないメンバーを全解除しますか？')) { $$('.car-interior-layout .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m)); updateUI(); save(); } },
-            reset: () => { if(confirm('リセット？')) { L.removeItem(CFG.STORE); location.href = location.pathname; }},
+            reset: () => { if(confirm('リセット？')) { L.removeItem(CFG.STORE + '_' + roomId); location.href = location.pathname; }},
             copyUrl: () => copy(window.location.href),
             copyLine: () => copyLine()
         };
@@ -339,7 +338,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
 function save() { 
     const d = getData();
-    L.setItem(CFG.STORE, J.stringify(d)); 
+    L.setItem(CFG.STORE + '_' + roomId, J.stringify(d)); 
     if (!isRemoteUpdate && dbRef) {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => { set(dbRef, d).catch(e => console.error("Firebase Error:", e)); }, 500); 
@@ -702,7 +701,7 @@ function load() {
             restore(val);
             isRemoteUpdate = false;
         } else {
-            const local = J.parse(L.getItem(CFG.STORE));
+            const local = J.parse(L.getItem(CFG.STORE + '_' + roomId));
             if(local) { restore(local); save(); } 
         }
     });
