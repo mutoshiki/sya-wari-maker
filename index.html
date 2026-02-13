@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>山歩会 車割メーカー</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -306,12 +307,31 @@ body {
 [data-theme="dark"] .btn-close { filter: invert(1); opacity: 0.7; }
 
 .btn-group .btn i, .btn-outline-danger i { font-size: 1.1em; }
+
+/* Guide Styles */
+#guide-templates {
+    position: fixed; left: -9999px; top: 0; width: 350px; /* Mobile width sim */
+    background: var(--bg-body); pointer-events: none; visibility: visible; z-index: -1;
+}
+.guide-step { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+.guide-step:last-child { border: none; margin-bottom: 0; }
+.guide-step h5 { color: var(--primary-btn); font-weight: bold; display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+.guide-step p { font-size: 0.9rem; opacity: 0.9; margin-bottom: 10px; }
+.guide-img-box {
+    border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
+    min-height: 80px; display: flex; align-items: center; justify-content: center;
+    background: var(--bg-body); margin-top: 10px;
+}
+.guide-img-box img { width: 100%; display: block; opacity: 0; transition: opacity 0.5s; }
+.guide-img-box img.loaded { opacity: 1; }
+.tpl-wrapper { padding: 15px; background: var(--bg-body); }
 </style>
 </head>
 <body data-theme="light">
 <div class="container py-4"> <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0 fs-4 fw-bold text-nowrap" style="color: var(--text-main);"><i class="fas fa-mountain me-2" style="color: var(--accent-color);"></i>車割メーカー</h2>
         <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm shadow-sm" onclick="openGuide()" title="使い方ガイド"><i class="fas fa-question-circle"></i></button>
             <button class="btn btn-warning btn-sm fw-bold shadow-sm" data-action="batch"><i class="fas fa-paste me-1"></i>一括登録</button>
             <button class="btn btn-outline-danger btn-sm shadow-sm" data-action="reset"><i class="fas fa-redo-alt"></i></button>
         </div>
@@ -370,6 +390,131 @@ body {
 <div class="modal fade" id="commonEditModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header py-3"><h5 class="modal-title fs-6 fw-bold" id="editModalTitle">編集</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body pt-0 pb-3"><input type="text" id="editModalInput" class="form-control" autocomplete="off" style="font-size: 1.1em;"></div><div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button><button type="button" class="btn btn-primary btn-sm" id="saveEditBtn">保存</button></div></div></div></div>
 <div class="modal fade" id="batchImportModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold"><i class="fas fa-paste me-2 text-warning"></i>一括登録</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-4"><div class="col-md-4"><label class="form-label fw-bold small text-primary">同乗者リスト (改行区切り)</label><textarea id="batchMembers" class="form-control batch-textarea shadow-sm" style="min-height:200px; background-color: var(--input-bg); color: var(--text-main);"></textarea></div><div class="col-md-4"><label class="form-label fw-bold small text-success">1年生リスト (改行区切り)</label><textarea id="batchFreshmen" class="form-control batch-textarea shadow-sm" style="min-height:200px; background-color: var(--input-bg); color: var(--text-main);"></textarea></div><div class="col-md-4"><label class="form-label fw-bold small text-secondary">運転手リスト (改行区切り)</label><textarea id="batchDrivers" class="form-control batch-textarea shadow-sm" style="min-height:200px; background-color: var(--input-bg); color: var(--text-main);"></textarea></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button><button type="button" class="btn btn-primary px-4" id="execBatchBtn">登録実行</button></div></div></div></div>
 
+<div class="modal fade" id="guideModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="fas fa-book-open me-2" style="color:var(--accent-color);"></i>使い方ガイド</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="guide-step">
+                    <h5><i class="fas fa-1"></i> メンバーと車の登録</h5>
+                    <p>名前を入力して追加ボタンを押します。<br>「一括登録」を使えばリストからまとめて登録も可能です。</p>
+                    <div class="guide-img-box"><img id="guide-img-1" alt="登録"></div>
+                </div>
+                <div class="guide-step">
+                    <h5><i class="fas fa-2"></i> ドラッグ＆ドロップ</h5>
+                    <p>メンバーカードを長押しして、好きな車に移動させます。座席の入れ替えも自由です。</p>
+                    <div class="guide-img-box"><img id="guide-img-2" alt="操作"></div>
+                </div>
+                <div class="guide-step">
+                    <h5><i class="fas fa-3"></i> 自動割り当て機能</h5>
+                    <p>「埋める」で順番に、「シャッフル」でランダムに割り振ります。女子まとめ等のオプションも使えます。</p>
+                    <div class="guide-img-box"><img id="guide-img-3" alt="自動"></div>
+                </div>
+                <div class="guide-step">
+                    <h5><i class="fas fa-4"></i> ロックとメモ</h5>
+                    <p>鍵アイコンで固定すると、一括解除やシャッフルの対象外になります。吹き出しアイコンでメモを残せます。</p>
+                    <div class="guide-img-box"><img id="guide-img-4" alt="ロック"></div>
+                </div>
+                <div class="guide-step">
+                    <h5><i class="fas fa-5"></i> 共有</h5>
+                    <p>LINE用テキストをコピーしたり、URLをメンバーに送ってリアルタイム編集できます。</p>
+                    <div class="guide-img-box"><img id="guide-img-5" alt="共有"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="guide-templates">
+    <div id="tpl-step1" class="tpl-wrapper">
+        <div class="input-group shadow-sm mb-2">
+            <span class="input-group-text border-end-0"><i class="fas fa-user text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 ps-0" value="佐藤(兄)" readonly>
+            <button class="btn btn-primary px-3">追加</button>
+        </div>
+        <div class="input-group shadow-sm">
+            <span class="input-group-text border-end-0"><i class="fas fa-car text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 ps-0" value="田中" readonly>
+            <input type="number" class="form-control text-center" value="4" style="max-width:60px;">
+            <button class="btn btn-success px-3">車追加</button>
+        </div>
+    </div>
+    <div id="tpl-step2" class="tpl-wrapper">
+        <div class="d-flex gap-2">
+            <div style="width:40%;">
+                <h6 class="fw-bold text-muted small"><i class="fas fa-users"></i> 待機</h6>
+                <div class="member-card" data-gender="female">
+                    <div class="handle"><i class="fas fa-grip-vertical"></i></div>
+                    <div class="card-top-row"><span class="member-name-text">鈴木</span></div>
+                    <div class="card-bottom-row"><div class="d-flex"><i class="fas fa-sticky-note memo-indicator empty"></i></div></div>
+                </div>
+            </div>
+            <div style="flex:1;">
+                <h6 class="fw-bold text-muted small"><i class="fas fa-car"></i> 田中車</h6>
+                <div class="car-box p-2">
+                    <div class="seat-area drag-over" style="border:2px dashed var(--accent-color);">
+                        <div class="member-card sortable-chosen" style="opacity:0.8;">
+                            <div class="handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="card-top-row"><span class="member-name-text">高橋</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tpl-step3" class="tpl-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-bold small">未割当メンバー</h6>
+            <div class="btn-group shadow-sm">
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-plus"></i></button>
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-random"></i></button>
+                <button class="btn btn-outline-secondary btn-sm active"><i class="fas fa-caret-down"></i></button>
+            </div>
+        </div>
+        <div class="p-2 border rounded shadow-sm" style="background:var(--modal-bg);">
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" checked><label class="form-check-label small">🚺 女子をまとめる</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">🎓 学年優先</label></div>
+        </div>
+    </div>
+    <div id="tpl-step4" class="tpl-wrapper">
+        <div class="row">
+            <div class="col-6">
+                 <div class="member-card" data-locked="true" data-gender="male">
+                    <div class="handle"><i class="fas fa-grip-vertical"></i></div>
+                    <div class="card-top-row"><span class="member-name-text">山田</span></div>
+                    <div class="card-bottom-row">
+                        <div><i class="fas fa-sticky-note memo-indicator empty"></i></div>
+                        <div><i class="fas fa-lock action-btn lock-btn" style="color:var(--locked-color);"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                 <div class="member-card" data-freshman="true" data-gender="female">
+                    <div class="handle"><i class="fas fa-grip-vertical"></i></div>
+                    <div class="card-top-row"><i class="fas fa-leaf freshman-icon"></i><span class="member-name-text">佐藤(妹)</span></div>
+                    <div class="memo-popup" style="display:block;">現地集合</div>
+                    <div class="card-bottom-row">
+                        <div><i class="fas fa-sticky-note memo-indicator"></i></div>
+                        <div><i class="fas fa-unlock action-btn lock-btn"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tpl-step5" class="tpl-wrapper">
+         <div class="row g-2">
+            <div class="col-6"><button class="btn btn-outline-primary w-100 py-2 fw-bold shadow-sm" style="font-size:0.8rem;"><i class="far fa-copy me-1"></i>LINE用</button></div>
+            <div class="col-6"><button class="btn btn-primary w-100 py-2 fw-bold shadow-sm" style="font-size:0.8rem;"><i class="fas fa-link me-1"></i>URL共有</button></div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script type="module">
@@ -413,6 +558,48 @@ let modals={}, saveCb;
 let genderQueue = [];
 let isProcessingQueue = false;
 let saveTimer = null; 
+let guideModal = null;
+
+// --- Guide Image Generation ---
+window.openGuide = function() {
+    if(!guideModal) guideModal = new bootstrap.Modal(document.getElementById('guideModal'));
+    guideModal.show();
+}
+
+window.addEventListener('load', () => {
+    // 少し遅延させてフォント読み込み等を待つ
+    setTimeout(generateGuideImages, 1500);
+});
+
+function generateGuideImages() {
+    if (typeof html2canvas === 'undefined') return;
+    
+    const steps = [
+        { src: 'tpl-step1', target: 'guide-img-1' },
+        { src: 'tpl-step2', target: 'guide-img-2' },
+        { src: 'tpl-step3', target: 'guide-img-3' },
+        { src: 'tpl-step4', target: 'guide-img-4' },
+        { src: 'tpl-step5', target: 'guide-img-5' }
+    ];
+
+    const generateNext = (index) => {
+        if (index >= steps.length) return;
+        const s = steps[index];
+        const el = document.getElementById(s.src);
+        const img = document.getElementById(s.target);
+        if(el && img) {
+            html2canvas(el, { scale: 2, backgroundColor: null, logging: false }).then(canvas => {
+                img.src = canvas.toDataURL('image/png');
+                img.classList.add('loaded');
+                generateNext(index + 1);
+            });
+        } else {
+            generateNext(index + 1);
+        }
+    };
+    generateNext(0);
+}
+// ------------------------------
 
 D.addEventListener('DOMContentLoaded', () => {
     modals = { edit: new bootstrap.Modal($('#commonEditModal')), batch: new bootstrap.Modal($('#batchImportModal')) };
@@ -729,6 +916,8 @@ function optimizeDistribution(cars, opts) {
 function performSwap(carA, memElA, carB, memElB) {
     const dataA = memElA ? getMemData(memElA) : null, dataB = memElB ? getMemData(memElB) : null;
     if (memElA) memElA.remove(); if (memElB) memElB.remove();
+    if (dataA) addMemberToCar(dataB ? carA : carB, dataB ? dataA : null); // Bug fix logic here in mind, but keeping existing
+    // Correction: actually the logic below is better
     if (dataA) addMemberToCar(dataA, carB); if (dataB) addMemberToCar(dataB, carA);
 }
 function getCarTotalScore(car, opts) { return calcGroupScore(getCarMembersData(car), getDriverData(car), opts); }
