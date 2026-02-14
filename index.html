@@ -8,148 +8,185 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
+/* === Mature Tool Theme (Applied to Existing Layout) === 
+   機能・レイアウトは維持し、配色・形状のみを変更しています。
+*/
 :root {
-    /* --- ベースカラー (Light Mode: カフェラテ・配色) --- */
-    --bg-body: #f2efe9;       /* 背景：淡いベージュ */
-    --text-main: #4e342e;     /* 文字：ダークコーヒーブラウン */
-    --bg-card: #fdfbf7;       /* カード背景：オフホワイト（純白ではないクリーム色） */
-    --border-color: #d7ccc8;  /* 枠線：ミルクココア色 */
+    /* --- Mature Tool Theme: Light Palette --- */
+    --bg-body: #f4f6f8;       /* var(--bg) */
+    --text-main: #333333;     /* var(--text-main) */
+    --bg-card: #ffffff;       /* var(--card-bg) */
+    --border-color: #cfd8dc;  /* var(--border) */
     
-    /* --- アクセントカラー --- */
-    --accent-color: #558b2f;  /* 緑アクセント（抹茶色） */
-    --accent-hover: #33691e;
-    --primary-btn: #6d4c41;   /* メインボタン：コーヒー色 */
-    --primary-btn-hover: #5d4037;
+    /* --- アクセント & メインカラー --- */
+    --primary-btn: #2c4c3b;   /* var(--primary): 深い緑 */
+    --primary-btn-hover: #1a3326; /* var(--primary-hover) */
+    --accent-color: #d4a017;  /* var(--accent): 落ち着いたゴールド */
+    --accent-hover: #b88a10;
     
     /* --- コンポーネント用 --- */
-    --card-shadow: 0 4px 10px rgba(78, 52, 46, 0.08); /* 影：茶色ベースで柔らかく */
-    --driver-bg: #eefebe;     /* 運転席：淡い抹茶クリーム */
-    --driver-text: #33691e;
-    --seat-bg: #ece8e1;       /* 座席エリア：少し濃いベージュ */
-    --drag-over-bg: #d7ccc8;
-    --share-bar-bg: #fdfbf7;  /* シェアバー：カード背景と同じ（不透明） */
+    --card-shadow: 0 2px 5px rgba(0,0,0,0.08); /* var(--shadow) */
+    
+    --driver-bg: #e8ece9;     /* var(--primary-bg): 薄い緑グレー */
+    --driver-text: #2c4c3b;   /* var(--primary) */
+    
+    --seat-bg: #f8f9fa;       /* var(--input-bg): 非常に薄いグレー */
+    --drag-over-bg: rgba(44, 76, 59, 0.15); /* Primaryの薄い透過 */
+    --share-bar-bg: #ffffff;
     
     /* --- 入力フォーム --- */
-    --input-bg: #faf8f5;
-    --input-text: #4e342e;
-    --input-border: #bcaaa4;
+    --input-bg: #f8f9fa;
+    --input-text: #333333;
+    --input-border: #cfd8dc;
 
     /* --- その他 --- */
-    --ghost-bg: #a1887f;
-    --modal-bg: #fdfbf7;
-    --modal-border: #d7ccc8;
+    --ghost-bg: #768f80;
+    --modal-bg: #ffffff;
+    --modal-border: #cfd8dc;
     
-    /* --- 性別カラー（カフェの雰囲気に合わせたダスティーカラー） --- */
-    --bg-male: #e1f5fe;       /* 淡いブルーグレー */
-    --border-male: #b3e5fc;
-    --text-male: #01579b;
+    /* --- 性別カラー (Mature Themeに馴染む彩度) --- */
+    --bg-male: #e3f2fd;       
+    --border-male: #90caf9;
+    --text-male: #0d47a1;
     
-    --bg-female: #fce4ec;     /* 淡いさくら色 */
-    --border-female: #f8bbd0;
+    --bg-female: #fce4ec;     
+    --border-female: #f48fb1;
     --text-female: #880e4f;
     
-    --driver-bg-male: #b3e5fc;
-    --driver-text-male: #01579b;
+    --driver-bg-male: #bbdefb;
+    --driver-text-male: #0d47a1;
     --driver-bg-female: #f8bbd0;
     --driver-text-female: #880e4f;
 
-    --freshman-color: #558b2f; /* 1年生マーク：抹茶色 */
-    --locked-color: #f9a825;   /* ロック：マスタードイエロー */
+    --freshman-color: #2c4c3b; /* Primaryと同じ緑で統一感 */
+    --locked-color: #d4a017;   /* Accentのゴールド */
     
     /* --- デザインパラメータ --- */
-    --radius-main: 12px;       /* 角丸を少し強めて柔らかく */
-    --radius-sm: 8px;
+    --radius-main: 6px;       /* var(--radius) */
+    --radius-sm: 4px;
 
     color-scheme: light;
 }
 
 [data-theme="dark"] {
-    /* --- ベースカラー (Dark Mode: エスプレッソ・配色) --- */
-    --bg-body: #251d1a;       /* 背景：非常に濃い焦げ茶 */
-    --text-main: #d7ccc8;     /* 文字：ミルクティー色 */
-    --bg-card: #3e2723;       /* カード背景：ダークロースト */
-    --border-color: #5d4037;  /* 枠線：濃い茶色 */
+    /* --- Mature Tool Theme: Dark Palette --- */
+    --bg-body: #121212;       /* var(--bg) */
+    --text-main: #e0e0e0;     /* var(--text-main) */
+    --bg-card: #1e1e1e;       /* var(--card-bg) */
+    --border-color: #333333;  /* var(--border) */
     
-    --card-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     
-    --driver-bg: #33691e;     /* 運転席：濃い抹茶 */
-    --driver-text: #f1f8e9;
-    --seat-bg: #322520;       /* 座席エリア：背景より少し明るい茶色 */
-    --drag-over-bg: #4e342e;
-    --share-bar-bg: #3e2723;  /* 不透明 */
+    --primary-btn: #768f80;   /* くすんだ緑 */
+    --primary-btn-hover: #8da595;
+    --accent-color: #cfa855;  /* くすんだゴールド */
     
-    --input-bg: #4e342e;
-    --input-text: #efebe9;
-    --input-border: #6d4c41;
+    --driver-bg: #2d3330;     /* var(--primary-bg) */
+    --driver-text: #8da595;
+    
+    --seat-bg: #252525;       /* var(--input-bg) */
+    --drag-over-bg: rgba(118, 143, 128, 0.3);
+    --share-bar-bg: #1e1e1e;
+    
+    --input-bg: #252525;
+    --input-text: #e0e0e0;
+    --input-border: #333333;
 
     --ghost-bg: #5d4037;
-    --modal-bg: #3e2723;
-    --modal-border: #5d4037;
+    --modal-bg: #1e1e1e;
+    --modal-border: #333333;
 
-    /* Dark Mode 性別カラー（彩度を落として馴染ませる） */
-    --bg-male: rgba(3, 169, 244, 0.15);
-    --border-male: #0288d1;
-    --text-male: #b3e5fc;
+    /* Dark Mode 性別カラー */
+    --bg-male: rgba(13, 71, 161, 0.2);
+    --border-male: #1565c0;
+    --text-male: #90caf9;
     
-    --bg-female: rgba(233, 30, 99, 0.15);
-    --border-female: #c2185b;
-    --text-female: #f8bbd0;
+    --bg-female: rgba(136, 14, 79, 0.2);
+    --border-female: #ad1457;
+    --text-female: #f48fb1;
     
-    --driver-bg-male: rgba(3, 169, 244, 0.3);
-    --driver-text-male: #e1f5fe;
-    --driver-bg-female: rgba(233, 30, 99, 0.3);
-    --driver-text-female: #fce4ec;
-
-    --freshman-color: #aed581; /* 1年生：ライトグリーン */
+    --driver-bg-male: rgba(13, 71, 161, 0.4);
+    --driver-text-male: #bbdefb;
+    --driver-bg-female: rgba(136, 14, 79, 0.4);
+    --driver-text-female: #f8bbd0;
     
     color-scheme: dark;
 }
 
-/* Bootstrapの上書きと基本設定 */
+/* 基本設定 */
 body { 
     background-color: var(--bg-body); 
     color: var(--text-main); 
-    font-family: 'Helvetica Neue', Arial, sans-serif; 
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
     padding-bottom: 120px; 
     transition: background-color 0.3s, color 0.3s; 
-    font-size: 0.95rem; 
-    letter-spacing: 0.03em; /* 文字間を少し開けて読みやすく */
+    font-size: 15px; 
+    line-height: 1.6;
+}
+
+/* ヘッダー周りの調整 */
+h2 {
+    color: var(--text-main) !important;
+    font-size: 1.2rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+h6 {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem !important;
+    color: var(--text-main) !important;
 }
 
 /* ボタン類の配色オーバーライド */
-.btn-primary { background-color: var(--primary-btn); border-color: var(--primary-btn); color: #fff; }
+.btn { border-radius: var(--radius-main); font-weight: 600; }
+.btn-primary { background-color: var(--primary-btn); border-color: var(--primary-btn); color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .btn-primary:hover { background-color: var(--primary-btn-hover); border-color: var(--primary-btn-hover); }
-.btn-success { background-color: var(--accent-color); border-color: var(--accent-color); color: #fff; }
-.btn-success:hover { background-color: var(--accent-hover); border-color: var(--accent-hover); }
-.btn-warning { background-color: #ffd54f; border-color: #ffca28; color: #3e2723; } /* バッチ登録ボタン */
-.btn-outline-secondary { color: var(--text-main); border-color: var(--border-color); }
-.btn-outline-secondary:hover { background-color: var(--seat-bg); color: var(--text-main); border-color: var(--text-main); }
+
+.btn-success { background-color: var(--primary-btn); border-color: var(--primary-btn); color: #fff; opacity: 0.9; } /* 車追加もテーマ色に合わせる */
+.btn-success:hover { background-color: var(--primary-btn-hover); border-color: var(--primary-btn-hover); opacity: 1; }
+
+.btn-warning { background-color: var(--accent-color); border-color: var(--accent-color); color: #fff; } 
+.btn-warning:hover { background-color: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+
+.btn-outline-secondary { color: var(--text-main); border-color: var(--border-color); background: transparent; }
+.btn-outline-secondary:hover { background-color: var(--input-bg); color: var(--primary-btn); border-color: var(--border-color); }
+
 .btn-outline-danger { color: #d32f2f; border-color: #ef9a9a; }
 .btn-outline-danger:hover { background-color: #ffebee; color: #b71c1c; }
-[data-theme="dark"] .btn-outline-danger:hover { background-color: #b71c1c; color: #fff; }
+[data-theme="dark"] .btn-outline-danger { color: #ef9a9a; border-color: #ef9a9a; }
+[data-theme="dark"] .btn-outline-danger:hover { background-color: rgba(183, 28, 28, 0.2); }
 
+/* 入力フォーム */
 .form-control, .form-select, .input-group-text { 
     background-color: var(--input-bg); 
     color: var(--input-text); 
     border-color: var(--input-border); 
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-main);
+    box-shadow: none;
 }
+.input-group-text { border-right: none; color: var(--text-main); opacity: 0.7; }
+.form-control { border-left: none; }
 .form-control:focus { 
-    border-color: var(--accent-color); 
-    box-shadow: 0 0 0 0.2rem rgba(85, 139, 47, 0.25); 
+    border-color: var(--primary-btn); 
+    box-shadow: 0 0 0 2px rgba(44, 76, 59, 0.15); /* テーマ色の影 */
     background-color: var(--input-bg); 
     color: var(--input-text); 
 }
-.form-control::placeholder { color: var(--input-text); opacity: 0.5; }
+.form-control::placeholder { color: var(--input-text); opacity: 0.4; }
 
-/* カードデザインのリファイン */
+/* メンバーカード */
 .member-card { 
     background: var(--bg-card); 
     border: 1px solid var(--border-color); 
-    border-radius: var(--radius-sm); 
+    border-radius: var(--radius-main); 
     padding: 8px 10px 8px 34px; 
     position: relative; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03); /* 影を控えめに */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* 影を控えめに */
     color: var(--text-main); 
     margin-bottom: 0; 
     display: flex; 
@@ -159,69 +196,65 @@ body {
 }
 .handle {
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    left: 0; top: 0; bottom: 0;
+    width: 28px;
+    display: flex; align-items: center; justify-content: center;
     cursor: grab;
-    background-color: rgba(0,0,0,0.03); 
+    background-color: rgba(0,0,0,0.02); 
     border-right: 1px solid var(--border-color);
-    border-top-left-radius: var(--radius-sm);
-    border-bottom-left-radius: var(--radius-sm);
-    color: #a1887f; /* ハンドル色も茶系に */
+    border-top-left-radius: var(--radius-main);
+    border-bottom-left-radius: var(--radius-main);
+    color: var(--text-main); opacity: 0.3;
     touch-action: none;
 }
-.handle:active { cursor: grabbing; background-color: rgba(0,0,0,0.08); color: #5d4037; }
-[data-theme="dark"] .handle { background-color: rgba(255,255,255,0.05); }
+.handle:active { cursor: grabbing; opacity: 0.6; }
 
-.member-card:active { transform: scale(1.0); }
+.member-card:active { transform: translateY(1px); }
 .member-card[data-gender="male"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
-.member-card[data-locked="true"] { border-color: var(--locked-color); border-width: 2px; box-shadow: 0 0 8px rgba(249, 168, 37, 0.4); }
+.member-card[data-locked="true"] { border-color: var(--locked-color); box-shadow: 0 0 0 1px var(--locked-color); }
 
-.lock-btn { color: #bcaaa4; margin-right: 8px; transition: color 0.2s; }
+.lock-btn { color: var(--border-color); margin-right: 8px; transition: color 0.2s; }
 .lock-btn:hover { color: var(--text-main); }
 .member-card[data-locked="true"] .lock-btn { color: var(--locked-color); opacity: 1; }
 
-.card-top-row { display: flex; align-items: center; font-size: 1rem; line-height: 1.3; width: 100%; }
-.member-name-text { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; cursor: pointer; }
+.card-top-row { display: flex; align-items: center; font-size: 0.95rem; line-height: 1.3; width: 100%; }
+.member-name-text { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; margin: 0 6px; cursor: pointer; }
 
 .card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; font-size: 0.85rem; }
-.action-btn { cursor: pointer; padding: 2px 4px; color: #bcaaa4; transition: color 0.2s; }
-.action-btn:hover { color: var(--text-main); }
-.edit-name-btn { cursor: pointer; font-size: 0.8em; color: inherit; opacity: 0.5; transition: opacity 0.2s; }
+.action-btn { cursor: pointer; padding: 2px 4px; color: var(--text-main); opacity: 0.4; transition: opacity 0.2s; }
+.action-btn:hover { opacity: 1; }
+.edit-name-btn { cursor: pointer; font-size: 0.8em; color: inherit; opacity: 0.3; transition: opacity 0.2s; }
 .edit-name-btn:hover { opacity: 1; }
 
 .freshman-icon { color: var(--freshman-color); margin-right: 4px; font-size: 1em; }
 
-.memo-indicator { font-size: 0.9rem; color: var(--locked-color); cursor: pointer; margin-right: 6px; transition: transform 0.2s; }
-.memo-indicator:hover { transform: scale(1.1); }
-.memo-indicator.empty { color: var(--border-color); opacity: 0.6; }
-.memo-popup { font-size: 0.8rem; color: #5d4037; background: #fff8e1; padding: 6px 8px; border-radius: 6px; border: 1px solid #ffe0b2; margin-top: 5px; display: none; width: 100%; word-break: break-all; line-height: 1.3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-[data-theme="dark"] .memo-popup { background: #4e342e; color: #ffecb3; border-color: #6d4c41; }
+.memo-indicator { font-size: 0.9rem; color: var(--accent-color); cursor: pointer; margin-right: 6px; }
+.memo-indicator.empty { color: var(--border-color); opacity: 0.5; }
+.memo-popup { font-size: 0.8rem; color: var(--text-main); background: var(--bg-card); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--accent-color); margin-top: 5px; display: none; width: 100%; word-break: break-all; line-height: 1.3; box-shadow: var(--card-shadow); }
 
 /* 車両ボックス */
 .car-box { 
     background: var(--bg-card); 
     border: 1px solid var(--border-color); 
     border-radius: var(--radius-main); 
-    padding: 16px; /* 余白を少し広げる */
+    padding: 16px; 
     position: relative; 
     box-shadow: var(--card-shadow); 
 }
-.car-header { font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); font-size: 1.1rem; color: var(--text-main); }
-.car-header i.fa-car { color: var(--primary-btn) !important; } /* アイコン色変更 */
+.car-header { 
+    font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; 
+    padding-bottom: 10px; border-bottom: 1px solid var(--border-color); 
+    font-size: 1rem; color: var(--text-main); 
+}
+.car-header i.fa-car { color: var(--text-main) !important; opacity: 0.5; } 
 
-.car-box.over-capacity { border-color: #e57373; background-color: rgba(229, 115, 115, 0.05); }
+.car-box.over-capacity { border-color: #ef9a9a; background-color: rgba(239, 154, 154, 0.05); }
 
 .car-interior-layout { display: flex; flex-direction: column; gap: 10px; }
 .front-row { display: flex; gap: 10px; }
-.seat-area { flex: 1; min-height: 60px; border-radius: var(--radius-sm); padding: 6px; background-color: var(--seat-bg); transition: background-color 0.2s; border: 1px solid transparent; }
-.sortable-area { border: 2px dashed var(--border-color); }
-.sortable-area.drag-over { background-color: var(--drag-over-bg); border-color: var(--accent-color); }
+.seat-area { flex: 1; min-height: 60px; border-radius: var(--radius-sm); padding: 6px; background-color: var(--seat-bg); transition: background-color 0.2s; border: 1px dashed var(--border-color); }
+.sortable-area.drag-over { background-color: var(--drag-over-bg); border-color: var(--primary-btn); border-style: solid;}
 
 .rear-seats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
 
@@ -229,7 +262,7 @@ body {
     background-color: var(--driver-bg); 
     color: var(--driver-text); 
     border: 1px solid var(--border-color); 
-    border-radius: var(--radius-sm); 
+    border-radius: var(--radius-main); 
     padding: 10px; 
     display: flex; 
     flex-direction: column; 
@@ -238,7 +271,7 @@ body {
 }
 .driver-seat[data-gender="male"] { background: var(--driver-bg-male); color: var(--driver-text-male); border-color: var(--border-male); }
 .driver-seat[data-gender="female"] { background: var(--driver-bg-female); color: var(--driver-text-female); border-color: var(--border-female); }
-.driver-label { font-size: 0.7em; opacity: 0.7; text-align: right; margin-bottom: 4px; line-height: 1; font-weight: bold; letter-spacing: 1px; color: inherit; }
+.driver-label { font-size: 0.65rem; opacity: 0.6; text-align: right; margin-bottom: 4px; line-height: 1; font-weight: 700; letter-spacing: 1px; color: inherit; text-transform: uppercase;}
 .driver-name-disp { cursor: pointer; }
 
 /* 待機エリア */
@@ -254,73 +287,67 @@ body {
     border: 2px dashed var(--border-color); 
     transition: background-color 0.2s, border-color 0.2s; 
 }
-.waiting-area.drag-over { background-color: var(--drag-over-bg); border-color: var(--accent-color); }
+.waiting-area.drag-over { background-color: var(--drag-over-bg); border-color: var(--primary-btn); }
 .waiting-area .member-card { width: calc(33.333% - 6px); }
 @media (max-width: 768px) { .waiting-area .member-card { width: calc(50% - 4px); } }
 
-/* シェアバー (透明化廃止、ソリッドなデザインへ) */
+/* シェアバー */
 .share-bar { 
     position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    right: 0; 
-    background: var(--share-bar-bg); /* 不透明 */
+    bottom: 0; left: 0; right: 0; 
+    background: var(--share-bar-bg); 
     border-top: 1px solid var(--border-color); 
     padding: 15px 20px 20px; 
     z-index: 1000; 
     box-shadow: 0 -4px 10px rgba(0,0,0,0.05); 
 }
 
-/* ドラッグ&ドロップのスタイル */
-.sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.5; border: 2px dashed var(--text-main); }
-.sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; }
+/* ドラッグ&ドロップ */
+.sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.5; border: 1px dashed var(--text-main); }
+.sortable-chosen { background-color: var(--drag-over-bg) !important; opacity: 0.9 !important; border-color: var(--primary-btn) !important;}
 .sortable-fallback { 
     opacity: 1 !important; 
     background: var(--bg-card); 
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2); 
-    transform: scale(1.02) rotate(1deg); /* 少し傾けて持ち上げ感を出す */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2); 
+    transform: scale(1.02); 
     cursor: grabbing; 
     transition: none !important; 
     z-index: 9999 !important;
     pointer-events: none;
-    border: 1px solid var(--accent-color);
+    border: 1px solid var(--primary-btn);
 }
 
-/* ドロップダウン & モーダル */
-.dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 8px 16px rgba(0,0,0,0.15); color: var(--text-main); border-radius: var(--radius-sm); }
+/* モーダル */
+.dropdown-menu { background-color: var(--modal-bg); border-color: var(--modal-border); box-shadow: 0 5px 15px rgba(0,0,0,0.1); color: var(--text-main); border-radius: var(--radius-main); }
 .dropdown-item { color: var(--text-main); padding: 8px 16px; }
 .dropdown-item:hover { background-color: var(--seat-bg); color: var(--text-main); }
-.dropdown-header { color: var(--text-main); opacity: 0.6; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-.dropdown-menu .form-check-label { color: var(--text-main); cursor: pointer; }
+.dropdown-header { color: var(--text-main); opacity: 0.5; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
 
 .modal-content { 
     background-color: var(--modal-bg); 
     color: var(--text-main); 
-    border-color: var(--modal-border); 
     border-radius: var(--radius-main); 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-    border: none;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3); 
+    border: 1px solid var(--border-color);
 }
-.modal-header { border-bottom-color: var(--border-color); padding: 15px 20px; }
-.modal-footer { border-top-color: var(--border-color); padding: 15px 20px; }
-.btn-close { opacity: 0.5; }
-[data-theme="dark"] .btn-close { filter: invert(1); opacity: 0.7; }
-
-.btn-group .btn i, .btn-outline-danger i { font-size: 1.1em; }
+.modal-header { border-bottom: 1px solid var(--border-color); padding: 16px 20px; background: var(--seat-bg); border-top-left-radius: var(--radius-main); border-top-right-radius: var(--radius-main); }
+.modal-footer { border-top: 1px solid var(--border-color); padding: 16px 20px; background: var(--seat-bg); border-bottom-left-radius: var(--radius-main); border-bottom-right-radius: var(--radius-main);}
+.btn-close { filter: grayscale(100%); opacity: 0.4; }
+[data-theme="dark"] .btn-close { filter: invert(1); opacity: 0.6; }
 
 /* Guide Styles */
 #guide-templates {
-    position: fixed; left: -9999px; top: 0; width: 350px; /* Mobile width sim */
+    position: fixed; left: -9999px; top: 0; width: 350px;
     background: var(--bg-body); pointer-events: none; visibility: visible; z-index: -1;
 }
 .guide-step { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
 .guide-step:last-child { border: none; margin-bottom: 0; }
-.guide-step h5 { color: var(--primary-btn); font-weight: bold; display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+.guide-step h5 { color: var(--primary-btn); font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 1rem; }
 .guide-step p { font-size: 0.9rem; opacity: 0.9; margin-bottom: 10px; }
 .guide-img-box {
-    border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border-color); border-radius: var(--radius-main); overflow: hidden;
     min-height: 80px; display: flex; align-items: center; justify-content: center;
-    background: var(--bg-body); margin-top: 10px;
+    background: var(--seat-bg); margin-top: 10px;
 }
 .guide-img-box img { width: 100%; display: block; opacity: 0; transition: opacity 0.5s; }
 .guide-img-box img.loaded { opacity: 1; }
@@ -329,7 +356,7 @@ body {
 </head>
 <body data-theme="light">
 <div class="container py-4"> <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0 fs-4 fw-bold text-nowrap" style="color: var(--text-main);"><i class="fas fa-mountain me-2" style="color: var(--accent-color);"></i>車割メーカー</h2>
+        <h2 class="mb-0 fs-4 fw-bold text-nowrap"><i class="fas fa-mountain me-2" style="color: var(--primary-btn);"></i>車割メーカー</h2>
         <div class="d-flex align-items-center gap-2">
             <button class="btn btn-outline-secondary btn-sm shadow-sm" onclick="openGuide()" title="使い方ガイド"><i class="fas fa-question-circle"></i></button>
             <button class="btn btn-warning btn-sm fw-bold shadow-sm" data-action="batch"><i class="fas fa-paste me-1"></i>一括登録</button>
@@ -338,16 +365,16 @@ body {
     </div>
     <div class="row g-3 mb-4"> <div class="col-md-5">
             <div class="input-group shadow-sm">
-                <span class="input-group-text border-end-0"><i class="fas fa-user text-muted"></i></span>
+                <span class="input-group-text border-end-0"><i class="fas fa-user"></i></span>
                 <input type="text" id="newMemberName" class="form-control border-start-0 ps-0" placeholder="名前を入力">
                 <button class="btn btn-primary px-4" data-action="addMember">追加</button>
             </div>
         </div>
         <div class="col-md-7">
             <div class="input-group shadow-sm">
-                <span class="input-group-text border-end-0"><i class="fas fa-car text-muted"></i></span>
+                <span class="input-group-text border-end-0"><i class="fas fa-car"></i></span>
                 <input type="text" id="newCarName" class="form-control border-start-0 ps-0" placeholder="運転手名">
-                <input type="number" id="newCarCapacity" class="form-control text-center" placeholder="定員" value="3" style="max-width:80px; border-left: 1px solid var(--input-border); border-right: 1px solid var(--input-border);">
+                <input type="number" id="newCarCapacity" class="form-control text-center" placeholder="定員" value="3" style="max-width:80px; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
                 <button class="btn btn-success px-4" data-action="addCar">車追加</button>
             </div>
         </div>
@@ -355,7 +382,7 @@ body {
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3 px-1">
-                <h6 class="mb-0 fw-bold" style="color: var(--text-main); opacity: 0.8;"><i class="fas fa-users me-2"></i>未割当メンバー</h6>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-users me-2"></i>未割当メンバー</h6>
                 <div class="btn-group shadow-sm">
                     <button class="btn btn-outline-secondary btn-sm" style="font-size:0.85rem;" data-action="auto" data-mode="fill"><i class="fas fa-plus me-1"></i>埋める</button>
                     <button class="btn btn-outline-secondary btn-sm" style="font-size:0.85rem;" data-action="auto" data-mode="shuffle"><i class="fas fa-random me-1"></i>シャッフル</button>
@@ -372,7 +399,7 @@ body {
         </div>
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-3 px-1">
-                <h6 class="mb-0 fw-bold" style="color: var(--text-main); opacity: 0.8;"><i class="fas fa-car-side me-2"></i>配車状況</h6>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-car-side me-2"></i>配車状況</h6>
                 <button class="btn btn-outline-danger btn-sm shadow-sm" style="font-size:0.85rem;" data-action="clear"><i class="fas fa-reply-all me-1"></i>全解除</button>
             </div>
             <div id="cars-container" class="row g-4"></div>
@@ -382,12 +409,12 @@ body {
 <div class="share-bar">
     <div class="container" style="max-width:600px;">
         <div class="row g-3">
-            <div class="col-6"><button class="btn btn-outline-primary w-100 py-2 fw-bold shadow-sm" data-action="copyLine" style="border-width: 2px;"><i class="far fa-copy me-2"></i>LINE用コピー</button></div>
+            <div class="col-6"><button class="btn btn-outline-primary w-100 py-2 fw-bold shadow-sm" data-action="copyLine" style="border-width: 1px;"><i class="far fa-copy me-2"></i>LINE用コピー</button></div>
             <div class="col-6"><button class="btn btn-primary w-100 py-2 fw-bold shadow-sm" data-action="copyUrl"><i class="fas fa-link me-2"></i>URL共有</button></div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="commonEditModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header py-3"><h5 class="modal-title fs-6 fw-bold" id="editModalTitle">編集</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body pt-0 pb-3"><input type="text" id="editModalInput" class="form-control" autocomplete="off" style="font-size: 1.1em;"></div><div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button><button type="button" class="btn btn-primary btn-sm" id="saveEditBtn">保存</button></div></div></div></div>
+<div class="modal fade" id="commonEditModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header py-3"><h5 class="modal-title fs-6 fw-bold" id="editModalTitle">編集</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body pt-0 pb-3"><input type="text" id="editModalInput" class="form-control" autocomplete="off" style="font-size: 1.1em; margin-top:15px;"></div><div class="modal-footer py-2"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button><button type="button" class="btn btn-primary btn-sm" id="saveEditBtn">保存</button></div></div></div></div>
 <div class="modal fade" id="batchImportModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold"><i class="fas fa-paste me-2 text-warning"></i>一括登録</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-4"><div class="col-md-4"><label class="form-label fw-bold small text-primary">同乗者リスト (改行区切り)</label><textarea id="batchMembers" class="form-control batch-textarea shadow-sm" style="min-height:200px; background-color: var(--input-bg); color: var(--text-main);"></textarea></div><div class="col-md-4"><label class="form-label fw-bold small text-success">1年生リスト (改行区切り)</label><textarea id="batchFreshmen" class="form-control batch-textarea shadow-sm" style="min-height:200px; background-color: var(--input-bg); color: var(--text-main);"></textarea></div><div class="col-md-4"><label class="form-label fw-bold small text-secondary">運転手リスト (改行区切り)</label><textarea id="batchDrivers" class="form-control batch-textarea shadow-sm" style="min-height:200px; background-color: var(--input-bg); color: var(--text-main);"></textarea></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button><button type="button" class="btn btn-primary px-4" id="execBatchBtn">登録実行</button></div></div></div></div>
 
 <div class="modal fade" id="guideModal" tabindex="-1">
@@ -434,12 +461,12 @@ body {
 <div id="guide-templates">
     <div id="tpl-step1" class="tpl-wrapper">
         <div class="input-group shadow-sm mb-2">
-            <span class="input-group-text border-end-0"><i class="fas fa-user text-muted"></i></span>
+            <span class="input-group-text border-end-0"><i class="fas fa-user"></i></span>
             <input type="text" class="form-control border-start-0 ps-0" value="佐藤(兄)" readonly>
             <button class="btn btn-primary px-3">追加</button>
         </div>
         <div class="input-group shadow-sm">
-            <span class="input-group-text border-end-0"><i class="fas fa-car text-muted"></i></span>
+            <span class="input-group-text border-end-0"><i class="fas fa-car"></i></span>
             <input type="text" class="form-control border-start-0 ps-0" value="田中" readonly>
             <input type="number" class="form-control text-center" value="4" style="max-width:60px;">
             <button class="btn btn-success px-3">車追加</button>
@@ -448,7 +475,7 @@ body {
     <div id="tpl-step2" class="tpl-wrapper">
         <div class="d-flex gap-2">
             <div style="width:40%;">
-                <h6 class="fw-bold text-muted small"><i class="fas fa-users"></i> 待機</h6>
+                <h6 class="fw-bold small text-muted"><i class="fas fa-users"></i> 待機</h6>
                 <div class="member-card" data-gender="female">
                     <div class="handle"><i class="fas fa-grip-vertical"></i></div>
                     <div class="card-top-row"><span class="member-name-text">鈴木</span></div>
@@ -456,9 +483,9 @@ body {
                 </div>
             </div>
             <div style="flex:1;">
-                <h6 class="fw-bold text-muted small"><i class="fas fa-car"></i> 田中車</h6>
+                <h6 class="fw-bold small text-muted"><i class="fas fa-car"></i> 田中車</h6>
                 <div class="car-box p-2">
-                    <div class="seat-area drag-over" style="border:2px dashed var(--accent-color);">
+                    <div class="seat-area drag-over" style="border:1px solid var(--primary-btn);">
                         <div class="member-card sortable-chosen" style="opacity:0.8;">
                             <div class="handle"><i class="fas fa-grip-vertical"></i></div>
                             <div class="card-top-row"><span class="member-name-text">高橋</span></div>
