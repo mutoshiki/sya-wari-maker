@@ -118,14 +118,10 @@
     color-scheme: dark;
 }
 
-html, body {
-    height: 100%;
-    overflow-x: hidden;
-    /* iOSでのバウンススクロール防止 */
-    overscroll-behavior-y: none;
+/* スクロール設定の修正: height:100%を削除し、min-heightに変更 */
+html {
     -webkit-overflow-scrolling: touch;
 }
-
 body { 
     background-color: var(--bg-body); 
     color: var(--text-main); 
@@ -135,6 +131,8 @@ body {
     font-size: 16px; 
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
+    min-height: 100vh; /* 画面いっぱいに広げるが、中身が増えれば伸びる */
+    overscroll-behavior-y: none; /* バウンス防止 */
 }
 
 /* ボタン類 */
@@ -176,7 +174,7 @@ body {
     justify-content: center;
     min-height: 70px;
     height: 100%;
-    /* iOSでのドラッグ操作の安定化 */
+    /* iOSでのドラッグ操作の安定化: ここはtouch-action: noneが必要 */
     touch-action: none;
     cursor: grab; 
     transition: transform 0.1s, box-shadow 0.1s;
@@ -454,9 +452,31 @@ body {
                         <div>
                             <strong>メンバー登録</strong><br>
                             <span class="small opacity-75">名前を入力して「追加」をタップ。性別は名前から自動判定されます。名前部分をタップすると手動変更できます。</span>
+                            <div class="mt-2 small border rounded p-2 bg-light text-dark">
+                                <div class="fw-bold mb-1">色の意味：</div>
+                                <div><span class="color-sample" style="background:#e3f2fd; border-color:#90caf9;"></span>青：男性 (上回生)</div>
+                                <div><span class="color-sample" style="background:#ffebee; border-color:#ef9a9a;"></span>赤：女性 (上回生)</div>
+                                <div><span class="color-sample" style="background:#e0f2f1; border-color:#80cbc4;"></span>緑：男性 (1年生)</div>
+                                <div><span class="color-sample" style="background:#fff3e0; border-color:#ffe0b2;"></span>橙：女性 (1年生)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-num">2</div>
+                        <div>
+                            <strong>一括登録</strong><br>
+                            <span class="small opacity-75">「一括登録」ボタンから、Googleフォームの回答やExcelのリストを貼り付けてまとめて登録することもできます。</span>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="guide-num">3</div>
+                        <div>
+                            <strong>車の登録</strong><br>
+                            <span class="small opacity-75">運転手名と定員を入力して「車追加」をタップ。</span>
                         </div>
                     </div>
                 </div>
+
                 <div class="guide-section mb-4 border-bottom pb-3">
                     <h6 class="fw-bold mb-3 text-success">2. 配車を組もう</h6>
                     <div class="guide-step">
@@ -466,6 +486,22 @@ body {
                             <span class="small opacity-75">メンバーを点線の空き枠にドラッグしてください。<br>既に埋まっている枠に落とすと、<strong>その人と場所を交換（入れ替え）</strong>できます。</span>
                         </div>
                     </div>
+                    <div class="guide-step">
+                        <div class="guide-num">5</div>
+                        <div>
+                            <strong>便利機能</strong><br>
+                            <ul class="list-unstyled small opacity-75 mb-0">
+                                <li><i class="fas fa-robot text-secondary me-1"></i><strong>自動割り当て</strong>：ボタン一つで自動的に席を埋めます。</li>
+                                <li><i class="fas fa-sticky-note text-warning me-1"></i><strong>メモ</strong>：付箋アイコンで集合場所などをメモ。</li>
+                                <li><i class="fas fa-lock text-secondary me-1"></i><strong>ロック</strong>：鍵アイコンでその場に固定（自動割当の対象外）。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h6 class="fw-bold mb-3 text-warning">3. 共有しよう</h6>
+                    <p class="small text-muted-dark-friendly">グループにリンクを貼って、みんなで車割を見たり編集したりできます（リアルタイム共有・閲覧が可能）。</p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -670,12 +706,10 @@ function setupSortable(el) {
         fallbackOnBody: true,
         touchStartThreshold: 3,
         delay: 0,
-        // --- 修正箇所: iOSスクロール制御 ---
         scroll: true, 
-        scrollSensitivity: 30, // 80pxから30pxへ縮小 (誤動作防止)
-        scrollSpeed: 20,       // 900から20へ大幅減速 (暴走防止)
+        scrollSensitivity: 60, // 30pxから60pxへ少し拡大
+        scrollSpeed: 15,       // 20から15へ
         bubbleScroll: true,
-        // --------------------------------
         swapThreshold: 0.65, invertSwap: true,
         onAdd: function (evt) {
             // Swapロジック: ドロップ先に既にカードがあれば、元の場所(from)に移動させる
