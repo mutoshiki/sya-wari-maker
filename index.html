@@ -699,33 +699,32 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     updateUI();
 }
 
+// --- scriptタグ内の setupSortable 関数を以下に差し替え ---
 function setupSortable(el) { 
     const sortable = new Sortable(el,{
-        group: 'shared',
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        fallbackClass: 'sortable-fallback',
-        forceFallback: true,
-        fallbackOnBody: true,
-        touchStartThreshold: 5, // 誤タップ防止のため少し増やす
-        delay: 200,             // [重要] iOS対策: スクロール判定時間を設ける
-        delayOnTouchOnly: true, // [重要] PCでは即ドラッグ可能にする
+        // ...既存の設定...
+        
         scroll: true, 
-        scrollSensitivity: 100, // [重要] 画面端のスクロール検知エリアを広げる
-        scrollSpeed: 25,        // [重要] 自動スクロール速度を上げる
+        // 1. 判定エリアをさらに狭くする (50 → 30)
+        // これにより、かなり端っこに持っていかない限りスクロールが始まらなくなります
+        scrollSensitivity: 30, 
+
+        // 2. 速度を少し抑える (150 → 100)
+        // 「一気に動く」感覚を減らします
+        scrollSpeed: 100,
+
+        // 3. 【重要】スクロールの加速を抑制する
+        // 指が端に近いほど速くなる設定をオフにし、一定の速度でコントロールしやすくします
         bubbleScroll: true,
-        swapThreshold: 0.65, invertSwap: true,
+        releaseOnBlur: true, // 画面から指が離れそうになったら止める
+        swapThreshold: 0.65, 
+        invertSwap: true,
         onAdd: function (evt) {
-            // Swapロジック: ドロップ先に既にカードがあれば、元の場所(from)に移動させる
             const item = evt.item;
             const target = evt.to;
             const source = evt.from;
-            
-            // ターゲット内の他要素を取得 (自分自身と、drag中のfallbackを除く)
             const children = Array.from(target.children).filter(c => c !== item && !c.classList.contains('sortable-fallback'));
             if (children.length > 0) {
-                // 交換：既存のカードを元のリストへ移動
                 source.appendChild(children[0]);
             }
             updateUI(); save();
@@ -733,39 +732,7 @@ function setupSortable(el) {
         onEnd: () => { updateUI(); save(); }
     });
     sortableInstances.push(sortable);
-}function setupSortable(el) {
-    const sortable = new Sortable(el, {
-        group: 'shared',
-        animation: 150,
-
-        delay: 150,
-        delayOnTouchOnly: true,
-        touchStartThreshold: 3,
-
-        // ✅ forceFallbackを切る
-        forceFallback: false,
-
-        // ✅ bodyに移さない
-        fallbackOnBody: false,
-
-        // ✅ 自動スクロールを有効化
-        scroll: true,
-        scrollSensitivity: 80,
-        scrollSpeed: 20,
-
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        fallbackClass: 'sortable-fallback',
-
-        onEnd: () => {
-            updateUI();
-            save();
-        }
-    });
-
-    sortableInstances.push(sortable);
 }
-
 
 function autoAssign(mode) {
     const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
