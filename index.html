@@ -733,7 +733,39 @@ function setupSortable(el) {
         onEnd: () => { updateUI(); save(); }
     });
     sortableInstances.push(sortable);
+}function setupSortable(el) {
+    const sortable = new Sortable(el, {
+        group: 'shared',
+        animation: 150,
+
+        delay: 150,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 3,
+
+        // ✅ forceFallbackを切る
+        forceFallback: false,
+
+        // ✅ bodyに移さない
+        fallbackOnBody: false,
+
+        // ✅ 自動スクロールを有効化
+        scroll: true,
+        scrollSensitivity: 80,
+        scrollSpeed: 20,
+
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        fallbackClass: 'sortable-fallback',
+
+        onEnd: () => {
+            updateUI();
+            save();
+        }
+    });
+
+    sortableInstances.push(sortable);
 }
+
 
 function autoAssign(mode) {
     const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
