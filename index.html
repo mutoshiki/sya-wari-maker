@@ -359,10 +359,9 @@ body {
     opacity: 1 !important; 
     box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; 
     cursor: grabbing !important; 
-    pointer-events: none !important; /* 必須: これがないと下の要素のイベントをブロックしてしまう */
-    transition: none !important; /* 重要: ここをnoneにしないと指の動きから遅れる */
+    pointer-events: none !important; /* 必須 */
+    transition: none !important; /* 必須: 追従遅れ防止 */
     z-index: 99999 !important;
-    /* 重要: transformはJSに計算させるため、CSSで上書きしてはいけない */
 }
 
 /* その他 */
@@ -945,8 +944,13 @@ function load() {
 }
 
 function restore(d) { 
+    // Fix: Sortableインスタンスを破棄してメモリリークやゴーストを防ぐ
     sortableInstances.forEach(s => s.destroy());
     sortableInstances = [];
+
+    // ★修正点: 残留しているドラッグ用要素（分身・影）を強制削除
+    $$('.sortable-fallback').forEach(e => e.remove());
+    $$('.sortable-ghost').forEach(e => e.remove());
 
     const known = {};
     const scan = (el) => { if(el && el.dataset.name && el.dataset.gender!=='unknown') known[el.dataset.name] = el.dataset.gender; };
