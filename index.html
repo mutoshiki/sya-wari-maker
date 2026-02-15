@@ -59,6 +59,11 @@
     --bg-female-fresh: #fff3e0;
     --border-female-fresh: #ffe0b2;
     --text-female-fresh: #ef6c00;
+    
+    /* 1年生・性別不明 (Yellow - 新規追加) */
+    --bg-unknown-fresh: #fffde7;
+    --border-unknown-fresh: #fff59d;
+    --text-unknown-fresh: #f57f17;
 
     /* 学年アイコン色 */
     --grade-icon-color: #827717;
@@ -114,6 +119,11 @@
     --bg-female-fresh: rgba(255, 152, 0, 0.15);
     --border-female-fresh: #f57c00;
     --text-female-fresh: #ffe0b2;
+    
+    /* 1年生・性別不明 */
+    --bg-unknown-fresh: rgba(255, 235, 59, 0.1);
+    --border-unknown-fresh: #fbc02d;
+    --text-unknown-fresh: #fff9c4;
 
     --grade-icon-color: #d4e157;
     
@@ -171,18 +181,28 @@ body {
     min-height: 70px;
     touch-action: none; 
     cursor: grab; 
-    transition: transform 0.1s, box-shadow 0.1s; /* アニメーションは通常時のみ */
+    transition: transform 0.1s, box-shadow 0.1s;
     user-select: none;
     -webkit-user-select: none;
 }
 .member-card:active { cursor: grabbing; z-index: 100; }
 
-/* カードの色分け定義 */
+/* --- 色分けロジック (詳細度順) --- */
+/* ベース: 性別不明な1年生 */
+.member-card[data-freshman="true"] { 
+    background-color: var(--bg-unknown-fresh); 
+    border-color: var(--border-unknown-fresh); 
+    color: var(--text-unknown-fresh); 
+}
+
+/* 上回生・男性 */
 .member-card[data-gender="male"][data-freshman="false"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
+/* 上回生・女性 */
 .member-card[data-gender="female"][data-freshman="false"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
 
-/* 1年生の色分け */
+/* 1年生・男性 */
 .member-card[data-gender="male"][data-freshman="true"] { background-color: var(--bg-male-fresh); border-color: var(--border-male-fresh); color: var(--text-male-fresh); }
+/* 1年生・女性 */
 .member-card[data-gender="female"][data-freshman="true"] { background-color: var(--bg-female-fresh); border-color: var(--border-female-fresh); color: var(--text-female-fresh); }
 
 /* ロック状態 */
@@ -351,7 +371,7 @@ body {
     box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important; 
     cursor: grabbing !important; 
     pointer-events: none !important; 
-    transition: none !important; /* 遅延解消 */
+    transition: none !important; 
     z-index: 9999 !important;
 }
 
@@ -471,6 +491,7 @@ body {
                                 <div><span class="color-sample" style="background:#ffebee; border-color:#ef9a9a;"></span>赤：女性 (上回生)</div>
                                 <div><span class="color-sample" style="background:#e0f2f1; border-color:#80cbc4;"></span>緑：男性 (1年生)</div>
                                 <div><span class="color-sample" style="background:#fff3e0; border-color:#ffe0b2;"></span>橙：女性 (1年生)</div>
+                                <div><span class="color-sample" style="background:#fffde7; border-color:#fff59d;"></span>黄：性別判定中 (1年生)</div>
                             </div>
                         </div>
                     </div>
@@ -549,9 +570,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let dbRef;
 let isRemoteUpdate = false;
-let sortableInstances = []; // Sortableインスタンス管理用
+let sortableInstances = []; 
 
-// Room ID Logic
 const urlParams = new URLSearchParams(window.location.search);
 let roomId = urlParams.get('room');
 if (!roomId) {
@@ -564,7 +584,7 @@ dbRef = ref(db, 'rooms/' + roomId);
 const D=document, L=localStorage, J=JSON;
 const $=(s,p=D)=>p.querySelector(s), $$=(s,p=D)=>p.querySelectorAll(s), ce=(t,c)=>{const e=D.createElement(t);if(c)e.className=c;return e}, getInt=v=>parseInt(v)||0;
 
-const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_car_data_v9_optimized' };
+const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_car_data_v10_fixed' };
 let modals={}, saveCb, genderQueue=[], isProcessingQueue=false, saveTimer=null;
 
 D.addEventListener('DOMContentLoaded', () => {
@@ -579,10 +599,8 @@ D.addEventListener('DOMContentLoaded', () => {
         const act = d.action || t.getAttribute('action'); 
         const cls = t.classList;
         
-        // 名前クリックで性別/学年ローテーション
         if (cls.contains('member-name-text') || cls.contains('driver-name-disp')) { toggleStatus(t); return; }
         
-        // メモ編集などはアイコンクリックで
         if (cls.contains('edit-btn') || d.edit) { 
             handleEdit(d.edit || (t.closest('.driver-seat')?'driverMemo':'memo'), t); 
             return; 
@@ -656,24 +674,29 @@ async function processGenderQueue() {
         while (genderQueue.length > 0) {
             const name = genderQueue.shift();
             let gender = 'unknown';
-            try { gender = await fetchGenderFromApi(name); } catch (e) {}
+            try { gender = await fetchGenderFromApi(name); } catch (e) { console.warn("Gender detect error:", e); }
+            
             if (gender !== 'unknown') {
-                // DOM上の該当要素を全て更新
                 $$(`[data-name="${name}"]`).forEach(el => {
                     const c = el.closest('.member-card') || el.closest('.driver-seat');
                     if(c) c.dataset.gender = gender;
                 });
-                // 更新があった場合のみ保存
                 save(); 
             }
-            await new Promise(r => setTimeout(r, 200));
+            // API制限回避のためWaitを長めに
+            await new Promise(r => setTimeout(r, 1200));
         }
     } finally { isProcessingQueue = false; }
 }
 
 async function fetchGenderFromApi(name) {
-    if (name.match(/(子|美|代|奈|香|音)$/)) return 'female';
-    if (name.match(/(郎|太|助|夫|男|平)$/)) return 'male';
+    // ローカル判定を大幅強化 (API節約)
+    const fPatterns = /(子|美|代|奈|香|音|菜|恵|華|咲|莉|結|月|乃|穂|琴|彩|愛|優|里|希|佳|加|沙|妃|杏|珠|栞|智|千|実|ミ|エ|麻|絵|花|世)$/;
+    const mPatterns = /(郎|太|助|夫|男|平|介|輝|翔|大|斗|真|仁|也|哉|弥|輔|佑|祐|貴|樹|宏|悟|健|剛|哲|士|史|司|志|次|治|二|人|兵|平|彦|典|明|陽|和|雄|作|都|隆|龍|涼|亮|良)$/;
+    
+    if (name.match(fPatterns)) return 'female';
+    if (name.match(mPatterns)) return 'male';
+
     try {
         const res = await fetch(`https://api.genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`);
         if (res.ok) { const d = await res.json(); return d.gender; }
@@ -686,9 +709,7 @@ function toggleStatus(target) {
     const g = card.dataset.gender || 'unknown';
     const f = card.dataset.freshman === 'true';
     
-    // Cycle: Male(Sr) -> Female(Sr) -> Male(Fr) -> Female(Fr)
     let nextG = 'male', nextF = false;
-
     if (g === 'male' && !f) { nextG = 'female'; nextF = false; }
     else if (g === 'female' && !f) { nextG = 'male'; nextF = true; }
     else if (g === 'male' && f) { nextG = 'female'; nextF = true; }
@@ -710,7 +731,8 @@ function toggleLock(card) {
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
     const name = n || $('#newMemberName').value; if(!name) return;
     const d = ce('div', 'member-card'); 
-    Object.assign(d.dataset, {gender:g, freshman:f, locked:locked, name:name});
+    // freshman属性を確実にセット
+    Object.assign(d.dataset, {gender:g, freshman:String(f), locked:locked, name:name});
     d.setAttribute('data-name', name); 
 
     d.innerHTML = `
@@ -728,7 +750,6 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     `;
     parent.appendChild(d);
     
-    // 新規手動入力時のみ性別判定キューに入れる
     if(!n) { $('#newMemberName').value=''; detectGender(name); save(); }
     return d;
 }
@@ -935,7 +956,6 @@ function getData() {
 function load() { 
     onValue(dbRef, (snapshot) => {
         const val = snapshot.val();
-        // Restore中の競合を防ぐためQueueをクリア
         genderQueue = []; 
         if (val) { isRemoteUpdate = true; restore(val); isRemoteUpdate = false; }
         else { const local = J.parse(L.getItem(CFG.STORE + '_' + roomId)); if(local) { restore(local); save(); } }
@@ -943,7 +963,6 @@ function load() {
 }
 
 function restore(d) { 
-    // Fix: Sortableインスタンスを破棄してメモリリークやゴーストを防ぐ
     sortableInstances.forEach(s => s.destroy());
     sortableInstances = [];
 
@@ -951,16 +970,13 @@ function restore(d) {
     const scan = (el) => { if(el && el.dataset.name && el.dataset.gender!=='unknown') known[el.dataset.name] = el.dataset.gender; };
     $$('.member-card').forEach(scan); $$('.driver-seat').forEach(scan);
     
-    // Fix: コンテナを完全にクリア
     $('#waiting-list').innerHTML=''; 
     $('#cars-container').innerHTML=''; 
     
-    // 待機リストのSortable再設定
     setupSortable($('#waiting-list'));
 
     const n = m => {
         let o = typeof m==='string' ? {name:m} : m;
-        // 既存の性別情報を保持
         if (known[o.name] && !o.gender) o.gender = known[o.name];
         return o;
     };
