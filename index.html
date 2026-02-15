@@ -359,9 +359,10 @@ body {
     opacity: 1 !important; 
     box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; 
     cursor: grabbing !important; 
-    pointer-events: none !important; /* 必須 */
-    transition: none !important; /* 必須: 追従遅れ防止 */
+    pointer-events: none !important; 
+    transition: none !important; 
     z-index: 99999 !important;
+    will-change: transform; /* 追加: GPU処理させてガタつきを減らす */
 }
 
 /* その他 */
@@ -784,8 +785,8 @@ function setupSortable(el) {
         touchStartThreshold: 3, // 少しの動きでドラッグ開始
         delay: 0,
         scroll: true,
-        scrollSensitivity: 250, // スクロール感知エリアをさらに拡大
-        scrollSpeed: 300, // スクロール速度を爆速化
+        scrollSensitivity: 80, // 250から80へ変更（狭める）
+        scrollSpeed: 900,      // 300から900へ変更（3倍速）
         bubbleScroll: true, // 全体スクロールを許可
         swapThreshold: 0.65, 
         invertSwap: true, 
@@ -944,7 +945,6 @@ function load() {
 }
 
 function restore(d) { 
-    // Fix: Sortableインスタンスを破棄してメモリリークやゴーストを防ぐ
     sortableInstances.forEach(s => s.destroy());
     sortableInstances = [];
 
