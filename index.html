@@ -40,35 +40,28 @@
     --modal-border: #cfd8dc;
     
     /* --- 性別・学年カラー設定 (Light) --- */
-    /* 上回生・男性 (Blue) */
     --bg-male: #e3f2fd; 
     --border-male: #90caf9;
     --text-male: #1565c0;
     
-    /* 上回生・女性 (Pink/Red) */
     --bg-female: #ffebee;
     --border-female: #ef9a9a;
     --text-female: #c62828;
 
-    /* 1年生・男性 (Green/Teal) */
     --bg-male-fresh: #e0f2f1;
     --border-male-fresh: #80cbc4;
     --text-male-fresh: #00695c;
 
-    /* 1年生・女性 (Orange/Yellow) */
     --bg-female-fresh: #fff3e0;
     --border-female-fresh: #ffe0b2;
     --text-female-fresh: #ef6c00;
 
-    /* 1年生・性別不明 (Light Lime) - 新規追加 */
     --bg-unknown-fresh: #f9fbe7;
     --border-unknown-fresh: #e6ee9c;
     --text-unknown-fresh: #827717;
 
-    /* 学年アイコン色 */
     --grade-icon-color: #827717;
     
-    /* --- 形状 --- */
     --radius-main: 8px;
     --radius-sm: 6px;
 
@@ -76,7 +69,6 @@
 }
 
 [data-theme="dark"] {
-    /* --- ベースカラー (Dark Mode) --- */
     --bg-body: #0b0e11;
     --text-main: #f1f2f6;
     --text-sub: #b0bec5;
@@ -99,28 +91,22 @@
     --modal-bg: #15191d;
     --modal-border: #2c3e50;
 
-    /* --- 性別・学年カラー設定 (Dark) --- */
-    /* 上回生・男性 */
     --bg-male: rgba(33, 150, 243, 0.15);
     --border-male: #1976d2;
     --text-male: #bbdefb;
     
-    /* 上回生・女性 */
     --bg-female: rgba(244, 67, 54, 0.15);
     --border-female: #d32f2f;
     --text-female: #ffcdd2;
 
-    /* 1年生・男性 */
     --bg-male-fresh: rgba(0, 150, 136, 0.15);
     --border-male-fresh: #00796b;
     --text-male-fresh: #b2dfdb;
 
-    /* 1年生・女性 */
     --bg-female-fresh: rgba(255, 152, 0, 0.15);
     --border-female-fresh: #f57c00;
     --text-female-fresh: #ffe0b2;
 
-    /* 1年生・性別不明 */
     --bg-unknown-fresh: rgba(205, 220, 57, 0.15);
     --border-unknown-fresh: #c0ca33;
     --text-unknown-fresh: #e6ee9c;
@@ -139,6 +125,7 @@ body {
     font-size: 16px; 
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none; /* スマホでのプルリフレッシュ等の誤爆防止 */
 }
 
 /* ボタン類 */
@@ -179,9 +166,9 @@ body {
     flex-direction: column; 
     justify-content: center;
     min-height: 70px;
-    touch-action: none; 
+    touch-action: none; /* 重要: ブラウザのスクロール等を無効化しドラッグ操作を優先 */
     cursor: grab; 
-    transition: transform 0.1s, box-shadow 0.1s;
+    transition: transform 0.1s, box-shadow 0.1s; /* 通常時のアニメーション */
     user-select: none;
     -webkit-user-select: none;
 }
@@ -194,7 +181,7 @@ body {
 /* 1年生の色分け */
 .member-card[data-gender="male"][data-freshman="true"] { background-color: var(--bg-male-fresh); border-color: var(--border-male-fresh); color: var(--text-male-fresh); }
 .member-card[data-gender="female"][data-freshman="true"] { background-color: var(--bg-female-fresh); border-color: var(--border-female-fresh); color: var(--text-female-fresh); }
-/* 1年生・性別不明時の色分け (New) */
+/* 1年生・性別不明時の色分け */
 .member-card[data-freshman="true"]:not([data-gender="male"]):not([data-gender="female"]) { 
     background-color: var(--bg-unknown-fresh); border-color: var(--border-unknown-fresh); color: var(--text-unknown-fresh); 
 }
@@ -354,19 +341,28 @@ body {
     box-shadow: 0 -4px 16px rgba(0,0,0,0.1); 
 }
 
-/* --- ドラッグ&ドロップスタイル --- */
-.sortable-ghost { background-color: var(--ghost-bg) !important; opacity: 0.4; border: 1px dashed var(--text-main); }
-.sortable-chosen { opacity: 1 !important; }
+/* --- ドラッグ&ドロップスタイル (修正版) --- */
+/* 元の場所のカードは完全に透明に */
+.sortable-ghost { 
+    opacity: 0 !important; 
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+/* 選択中の元カードも非表示にする */
+.sortable-chosen:not(.sortable-fallback) {
+    opacity: 0 !important;
+}
 
-/* ドラッグ追従要素 */
+/* ドラッグ追従要素 (指についてくるカード) */
 .sortable-fallback { 
     opacity: 1 !important; 
-    transform: scale(1.02) !important; 
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important; 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; 
     cursor: grabbing !important; 
-    pointer-events: none !important; 
-    transition: none !important; /* 遅延解消 */
-    z-index: 9999 !important;
+    pointer-events: none !important; /* 必須: これがないと下の要素のイベントをブロックしてしまう */
+    transition: none !important; /* 重要: ここをnoneにしないと指の動きから遅れる */
+    z-index: 99999 !important;
+    /* 重要: transformはJSに計算させるため、CSSで上書きしてはいけない */
 }
 
 /* その他 */
@@ -784,13 +780,14 @@ function setupSortable(el) {
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         fallbackClass: 'sortable-fallback',
-        forceFallback: true,
+        forceFallback: true, // スマホタッチ対応に必須
         fallbackOnBody: true,
-        touchStartThreshold: 5,
+        touchStartThreshold: 3, // 少しの動きでドラッグ開始
         delay: 0,
         scroll: true,
-        scrollSensitivity: 150, 
-        scrollSpeed: 20, 
+        scrollSensitivity: 200, // スクロール感知エリアを拡大
+        scrollSpeed: 80, // スクロール速度を4倍に高速化
+        bubbleScroll: true, // 全体スクロールを許可
         swapThreshold: 0.65, 
         invertSwap: true, 
         onEnd: () => { updateUI(); save(); }
