@@ -699,27 +699,39 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     updateUI();
 }
 
-// --- scriptタグ内の setupSortable 関数を以下に差し替え ---
 function setupSortable(el) { 
-    const sortable = new Sortable(el,{
-        // ...既存の設定...
-        
-        scroll: true, 
-        // 1. 判定エリアをさらに狭くする (50 → 30)
-        // これにより、かなり端っこに持っていかない限りスクロールが始まらなくなります
-        scrollSensitivity: 30, 
+    // 540行目付近の setupSortable 関数内の設定
+const sortable = new Sortable(el, {
+    group: 'shared',
+    animation: 150,
+    forceFallback: true,
+    fallbackOnBody: true,
 
-        // 2. 速度を少し抑える (150 → 100)
-        // 「一気に動く」感覚を減らします
-        scrollSpeed: 100,
+    // --- スマホ最適化設定（修正版） ---
+    scroll: true,
+    
+    // 感度はそのままでOK（画面端から150pxで開始）
+    scrollSensitivity: 150, 
+    
+    // ★速度をアップ（20だと遅いので50〜60くらいに）
+    scrollSpeed: 50, 
+    
+    // ★falseにすることで、ブラウザ標準のスクロールと喧嘩しなくなります
+    bubbleScroll: false,
 
-        // 3. 【重要】スクロールの加速を抑制する
-        // 指が端に近いほど速くなる設定をオフにし、一定の速度でコントロールしやすくします
-        bubbleScroll: true,
-        releaseOnBlur: true, // 画面から指が離れそうになったら止める
-        swapThreshold: 0.65, 
-        invertSwap: true,
+    // ★【重要】指の「手ブレ」を無視する設定。
+    // これを入れると、指が数ピクセル震えただけではカードが動かなくなるので
+    // 「ガクガク」が劇的に減ります。
+    fallbackTolerance: 5, 
+    
+    delay: 150,
+    delayOnTouchOnly: true,
+    touchStartThreshold: 3,
+
+    // ...以下 onAdd などはそのまま...
+
         onAdd: function (evt) {
+            // ...既存の入れ替えロジック...
             const item = evt.item;
             const target = evt.to;
             const source = evt.from;
@@ -733,6 +745,7 @@ function setupSortable(el) {
     });
     sortableInstances.push(sortable);
 }
+
 
 function autoAssign(mode) {
     const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
