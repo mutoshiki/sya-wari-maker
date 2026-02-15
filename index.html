@@ -59,11 +59,11 @@
     --bg-female-fresh: #fff3e0;
     --border-female-fresh: #ffe0b2;
     --text-female-fresh: #ef6c00;
-    
-    /* 1年生・性別不明 (Yellow - 新規追加) */
-    --bg-unknown-fresh: #fffde7;
-    --border-unknown-fresh: #fff59d;
-    --text-unknown-fresh: #f57f17;
+
+    /* 1年生・性別不明 (Light Lime) - 新規追加 */
+    --bg-unknown-fresh: #f9fbe7;
+    --border-unknown-fresh: #e6ee9c;
+    --text-unknown-fresh: #827717;
 
     /* 学年アイコン色 */
     --grade-icon-color: #827717;
@@ -119,11 +119,11 @@
     --bg-female-fresh: rgba(255, 152, 0, 0.15);
     --border-female-fresh: #f57c00;
     --text-female-fresh: #ffe0b2;
-    
+
     /* 1年生・性別不明 */
-    --bg-unknown-fresh: rgba(255, 235, 59, 0.1);
-    --border-unknown-fresh: #fbc02d;
-    --text-unknown-fresh: #fff9c4;
+    --bg-unknown-fresh: rgba(205, 220, 57, 0.15);
+    --border-unknown-fresh: #c0ca33;
+    --text-unknown-fresh: #e6ee9c;
 
     --grade-icon-color: #d4e157;
     
@@ -187,23 +187,17 @@ body {
 }
 .member-card:active { cursor: grabbing; z-index: 100; }
 
-/* --- 色分けロジック (詳細度順) --- */
-/* ベース: 性別不明な1年生 */
-.member-card[data-freshman="true"] { 
-    background-color: var(--bg-unknown-fresh); 
-    border-color: var(--border-unknown-fresh); 
-    color: var(--text-unknown-fresh); 
-}
-
-/* 上回生・男性 */
+/* カードの色分け定義 */
 .member-card[data-gender="male"][data-freshman="false"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
-/* 上回生・女性 */
 .member-card[data-gender="female"][data-freshman="false"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
 
-/* 1年生・男性 */
+/* 1年生の色分け */
 .member-card[data-gender="male"][data-freshman="true"] { background-color: var(--bg-male-fresh); border-color: var(--border-male-fresh); color: var(--text-male-fresh); }
-/* 1年生・女性 */
 .member-card[data-gender="female"][data-freshman="true"] { background-color: var(--bg-female-fresh); border-color: var(--border-female-fresh); color: var(--text-female-fresh); }
+/* 1年生・性別不明時の色分け (New) */
+.member-card[data-freshman="true"]:not([data-gender="male"]):not([data-gender="female"]) { 
+    background-color: var(--bg-unknown-fresh); border-color: var(--border-unknown-fresh); color: var(--text-unknown-fresh); 
+}
 
 /* ロック状態 */
 .member-card[data-locked="true"] { border-color: var(--locked-color); box-shadow: 0 0 0 1px var(--locked-color); }
@@ -371,7 +365,7 @@ body {
     box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important; 
     cursor: grabbing !important; 
     pointer-events: none !important; 
-    transition: none !important; 
+    transition: none !important; /* 遅延解消 */
     z-index: 9999 !important;
 }
 
@@ -491,7 +485,6 @@ body {
                                 <div><span class="color-sample" style="background:#ffebee; border-color:#ef9a9a;"></span>赤：女性 (上回生)</div>
                                 <div><span class="color-sample" style="background:#e0f2f1; border-color:#80cbc4;"></span>緑：男性 (1年生)</div>
                                 <div><span class="color-sample" style="background:#fff3e0; border-color:#ffe0b2;"></span>橙：女性 (1年生)</div>
-                                <div><span class="color-sample" style="background:#fffde7; border-color:#fff59d;"></span>黄：性別判定中 (1年生)</div>
                             </div>
                         </div>
                     </div>
@@ -572,6 +565,7 @@ let dbRef;
 let isRemoteUpdate = false;
 let sortableInstances = []; 
 
+// Room ID Logic
 const urlParams = new URLSearchParams(window.location.search);
 let roomId = urlParams.get('room');
 if (!roomId) {
@@ -584,7 +578,7 @@ dbRef = ref(db, 'rooms/' + roomId);
 const D=document, L=localStorage, J=JSON;
 const $=(s,p=D)=>p.querySelector(s), $$=(s,p=D)=>p.querySelectorAll(s), ce=(t,c)=>{const e=D.createElement(t);if(c)e.className=c;return e}, getInt=v=>parseInt(v)||0;
 
-const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_car_data_v10_fixed' };
+const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_car_data_v9_optimized' };
 let modals={}, saveCb, genderQueue=[], isProcessingQueue=false, saveTimer=null;
 
 D.addEventListener('DOMContentLoaded', () => {
@@ -674,8 +668,7 @@ async function processGenderQueue() {
         while (genderQueue.length > 0) {
             const name = genderQueue.shift();
             let gender = 'unknown';
-            try { gender = await fetchGenderFromApi(name); } catch (e) { console.warn("Gender detect error:", e); }
-            
+            try { gender = await fetchGenderFromApi(name); } catch (e) {}
             if (gender !== 'unknown') {
                 $$(`[data-name="${name}"]`).forEach(el => {
                     const c = el.closest('.member-card') || el.closest('.driver-seat');
@@ -683,20 +676,14 @@ async function processGenderQueue() {
                 });
                 save(); 
             }
-            // API制限回避のためWaitを長めに
-            await new Promise(r => setTimeout(r, 1200));
+            await new Promise(r => setTimeout(r, 200));
         }
     } finally { isProcessingQueue = false; }
 }
 
 async function fetchGenderFromApi(name) {
-    // ローカル判定を大幅強化 (API節約)
-    const fPatterns = /(子|美|代|奈|香|音|菜|恵|華|咲|莉|結|月|乃|穂|琴|彩|愛|優|里|希|佳|加|沙|妃|杏|珠|栞|智|千|実|ミ|エ|麻|絵|花|世)$/;
-    const mPatterns = /(郎|太|助|夫|男|平|介|輝|翔|大|斗|真|仁|也|哉|弥|輔|佑|祐|貴|樹|宏|悟|健|剛|哲|士|史|司|志|次|治|二|人|兵|平|彦|典|明|陽|和|雄|作|都|隆|龍|涼|亮|良)$/;
-    
-    if (name.match(fPatterns)) return 'female';
-    if (name.match(mPatterns)) return 'male';
-
+    if (name.match(/(子|美|代|奈|香|音)$/)) return 'female';
+    if (name.match(/(郎|太|助|夫|男|平)$/)) return 'male';
     try {
         const res = await fetch(`https://api.genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`);
         if (res.ok) { const d = await res.json(); return d.gender; }
@@ -731,8 +718,7 @@ function toggleLock(card) {
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
     const name = n || $('#newMemberName').value; if(!name) return;
     const d = ce('div', 'member-card'); 
-    // freshman属性を確実にセット
-    Object.assign(d.dataset, {gender:g, freshman:String(f), locked:locked, name:name});
+    Object.assign(d.dataset, {gender:g, freshman:f, locked:locked, name:name});
     d.setAttribute('data-name', name); 
 
     d.innerHTML = `
@@ -956,7 +942,6 @@ function getData() {
 function load() { 
     onValue(dbRef, (snapshot) => {
         const val = snapshot.val();
-        genderQueue = []; 
         if (val) { isRemoteUpdate = true; restore(val); isRemoteUpdate = false; }
         else { const local = J.parse(L.getItem(CFG.STORE + '_' + roomId)); if(local) { restore(local); save(); } }
     });
