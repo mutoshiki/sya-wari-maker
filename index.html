@@ -26,6 +26,7 @@
     --driver-bg: #eceff1;
     --driver-text: #2c3e50;
     --seat-bg: #f4f6f7;
+    --seat-slot-bg: #ffffff;
     --drag-over-bg: #e0e0e0;
     --share-bar-bg: #ffffff;
     
@@ -80,6 +81,7 @@
     --driver-bg: #1c2329;
     --driver-text: #eceff1;
     --seat-bg: #0f1316;
+    --seat-slot-bg: #1c2329;
     --drag-over-bg: #2c3e50;
     --share-bar-bg: #15191d;
     
@@ -116,6 +118,14 @@
     color-scheme: dark;
 }
 
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+    /* iOSでのバウンススクロール防止 */
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+}
+
 body { 
     background-color: var(--bg-body); 
     color: var(--text-main); 
@@ -125,7 +135,6 @@ body {
     font-size: 16px; 
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
-    overscroll-behavior-y: none; /* スマホでのプルリフレッシュ等の誤爆防止 */
 }
 
 /* ボタン類 */
@@ -157,18 +166,20 @@ body {
     border: 1px solid var(--border-color);
     border-left-width: 5px; 
     border-radius: var(--radius-sm); 
-    padding: 10px 12px;
+    padding: 8px 10px;
     position: relative; 
     box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
     color: var(--text-main); 
-    margin-bottom: 8px;
+    margin-bottom: 0;
     display: flex; 
     flex-direction: column; 
     justify-content: center;
     min-height: 70px;
-    touch-action: none; /* 重要: ブラウザのスクロール等を無効化しドラッグ操作を優先 */
+    height: 100%;
+    /* iOSでのドラッグ操作の安定化 */
+    touch-action: none;
     cursor: grab; 
-    transition: transform 0.1s, box-shadow 0.1s; /* 通常時のアニメーション */
+    transition: transform 0.1s, box-shadow 0.1s;
     user-select: none;
     -webkit-user-select: none;
 }
@@ -177,26 +188,20 @@ body {
 /* カードの色分け定義 */
 .member-card[data-gender="male"][data-freshman="false"] { background-color: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"][data-freshman="false"] { background-color: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
-
-/* 1年生の色分け */
 .member-card[data-gender="male"][data-freshman="true"] { background-color: var(--bg-male-fresh); border-color: var(--border-male-fresh); color: var(--text-male-fresh); }
 .member-card[data-gender="female"][data-freshman="true"] { background-color: var(--bg-female-fresh); border-color: var(--border-female-fresh); color: var(--text-female-fresh); }
-/* 1年生・性別不明時の色分け */
 .member-card[data-freshman="true"]:not([data-gender="male"]):not([data-gender="female"]) { 
     background-color: var(--bg-unknown-fresh); border-color: var(--border-unknown-fresh); color: var(--text-unknown-fresh); 
 }
 
-/* ロック状態 */
 .member-card[data-locked="true"] { border-color: var(--locked-color); box-shadow: 0 0 0 1px var(--locked-color); }
 .member-card[data-locked="true"] .lock-btn { color: var(--locked-color); opacity: 1; }
 
 .card-top-row { display: flex; align-items: center; width: 100%; margin-bottom: 2px; }
-
-/* 名前テキスト */
 .member-name-text { 
     font-weight: 700; 
-    font-size: 1.1rem; 
-    line-height: 1.3;
+    font-size: 1.0rem; 
+    line-height: 1.25;
     width: 100%;
     word-break: break-all;
     display: -webkit-box;
@@ -205,123 +210,115 @@ body {
     overflow: hidden;
     text-align: left;
 }
-
-.card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; }
+.card-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2px; }
 
 /* アイコン類 */
 .action-btn { 
-    padding: 8px;
-    margin: -8px; 
+    padding: 6px;
+    margin: -6px; 
     color: inherit; 
     opacity: 0.6;
-    font-size: 1.1rem;
-    margin-left: 12px;
+    font-size: 1.0rem;
+    margin-left: 10px;
 }
 .action-btn:hover, .action-btn:active { opacity: 1; }
 
-.memo-indicator { 
-    font-size: 1.1rem;
-    color: var(--accent-color); 
-    cursor: pointer; 
-    padding: 4px;
-}
+.memo-indicator { font-size: 1.0rem; color: var(--accent-color); cursor: pointer; padding: 4px; }
 .memo-indicator.empty { color: var(--text-sub); opacity: 0.3; }
 
 .memo-popup { 
-    font-size: 0.85rem;
-    background: rgba(255,255,255,0.9);
-    padding: 4px 8px; 
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.95);
+    padding: 3px 6px; 
     border-radius: 4px; 
     border-left: 3px solid var(--accent-color);
-    margin-top: 6px; 
+    margin-top: 4px; 
     display: none; 
     width: 100%; 
     word-break: break-all;
     color: #333;
 }
-[data-theme="dark"] .memo-popup { background: rgba(0,0,0,0.3); color: #ddd; }
+[data-theme="dark"] .memo-popup { background: rgba(0,0,0,0.5); color: #ddd; }
 
 /* 車両ボックス */
 .car-box { 
     background: var(--bg-card); 
     border: 1px solid var(--border-color); 
     border-radius: var(--radius-main); 
-    padding: 12px; 
+    padding: 10px; 
     position: relative; 
     box-shadow: var(--card-shadow); 
 }
 .car-header { 
     font-weight: 700; 
-    margin-bottom: 10px; 
+    margin-bottom: 8px; 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding-bottom: 8px; 
+    padding-bottom: 6px; 
     border-bottom: 1px solid var(--border-color); 
     font-size: 1rem;
     color: var(--text-main); 
 }
 .car-box.over-capacity { border-color: #c62828; background-color: rgba(198, 40, 40, 0.05); }
 
-.car-interior-layout { display: flex; flex-direction: column; gap: 10px; }
-.front-row { display: flex; gap: 10px; }
-
-/* 座席エリア */
-.seat-area { 
-    flex: 1; 
-    min-height: 80px;
-    border-radius: var(--radius-sm); 
-    padding: 6px; 
-    background-color: var(--seat-bg); 
-    border: 1px solid transparent; 
+/* --- 車内レイアウト (Grid System) --- */
+.car-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
 }
-.sortable-area.drag-over { background-color: var(--drag-over-bg); border-color: var(--accent-color); border-style: dashed; }
-.rear-seats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+
+/* 座席スロット (固定枠) */
+.seat-slot {
+    background-color: var(--seat-slot-bg);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-sm);
+    min-height: 80px;
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.seat-slot.drag-over { background-color: var(--drag-over-bg); border-color: var(--accent-color); border-style: solid; }
 
 /* 運転席 */
+.driver-seat-wrapper { }
 .driver-seat { 
     background-color: var(--driver-bg); 
     color: var(--driver-text); 
     border: 1px solid var(--border-color); 
     border-left-width: 5px;
     border-radius: var(--radius-sm); 
-    padding: 10px 12px;
+    padding: 8px 10px;
     display: flex; 
     flex-direction: column; 
     justify-content: center;
     user-select: none; 
     position: relative;
+    height: 100%;
+    min-height: 80px;
 }
 .driver-seat[data-gender="male"] { background: var(--bg-male); color: var(--text-male); border-color: var(--border-male); }
 .driver-seat[data-gender="female"] { background: var(--bg-female); color: var(--text-female); border-color: var(--border-female); }
 .driver-seat[data-gender="male"][data-freshman="true"] { background: var(--bg-male-fresh); color: var(--text-male-fresh); border-color: var(--border-male-fresh); }
 
 .driver-name-disp { 
-    font-weight: 700; 
-    font-size: 1.1rem;
-    width: 100%;
-    text-align: left;
-    white-space: normal;
-    word-break: break-all;
-    line-height: 1.3;
+    font-weight: 700; font-size: 1.0rem; width: 100%; text-align: left;
+    white-space: normal; word-break: break-all; line-height: 1.25;
 }
 .driver-label {
-    font-size: 0.7rem;
-    opacity: 0.7;
-    margin-bottom: 2px;
-    font-weight: bold;
-    text-transform: uppercase;
-    text-align: left;
+    font-size: 0.7rem; opacity: 0.7; margin-bottom: 2px; font-weight: bold; text-transform: uppercase; text-align: left;
 }
 
 /* 待機エリア */
 .waiting-area { 
     background-color: var(--seat-bg); 
     border-radius: var(--radius-main); 
-    padding: 10px; 
+    padding: 8px; 
     min-height: 120px; 
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 8px;
     align-content: flex-start; 
     border: 1px dashed var(--border-color); 
@@ -330,39 +327,21 @@ body {
 
 /* シェアバー */
 .share-bar { 
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    right: 0; 
-    background: var(--share-bar-bg); 
-    border-top: 1px solid var(--border-color); 
-    padding: 15px 20px 30px; 
-    z-index: 1000; 
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.1); 
+    position: fixed; bottom: 0; left: 0; right: 0; 
+    background: var(--share-bar-bg); border-top: 1px solid var(--border-color); 
+    padding: 15px 20px 30px; z-index: 1000; box-shadow: 0 -4px 16px rgba(0,0,0,0.1); 
 }
 
-/* --- ドラッグ&ドロップスタイル (修正版) --- */
-/* 元の場所のカードは完全に透明に */
+/* --- ドラッグ&ドロップスタイル --- */
 .sortable-ghost { 
-    opacity: 0 !important; 
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    opacity: 0 !important; background: transparent !important; border: none !important; box-shadow: none !important;
 }
-/* 選択中の元カードも非表示にする */
-.sortable-chosen:not(.sortable-fallback) {
-    opacity: 0 !important;
-}
-
-/* ドラッグ追従要素 (指についてくるカード) */
+.sortable-chosen:not(.sortable-fallback) { opacity: 0 !important; }
 .sortable-fallback { 
-    opacity: 1 !important; 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; 
-    cursor: grabbing !important; 
-    pointer-events: none !important; 
-    transition: none !important; 
-    z-index: 99999 !important;
-    will-change: transform; /* 追加: GPU処理させてガタつきを減らす */
+    opacity: 1 !important; box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; 
+    cursor: grabbing !important; pointer-events: none !important; 
+    transition: none !important; z-index: 99999 !important;
+    will-change: transform;
 }
 
 /* その他 */
@@ -475,61 +454,18 @@ body {
                         <div>
                             <strong>メンバー登録</strong><br>
                             <span class="small opacity-75">名前を入力して「追加」をタップ。性別は名前から自動判定されます。名前部分をタップすると手動変更できます。</span>
-                            <div class="mt-2 small border rounded p-2 bg-light text-dark">
-                                <div class="fw-bold mb-1">色の意味：</div>
-                                <div><span class="color-sample" style="background:#e3f2fd; border-color:#90caf9;"></span>青：男性 (上回生)</div>
-                                <div><span class="color-sample" style="background:#ffebee; border-color:#ef9a9a;"></span>赤：女性 (上回生)</div>
-                                <div><span class="color-sample" style="background:#e0f2f1; border-color:#80cbc4;"></span>緑：男性 (1年生)</div>
-                                <div><span class="color-sample" style="background:#fff3e0; border-color:#ffe0b2;"></span>橙：女性 (1年生)</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="guide-step">
-                        <div class="guide-num">2</div>
-                        <div>
-                            <strong>一括登録</strong><br>
-                            <span class="small opacity-75">「一括登録」ボタンから、Googleフォームの回答やExcelのリストを貼り付けてまとめて登録することもできます。</span>
-                        </div>
-                    </div>
-                    <div class="guide-step">
-                        <div class="guide-num">3</div>
-                        <div>
-                            <strong>車の登録</strong><br>
-                            <span class="small opacity-75">運転手名と定員を入力して「車追加」をタップ。</span>
                         </div>
                     </div>
                 </div>
-
                 <div class="guide-section mb-4 border-bottom pb-3">
                     <h6 class="fw-bold mb-3 text-success">2. 配車を組もう</h6>
                     <div class="guide-step">
                         <div class="guide-num">4</div>
                         <div>
-                            <strong>移動させる</strong><br>
-                            <span class="small opacity-75">メンバーのカードをそのまま掴んで、好きな車の座席へ移動させましょう。</span>
-                            <div class="mt-2">
-                                <span class="guide-card-mock">山田 太郎</span>
-                                <i class="fas fa-arrow-right mx-2 text-muted-dark-friendly"></i>
-                                <span class="guide-card-mock" style="border-style:dashed; border-left:none;">移動先</span>
-                            </div>
+                            <strong>座席への移動・交換</strong><br>
+                            <span class="small opacity-75">メンバーを点線の空き枠にドラッグしてください。<br>既に埋まっている枠に落とすと、<strong>その人と場所を交換（入れ替え）</strong>できます。</span>
                         </div>
                     </div>
-                    <div class="guide-step">
-                        <div class="guide-num">5</div>
-                        <div>
-                            <strong>便利機能</strong><br>
-                            <ul class="list-unstyled small opacity-75 mb-0">
-                                <li><i class="fas fa-robot text-secondary me-1"></i><strong>自動割り当て</strong>：ボタン一つで自動的に席を埋めます。</li>
-                                <li><i class="fas fa-sticky-note text-warning me-1"></i><strong>メモ</strong>：付箋アイコンで集合場所などをメモ。</li>
-                                <li><i class="fas fa-lock text-secondary me-1"></i><strong>ロック</strong>：鍵アイコンでその場に固定（自動割当の対象外）。</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="guide-section">
-                    <h6 class="fw-bold mb-3 text-warning">3. 共有しよう</h6>
-                    <p class="small text-muted-dark-friendly">グループにリンクを貼って、みんなで車割を見たり編集したりできます（リアルタイム共有・閲覧が可能）。</p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -561,7 +497,6 @@ let dbRef;
 let isRemoteUpdate = false;
 let sortableInstances = []; 
 
-// Room ID Logic
 const urlParams = new URLSearchParams(window.location.search);
 let roomId = urlParams.get('room');
 if (!roomId) {
@@ -590,12 +525,7 @@ D.addEventListener('DOMContentLoaded', () => {
         const cls = t.classList;
         
         if (cls.contains('member-name-text') || cls.contains('driver-name-disp')) { toggleStatus(t); return; }
-        
-        if (cls.contains('edit-btn') || d.edit) { 
-            handleEdit(d.edit || (t.closest('.driver-seat')?'driverMemo':'memo'), t); 
-            return; 
-        }
-        
+        if (cls.contains('edit-btn') || d.edit) { handleEdit(d.edit || (t.closest('.driver-seat')?'driverMemo':'memo'), t); return; }
         if (cls.contains('lock-btn')) { toggleLock(t.closest('.member-card')); return; }
         
         if (!act) return;
@@ -619,7 +549,7 @@ D.addEventListener('DOMContentLoaded', () => {
             guide: () => { modals.guide.show(); },
             addCar: () => addCar(), addMember: () => addMember(),
             auto: () => autoAssign(d.mode),
-            clear: () => { if(confirm('ロック以外を全解除しますか？')) { $$('.car-interior-layout .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m)); updateUI(); save(); } },
+            clear: () => { if(confirm('ロック以外を全解除しますか？')) { $$('.seat-slot .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m)); updateUI(); save(); } },
             reset: () => { if(confirm('全データリセット？')) { L.removeItem(CFG.STORE + '_' + roomId); location.href = location.pathname; }},
             copyUrl: () => copy(window.location.href),
             copyLine: () => copyLine()
@@ -635,7 +565,6 @@ D.addEventListener('DOMContentLoaded', () => {
     load(); 
     setupSortable($('#waiting-list'));
     
-    // Theme
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const checkTheme = () => D.body.dataset.theme = mql.matches ? 'dark' : 'light';
     checkTheme();
@@ -651,15 +580,9 @@ function save() {
     }
 }
 
-function detectGender(name) {
-    if (!name) return;
-    genderQueue.push(name); 
-    processGenderQueue();
-}
-
+function detectGender(name) { if (!name) return; genderQueue.push(name); processGenderQueue(); }
 async function processGenderQueue() {
-    if (isProcessingQueue) return; 
-    isProcessingQueue = true; 
+    if (isProcessingQueue) return; isProcessingQueue = true; 
     try {
         while (genderQueue.length > 0) {
             const name = genderQueue.shift();
@@ -676,39 +599,25 @@ async function processGenderQueue() {
         }
     } finally { isProcessingQueue = false; }
 }
-
 async function fetchGenderFromApi(name) {
     if (name.match(/(子|美|代|奈|香|音)$/)) return 'female';
     if (name.match(/(郎|太|助|夫|男|平)$/)) return 'male';
-    try {
-        const res = await fetch(`https://api.genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`);
-        if (res.ok) { const d = await res.json(); return d.gender; }
-    } catch(e) {}
+    try { const res = await fetch(`https://api.genderapi.io/api/?name=${encodeURIComponent(name)}&key=${CFG.KEY}`); if (res.ok) { const d = await res.json(); return d.gender; } } catch(e) {}
     return 'unknown';
 }
-
 function toggleStatus(target) {
     const card = target.closest('.member-card') || target.closest('.driver-seat');
-    const g = card.dataset.gender || 'unknown';
-    const f = card.dataset.freshman === 'true';
-    
+    const g = card.dataset.gender || 'unknown', f = card.dataset.freshman === 'true';
     let nextG = 'male', nextF = false;
     if (g === 'male' && !f) { nextG = 'female'; nextF = false; }
     else if (g === 'female' && !f) { nextG = 'male'; nextF = true; }
     else if (g === 'male' && f) { nextG = 'female'; nextF = true; }
     else { nextG = 'male'; nextF = false; } 
-
-    card.dataset.gender = nextG;
-    card.dataset.freshman = nextF;
-    save();
+    card.dataset.gender = nextG; card.dataset.freshman = nextF; save();
 }
-
 function toggleLock(card) {
-    const isLocked = card.dataset.locked === 'true';
-    card.dataset.locked = !isLocked;
-    const icon = $('.lock-btn', card);
-    icon.className = `fas lock-btn action-btn ${!isLocked ? 'fa-lock' : 'fa-unlock'}`;
-    save();
+    const isLocked = card.dataset.locked === 'true'; card.dataset.locked = !isLocked;
+    $('.lock-btn', card).className = `fas lock-btn action-btn ${!isLocked ? 'fa-lock' : 'fa-unlock'}`; save();
 }
 
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
@@ -716,59 +625,36 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     const d = ce('div', 'member-card'); 
     Object.assign(d.dataset, {gender:g, freshman:f, locked:locked, name:name});
     d.setAttribute('data-name', name); 
-
-    d.innerHTML = `
-        <div class="card-top-row">
-            <span class="member-name-text" title="${name}">${name}</span>
-        </div>
-        <div class="memo-popup" style="display:${m?'block':'none'}">${m}</div>
-        <div class="card-bottom-row">
-            <i class="fas fa-sticky-note memo-indicator ${m?'':'empty'} edit-btn"></i>
-            <div class="d-flex align-items-center">
-                <i class="fas ${locked?'fa-lock':'fa-unlock'} action-btn lock-btn"></i>
-                <i class="fas action-btn state-action-btn" data-action="${parent.id==='waiting-list'?'delete':'return'}"></i>
-            </div>
-        </div>
-    `;
+    d.innerHTML = `<div class="card-top-row"><span class="member-name-text" title="${name}">${name}</span></div><div class="memo-popup" style="display:${m?'block':'none'}">${m}</div><div class="card-bottom-row"><i class="fas fa-sticky-note memo-indicator ${m?'':'empty'} edit-btn"></i><div class="d-flex align-items-center"><i class="fas ${locked?'fa-lock':'fa-unlock'} action-btn lock-btn"></i><i class="fas action-btn state-action-btn" data-action="${parent.id==='waiting-list'?'delete':'return'}"></i></div></div>`;
     parent.appendChild(d);
-    
     if(!n) { $('#newMemberName').value=''; detectGender(name); save(); }
     return d;
 }
 
 function addCar(n, cap, mems=[], dm='', dg='unknown') {
-    const name = n || $('#newCarName').value, c = cap || $('#newCarCapacity').value; if(!name) return;
+    const name = n || $('#newCarName').value, c = getInt(cap || $('#newCarCapacity').value); if(!name) return;
     const col = ce('div', 'col-md-6 mb-2');
+    
+    // スロット生成ループ
+    let slotsHtml = `<div class="driver-seat-wrapper"><div class="driver-seat" data-gender="${dg}" data-name="${name}" data-freshman="false"><div class="w-100"><div class="driver-label">DRIVER</div><div class="driver-name-disp">${name}</div></div><div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${dm}</div><div class="card-bottom-row mt-1 w-100" style="border-top:1px dashed rgba(0,0,0,0.1); padding-top:2px;"><i class="fas fa-sticky-note memo-indicator ${dm?'':'empty'} edit-btn"></i></div></div></div>`;
+    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"></div>`;
+
     col.innerHTML = `
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
                 <div class="d-flex align-items-center"><i class="fas fa-car me-2 opacity-50"></i><span class="car-name-text">${name} 車</span></div>
-                <div>
-                    <span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" data-edit="capacity">0/${c}</span>
-                    <i class="fas fa-trash-alt action-btn delete-btn" data-action="delete"></i>
-                </div>
+                <div><span class="badge capacity-badge me-2 bg-secondary" style="cursor:pointer;" data-edit="capacity">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn" data-action="delete"></i></div>
             </div>
-            <div class="car-interior-layout">
-                <div class="front-row">
-                    <div class="seat-area sortable-area passenger-seat"></div>
-                    <div class="seat-area driver-seat" data-gender="${dg}" data-name="${name}" data-freshman="false">
-                        <div class="w-100">
-                            <div class="driver-label">DRIVER</div>
-                            <div class="driver-name-disp">${name}</div>
-                        </div>
-                        <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${dm}</div>
-                        <div class="card-bottom-row mt-1 w-100" style="border-top:1px dashed rgba(0,0,0,0.1); padding-top:2px;">
-                            <i class="fas fa-sticky-note memo-indicator ${dm?'':'empty'} edit-btn"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="seat-area sortable-area rear-seats"></div>
-            </div>
+            <div class="car-layout-grid">${slotsHtml}</div>
         </div>`;
     $('#cars-container').appendChild(col);
-    const [pS, rS] = [$('.passenger-seat',col), $('.rear-seats',col)];
-    setupSortable(pS); setupSortable(rS);
-    mems.forEach((m,i) => addMember(m.name,m.memo,m.gender,m.isFreshman,i===0?pS:rS, m.locked));
+    
+    // スロットごとにSortableを設定
+    $$('.seat-slot', col).forEach((slot, i) => {
+        setupSortable(slot);
+        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].isFreshman, slot, mems[i].locked);
+    });
+
     if(!n) { $('#newCarName').value=''; detectGender(name); save(); }
     updateUI();
 }
@@ -780,16 +666,31 @@ function setupSortable(el) {
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         fallbackClass: 'sortable-fallback',
-        forceFallback: true, // スマホタッチ対応に必須
+        forceFallback: true,
         fallbackOnBody: true,
-        touchStartThreshold: 3, // 少しの動きでドラッグ開始
+        touchStartThreshold: 3,
         delay: 0,
-        scroll: true,
-        scrollSensitivity: 80, // 250から80へ変更（狭める）
-        scrollSpeed: 900,      // 300から900へ変更（3倍速）
-        bubbleScroll: true, // 全体スクロールを許可
-        swapThreshold: 0.65, 
-        invertSwap: true, 
+        // --- 修正箇所: iOSスクロール制御 ---
+        scroll: true, 
+        scrollSensitivity: 30, // 80pxから30pxへ縮小 (誤動作防止)
+        scrollSpeed: 20,       // 900から20へ大幅減速 (暴走防止)
+        bubbleScroll: true,
+        // --------------------------------
+        swapThreshold: 0.65, invertSwap: true,
+        onAdd: function (evt) {
+            // Swapロジック: ドロップ先に既にカードがあれば、元の場所(from)に移動させる
+            const item = evt.item;
+            const target = evt.to;
+            const source = evt.from;
+            
+            // ターゲット内の他要素を取得 (自分自身と、drag中のfallbackを除く)
+            const children = Array.from(target.children).filter(c => c !== item && !c.classList.contains('sortable-fallback'));
+            if (children.length > 0) {
+                // 交換：既存のカードを元のリストへ移動
+                source.appendChild(children[0]);
+            }
+            updateUI(); save();
+        },
         onEnd: () => { updateUI(); save(); }
     });
     sortableInstances.push(sortable);
@@ -797,79 +698,62 @@ function setupSortable(el) {
 
 function autoAssign(mode) {
     const opts = { f: $('#optFemale').checked, m: $('#optMale').checked, g: $('#optGrade').checked };
-    
     const getM = el => Array.from(el.children).filter(c => c.dataset.locked !== 'true').map(c => { const d = getMemData(c); c.remove(); return d; });
     let mems = getM($('#waiting-list'));
     
+    // 全スロットから空席を探す
+    const slots = Array.from($$('.seat-slot'));
+
     if (mode === 'shuffle') {
         if (!confirm("ロックされていないメンバーを再編成しますか？")) { 
-            mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); 
-            return; 
+            mems.forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked)); return; 
         }
-        $$('.car-box').forEach(c => { mems.push(...getM($('.passenger-seat', c)), ...getM($('.rear-seats', c))); });
+        slots.forEach(s => { if(s.children.length && s.children[0].dataset.locked!=='true') mems.push(getMemData(s.children[0])); s.innerHTML=''; });
     }
     if (!mems.length) return;
     
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
-    let cars = Array.from($$('.car-box'));
-    cars = shuffle(cars); 
-
-    if (mode === 'shuffle') {
-        const seniors = mems.filter(m => !m.isFreshman);
-        const freshmen = mems.filter(m => m.isFreshman);
-        shuffle(seniors); shuffle(freshmen);
-
-        cars.forEach(car => {
-            if (getCarMembers(car).length >= getInt(car.dataset.capacity)) return;
-            const current = getCarMembersData(car);
-            if (!current.some(m => !m.isFreshman) && seniors.length > 0) {
-                addMemberToCar(seniors.pop(), car);
-            }
-        });
-        
-        let remain = shuffle([...seniors, ...freshmen]);
-        let slots = [];
-        cars.forEach(c => { for(let i=0; i<getInt(c.dataset.capacity)-getCarMembers(c).length; i++) slots.push(c); });
-        slots = shuffle(slots);
-        
-        remain.forEach((m,i) => {
-            if(i<slots.length) addMemberToCar(m, slots[i]);
-            else addMember(m.name,m.memo,m.gender,m.isFreshman,$('#waiting-list'),m.locked);
-        });
-        updateUI(); save(); return;
-    }
-
+    
+    // 優先順ソート
     mems.sort((a, b) => {
         let pA=0, pB=0;
         if (opts.f && a.gender==='female') pA+=20; if (opts.m && a.gender==='male') pA+=20; if (opts.g && a.isFreshman) pA+=10;
         if (opts.f && b.gender==='female') pB+=20; if (opts.m && b.gender==='male') pB+=20; if (opts.g && b.isFreshman) pB+=10;
         return pB - pA;
     });
-    
-    mems.forEach(m => {
-        let best=null, score=-Infinity;
-        cars.forEach(c => {
-            if (getCarMembers(c).length >= getInt(c.dataset.capacity)) return;
-            const s = calculateMemberScore(m, [getDriverData(c), ...getCarMembersData(c)], opts) + Math.random();
-            if (s > score) { score=s; best=c; }
+
+    // スロット割り当て
+    if (mode === 'shuffle') {
+        const seniors = shuffle(mems.filter(m => !m.isFreshman));
+        const freshmen = shuffle(mems.filter(m => m.isFreshman));
+        let allMems = [...seniors, ...freshmen];
+        
+        // ランダムにスロットをシャッフルしてから埋める
+        shuffle(slots).forEach(s => {
+            if(allMems.length && s.children.length === 0) addMemberToSlot(allMems.pop(), s);
         });
-        if (best) addMemberToCar(m, best);
-        else addMember(m.name,m.memo,m.gender,m.isFreshman,$('#waiting-list'),m.locked);
-    });
+        allMems.forEach(m => addMember(m.name,m.memo,m.gender,m.isFreshman,$('#waiting-list'),m.locked));
+    } else {
+        // fill mode
+        mems.forEach(m => {
+            let bestSlot=null, maxScore=-Infinity;
+            // 空いているスロットのみ対象
+            slots.filter(s=>s.children.length===0).forEach(s => {
+                const box = s.closest('.car-box');
+                const occupants = getCarMembersData(box);
+                const score = calculateMemberScore(m, [getDriverData(box), ...occupants], opts) + Math.random();
+                if (score > maxScore) { maxScore=score; bestSlot=s; }
+            });
+            if(bestSlot) addMemberToSlot(m, bestSlot);
+            else addMember(m.name,m.memo,m.gender,m.isFreshman,$('#waiting-list'),m.locked);
+        });
+    }
     updateUI(); save();
 }
 
-function addMemberToCar(member, carElement) {
-    const target = ($('.passenger-seat', carElement).children.length ? $('.rear-seats', carElement) : $('.passenger-seat', carElement));
-    addMember(member.name, member.memo, member.gender, member.isFreshman, target, member.locked);
-}
-function getCarMembers(car) { return [...$$('.passenger-seat .member-card', car), ...$$('.rear-seats .member-card', car)]; }
-function getCarMembersData(car) { return getCarMembers(car).map(getMemData); }
-function getDriverData(car) { 
-    const d = $('.driver-seat', car);
-    return { gender: d.dataset.gender, isFreshman: d.dataset.freshman==='true', isDriver: true }; 
-}
-
+function addMemberToSlot(m, slot) { addMember(m.name, m.memo, m.gender, m.isFreshman, slot, m.locked); }
+function getCarMembersData(box) { return Array.from($$('.seat-slot', box)).flatMap(s => Array.from(s.children).map(getMemData)); }
+function getDriverData(box) { const d = $('.driver-seat', box); return { gender: d.dataset.gender, isFreshman: d.dataset.freshman==='true', isDriver: true }; }
 function calculateMemberScore(member, occupants, opts) {
     let score = 0;
     const passengers = occupants.filter(o => !o.isDriver);
@@ -902,7 +786,21 @@ function executeBatch() {
 function handleEdit(type, el) {
     const box=el.closest('.car-box'), card=el.closest('.member-card');
     const MAP = {
-        capacity: { t:'定員変更', v:()=>box.dataset.capacity, set:v=>{if(getInt(v)>0)box.dataset.capacity=getInt(v);} },
+        capacity: { t:'定員変更', v:()=>box.dataset.capacity, set:v=>{ 
+            const newCap=getInt(v); if(newCap<=0)return; 
+            // 定員変更ロジック: スロット増減
+            const grid = $('.car-layout-grid', box);
+            const currentSlots = $$('.seat-slot', grid);
+            const diff = newCap - currentSlots.length;
+            if(diff > 0) { for(let i=0; i<diff; i++) { const d=ce('div','seat-slot'); grid.appendChild(d); setupSortable(d); } }
+            else if(diff < 0) {
+                for(let i=currentSlots.length-1; i>=newCap; i--) {
+                    if(currentSlots[i].children.length) $('#waiting-list').appendChild(currentSlots[i].children[0]);
+                    currentSlots[i].remove();
+                }
+            }
+            box.dataset.capacity = newCap;
+        }},
         memo: { t:'メモ', v:()=>$('.memo-popup',card).innerText, set:v=>upMemo(card,v) },
         driverMemo: { t:'運転手メモ', v:()=>$('.driver-memo-text',el.closest('.driver-seat')).innerText, set:v=>upMemo(el.closest('.driver-seat'),v,'.driver-memo-text') }
     };
@@ -912,9 +810,10 @@ function handleEdit(type, el) {
     modals.edit.show(); setTimeout(()=>$('#editModalInput').focus(),500);
 }
 const upMemo = (p,v,s='.memo-popup') => { const m=$(s,p),i=$('.memo-indicator',p); m.innerText=v; m.style.display=v?'block':'none'; i.classList.toggle('empty',!v); };
+
 function updateUI() {
     $$('.car-box').forEach(b => {
-        const c=getInt(b.dataset.capacity), n=$$('.member-card',b).length, bad=$('.capacity-badge',b);
+        const c=getInt(b.dataset.capacity), n=$$('.seat-slot .member-card', b).length, bad=$('.capacity-badge',b);
         bad.textContent=`同乗 ${n} / ${c}`; b.classList.toggle('over-capacity',n>c);
         bad.className=`badge capacity-badge me-2 bg-${n>c?'danger':(n===c?'success':'secondary')}`;
         $$('.state-action-btn',b).forEach(e=>{e.className='fas fa-reply action-btn return-btn state-action-btn';});
@@ -945,20 +844,14 @@ function load() {
 }
 
 function restore(d) { 
-    sortableInstances.forEach(s => s.destroy());
-    sortableInstances = [];
-
-    // ★修正点: 残留しているドラッグ用要素（分身・影）を強制削除
-    $$('.sortable-fallback').forEach(e => e.remove());
-    $$('.sortable-ghost').forEach(e => e.remove());
+    sortableInstances.forEach(s => s.destroy()); sortableInstances = [];
+    $$('.sortable-fallback, .sortable-ghost').forEach(e => e.remove());
 
     const known = {};
     const scan = (el) => { if(el && el.dataset.name && el.dataset.gender!=='unknown') known[el.dataset.name] = el.dataset.gender; };
     $$('.member-card').forEach(scan); $$('.driver-seat').forEach(scan);
     
-    $('#waiting-list').innerHTML=''; 
-    $('#cars-container').innerHTML=''; 
-    
+    $('#waiting-list').innerHTML=''; $('#cars-container').innerHTML=''; 
     setupSortable($('#waiting-list'));
 
     const n = m => {
