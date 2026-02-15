@@ -174,8 +174,12 @@ body {
     justify-content: center;
     min-height: 70px;
     height: 100%;
-    /* iOSでのドラッグ操作の安定化: ここはtouch-action: noneが必要 */
-    touch-action: none;
+    /* * iOSでのドラッグ操作最適化: 
+     * touch-action: none だとスクロールが完全にブロックされ操作性が悪くなるため
+     * pan-y (縦スクロール許可) に変更。Sortableのdelay設定と組み合わせることで
+     * スクロールとドラッグを両立させる。
+     */
+    touch-action: pan-y; 
     cursor: grab; 
     transition: transform 0.1s, box-shadow 0.1s;
     user-select: none;
@@ -483,7 +487,7 @@ body {
                         <div class="guide-num">4</div>
                         <div>
                             <strong>座席への移動・交換</strong><br>
-                            <span class="small opacity-75">メンバーを点線の空き枠にドラッグしてください。<br>既に埋まっている枠に落とすと、<strong>その人と場所を交換（入れ替え）</strong>できます。</span>
+                            <span class="small opacity-75">メンバーを点線の空き枠にドラッグしてください（スマホでは長押し）。<br>既に埋まっている枠に落とすと、<strong>その人と場所を交換（入れ替え）</strong>できます。</span>
                         </div>
                     </div>
                     <div class="guide-step">
@@ -704,11 +708,12 @@ function setupSortable(el) {
         fallbackClass: 'sortable-fallback',
         forceFallback: true,
         fallbackOnBody: true,
-        touchStartThreshold: 3,
-        delay: 0,
+        touchStartThreshold: 5, // 誤タップ防止のため少し増やす
+        delay: 200,             // [重要] iOS対策: スクロール判定時間を設ける
+        delayOnTouchOnly: true, // [重要] PCでは即ドラッグ可能にする
         scroll: true, 
-        scrollSensitivity: 60, // 30pxから60pxへ少し拡大
-        scrollSpeed: 15,       // 20から15へ
+        scrollSensitivity: 100, // [重要] 画面端のスクロール検知エリアを広げる
+        scrollSpeed: 25,        // [重要] 自動スクロール速度を上げる
         bubbleScroll: true,
         swapThreshold: 0.65, invertSwap: true,
         onAdd: function (evt) {
