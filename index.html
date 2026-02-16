@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>山歩会 車割メーカー（分割版）</title>
+<title>山歩会 車割メーカー（統合版）</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -71,11 +71,28 @@ html, body {
     -webkit-overflow-scrolling: touch; scroll-behavior: auto; position: relative; z-index: 10;
 }
 
+/* トレイの開閉アニメーション設定 */
 #bottom-tray {
     height: 38%; min-height: 200px; background-color: var(--tray-bg);
     border-top: 1px solid var(--border-color);
     box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
     display: flex; flex-direction: column; z-index: 20; position: relative;
+    transition: height 0.3s ease, min-height 0.3s ease;
+}
+/* 最小化時のスタイル */
+#bottom-tray.minimized {
+    height: 46px !important;
+    min-height: 46px !important;
+    overflow: hidden;
+}
+#bottom-tray.minimized #waiting-list-container {
+    display: none;
+}
+#tray-toggle-icon {
+    transition: transform 0.3s ease;
+}
+#bottom-tray.minimized #tray-toggle-icon {
+    transform: rotate(180deg);
 }
 
 #bottom-tray-header {
@@ -185,6 +202,9 @@ html, body {
 
 /* 入力フォームがあるカードの背景色 */
 .card.bg-light-subtle { background-color: var(--bg-card) !important; }
+
+/* チェックボックス調整 */
+.form-check-input { cursor: pointer; }
 </style>
 </head>
 <body data-theme="light">
@@ -207,13 +227,38 @@ html, body {
             </div>
         </div>
 
-        <div class="card p-3 mb-3 shadow-sm border-0 bg-light-subtle">
-            <div class="row g-2">
-                <div class="col-7"><input type="text" id="newMemberName" class="form-control form-control-sm" placeholder="メンバー名"></div>
-                <div class="col-5"><button class="btn btn-primary btn-sm w-100" onclick="addMember()">追加</button></div>
-                <div class="col-6"><input type="text" id="newCarName" class="form-control form-control-sm" placeholder="運転手"></div>
-                <div class="col-2"><input type="number" id="newCarCapacity" class="form-control form-control-sm px-1 text-center" value="3"></div>
-                <div class="col-4"><button class="btn btn-success btn-sm w-100" onclick="addCar()">車追加</button></div>
+        <div class="card p-2 mb-3 shadow-sm border-0 bg-light-subtle">
+            <div class="row g-2 align-items-center">
+                <div class="col-5">
+                    <input type="text" id="newUnifiedName"
+                      class="form-control form-control-sm"
+                      placeholder="名前">
+                </div>
+              
+                <div class="col-3 form-check d-flex align-items-center" style="padding-left: 1.8em;">
+                    <input class="form-check-input"
+                      type="checkbox"
+                      id="isDriverCheck"
+                      onchange="toggleCapacityInput()">
+                    <label class="form-check-label small ms-1 fw-bold" for="isDriverCheck" style="user-select:none; cursor:pointer;">
+                      運転
+                    </label>
+                </div>
+              
+                <div class="col-2">
+                    <input type="number"
+                      id="unifiedCapacity"
+                      class="form-control form-control-sm px-1 text-center"
+                      value="3"
+                      disabled>
+                </div>
+              
+                <div class="col-2">
+                    <button class="btn btn-primary btn-sm w-100"
+                      onclick="addUnified()">
+                      追加
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -227,6 +272,10 @@ html, body {
     <div id="bottom-tray">
         <div id="bottom-tray-header">
             <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-dark border-0 py-0 px-2" onclick="toggleTray()" title="トレイを開閉">
+                  <i id="tray-toggle-icon" class="fas fa-chevron-down small"></i>
+                </button>
+
                 <small class="fw-bold"><i class="fas fa-users me-1"></i>待機メンバー</small>
                 <span id="waiting-count" class="badge bg-secondary rounded-pill">0</span>
             </div>
@@ -289,19 +338,19 @@ html, body {
                 
                 <div class="guide-section">
                     <h6>1. 登録する（手動・一括）</h6>
-                    <p class="guide-desc">画面上部の入力欄、または「一括登録」ボタンからメンバーと車を追加します。</p>
+                    <p class="guide-desc">画面上部の入力欄、または「一括登録」ボタンからまとめてメンバーと車を追加します。</p>
                     <div class="guide-demo-box">
                         <div class="d-flex gap-2 mb-3 align-items-center">
                             <div class="border rounded bg-white px-3 py-2 text-muted-dark-friendly flex-grow-1">田中 太郎</div>
                             <button class="btn btn-primary disabled">追加</button>
                         </div>
-                        <p class="small text-muted-dark-friendly mb-0">※ <span class="badge bg-warning text-white"><i class="fas fa-paste"></i></span> ボタンで一括登録の使用を推奨します。</p>
+                        <p class="small text-muted-dark-friendly mb-0">※ <span class="badge bg-warning text-white"><i class="fas fa-paste"></i></span> 一括登録の使用を推奨します。</p>
                     </div>
 
                     <div class="d-flex flex-column gap-3 mt-4 pt-3 border-top">
                         <div class="d-flex align-items-center mb-1">
-                             <span class="badge bg-warning text-dark me-2">おすすめ</span>
-                             <span class="fw-bold text-muted-dark-friendly small">名簿から一発登録！</span>
+                             <span class="badge bg-warning text-dark me-2">使用推奨</span>
+                             <span class="fw-bold text-muted-dark-friendly small">名簿から一括登録</span>
                         </div>
                         
                         <div class="d-flex justify-content-center align-items-center gap-3 text-center">
@@ -337,7 +386,7 @@ html, body {
                         </div>
                         <div class="alert alert-info py-2 small mb-0 mt-2">
                             <i class="fas fa-info-circle me-1"></i>
-                            <strong>「同乗者」「1年生」「運転手」</strong>のそれぞれの列をコピーして、該当する欄に貼り付けるだけで完了します。
+                            <strong>「同乗者」「1年生」「運転手」</strong>のそれぞれの列をコピーして、該当する欄に貼り付けます。
                         </div>
                     </div>
                     </div>
@@ -409,7 +458,7 @@ html, body {
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100 bg-card">
                                 <span class="badge bg-primary mb-2"><i class="fas fa-random"></i> 自動割当</span>
-                                <p class="small mb-0 text-muted-dark-friendly">「設定」で女子をまとめるなどを決めてから実行すると、自動でメンバーを車に割り振ります。</p>
+                                <p class="small mb-0 text-muted-dark-friendly">実行すると、自動でメンバーを車に割り振ります。「設定」で学年や性別でまとめたりもできます。</p>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -497,7 +546,7 @@ D.addEventListener('DOMContentLoaded', () => {
             toggleLock(t.closest('.member-card')); return;
         }
         
-        // 削除ボタンの挙動修正
+        // 削除ボタンの挙動
         if (t.classList.contains('delete-btn')) {
             const card = t.closest('.member-card');
             const box = t.closest('.car-box');
@@ -531,7 +580,9 @@ D.addEventListener('DOMContentLoaded', () => {
 
     $('#saveEditBtn').onclick = () => { saveCb && saveCb(); };
     $('#editModalInput').onkeypress = e => { if(e.key==='Enter' && saveCb) saveCb(); };
-    $('#newMemberName').onkeypress = e => { if(e.key==='Enter') addMember(); };
+    
+    // --- 変更: 新しい統合フォームのエンターキー処理 ---
+    $('#newUnifiedName').onkeypress = e => { if(e.key==='Enter') addUnified(); };
 
     setupSortable($('#waiting-list'));
     load();
@@ -603,8 +654,57 @@ function load() {
     });
 }
 
+// --- 追加機能: フォーム制御と追加ロジック ---
+function toggleCapacityInput() {
+  const checked = document.getElementById("isDriverCheck").checked;
+  const cap = document.getElementById("unifiedCapacity");
+  cap.disabled = !checked;
+  if(checked) cap.focus();
+}
+window.toggleCapacityInput = toggleCapacityInput;
+
+function addUnified() {
+  const nameInput = document.getElementById("newUnifiedName");
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  const isDriver = document.getElementById("isDriverCheck").checked;
+
+  if (isDriver) {
+    const cap = document.getElementById("unifiedCapacity").value;
+    // addCarは既存関数を呼び出し（引数ありならDOM参照しない）
+    addCar(name, cap);
+  } else {
+    // addMemberは既存関数を呼び出し（引数ありならDOM参照しない）
+    addMember(name);
+  }
+  
+  // 性別自動判定と保存を実行（既存関数は引数ありだとこれらをスキップするため）
+  detectGender(name);
+  save();
+
+  // 入力リセット
+  nameInput.value = "";
+  document.getElementById("isDriverCheck").checked = false;
+  document.getElementById("unifiedCapacity").disabled = true;
+  nameInput.focus();
+}
+window.addUnified = addUnified;
+
+// --- 追加機能: トレイ開閉ロジック ---
+function toggleTray() {
+  const tray = document.getElementById("bottom-tray");
+  tray.classList.toggle("minimized");
+  save(); // 状態同期のために保存
+}
+window.toggleTray = toggleTray;
+
+
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
-    const name = n || $('#newMemberName').value; if(!name) return;
+    // 既存の入力欄IDは削除されたため、引数nがない場合は安全策をとる(統合フォームではnが必ず渡される)
+    const name = n || ($('#newMemberName') ? $('#newMemberName').value : '');
+    if(!name) return;
+    
     const div = ce('div', 'member-card');
     div.dataset.name = name;
     div.dataset.gender = g;
@@ -620,15 +720,18 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
         </div>
     `;
     parent.appendChild(div);
-    if(!n) { $('#newMemberName').value=''; detectGender(name); save(); }
+    
+    // nが無い場合（旧UI動作）のみここでsave等を呼ぶ
+    if(!n && $('#newMemberName')) { $('#newMemberName').value=''; detectGender(name); save(); }
     updateUI();
     return div;
 }
 window.addMember = addMember;
 
 function addCar(n, cap, mems=[], dm='', dg='unknown') {
-    const name = n || $('#newCarName').value;
-    const c = getInt(cap || $('#newCarCapacity').value);
+    // 既存の入力欄IDは削除されたため、引数nがない場合は安全策をとる
+    const name = n || ($('#newCarName') ? $('#newCarName').value : '');
+    const c = getInt(cap || ($('#newCarCapacity') ? $('#newCarCapacity').value : 3));
     if(!name) return;
 
     const col = ce('div', 'col-12 col-md-6 col-lg-4');
@@ -658,7 +761,8 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
         if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].isFreshman, slot, mems[i].locked);
     });
 
-    if(!n) { $('#newCarName').value=''; detectGender(name); save(); }
+    // nが無い場合（旧UI動作）のみここでsave等を呼ぶ
+    if(!n && $('#newCarName')) { $('#newCarName').value=''; detectGender(name); save(); }
     updateUI();
 }
 window.addCar = addCar;
@@ -702,6 +806,10 @@ function updateUI() {
 
 function getData() {
     return {
+        // ▼ 変更: トレイ開閉状態を保存データに追加
+        trayMinimized: document.getElementById("bottom-tray")
+                           .classList.contains("minimized"),
+
         waiting: Array.from($$('#waiting-list .member-card')).map(getMemData),
         cars: Array.from($$('.car-box')).map(c => ({
             name: $('.driver-name-disp', c).innerText,
@@ -720,6 +828,14 @@ function getMemData(el) {
 }
 
 function restore(d) {
+    // ▼ 変更: トレイ開閉状態の復元
+    const tray = document.getElementById("bottom-tray");
+    if (d.trayMinimized) {
+      tray.classList.add("minimized");
+    } else {
+      tray.classList.remove("minimized");
+    }
+
     $('#waiting-list').innerHTML = '';
     $('#cars-container').innerHTML = '';
     (d.waiting||[]).forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked));
