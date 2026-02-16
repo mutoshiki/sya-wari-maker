@@ -20,8 +20,13 @@
     --driver-bg: #eceff1;
     --seat-bg: #f4f6f7;
     --seat-slot-bg: #ffffff;
-    --tray-bg: #e3e8eb; 
+    --tray-bg: #e3e8eb;
     
+    /* モーダル */
+    --modal-bg: #ffffff;
+    --modal-header-bg: #e9ecef; /* Bootstrapのlight-subtleに近い色 */
+    --modal-footer-bg: #f8f9fa;
+
     /* --- 性別・学年カラー設定 --- */
     --bg-male: #e3f2fd; --border-male: #90caf9; --text-male: #1565c0;
     --bg-female: #ffebee; --border-female: #ef9a9a; --text-female: #c62828;
@@ -39,6 +44,11 @@
     --bg-card: #15191d; --border-color: #2c3e50;
     --driver-bg: #1c2329; --seat-bg: #0f1316; --seat-slot-bg: #1c2329;
     --tray-bg: #1a2026;
+    
+    /* モーダル */
+    --modal-bg: #15191d;
+    --modal-header-bg: #1c2329;
+    --modal-footer-bg: #1a2026;
 
     --bg-male: rgba(33, 150, 243, 0.15); --border-male: #1976d2; --text-male: #bbdefb;
     --bg-female: rgba(244, 67, 54, 0.15); --border-female: #d32f2f; --text-female: #ffcdd2;
@@ -84,10 +94,11 @@ html, body {
 #status-indicator {
     position: fixed; top: 10px; left: 10px; z-index: 1050;
     font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;
-    background: rgba(255,255,255,0.95); border: 1px solid #ddd;
+    background: var(--bg-card); border: 1px solid var(--border-color);
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     display: flex; align-items: center; gap: 6px; pointer-events: none;
     transition: all 0.3s ease;
+    color: var(--text-main);
 }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #ccc; }
 #status-indicator.connected .status-dot { background-color: #2e7d32; } /* 緑 */
@@ -126,6 +137,7 @@ html, body {
     margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-color); font-weight: bold;
 }
 .car-box.over-capacity { border-color: #c62828; background: rgba(198, 40, 40, 0.05); }
+[data-theme="dark"] .car-box.over-capacity { background: rgba(198, 40, 40, 0.15); }
 .car-layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
 .driver-seat { 
@@ -148,12 +160,31 @@ html, body {
     transform: scale(1.05); cursor: grabbing !important; z-index: 99999 !important; pointer-events: none;
 }
 
-/* ガイド・モーダル */
-.guide-section-title { font-size: 1.1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; color: var(--text-main); }
-.guide-step-box { background: rgba(0,0,0,0.03); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-.text-muted-dark-friendly { color: #6c757d; }
-[data-theme="dark"] .text-muted-dark-friendly { color: #b0bec5 !important; }
-.modal-content { background-color: var(--bg-card); color: var(--text-main); border-color: var(--border-color); }
+/* --- モーダル修正 --- */
+.modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--border-color); }
+.modal-header { background-color: var(--modal-header-bg); border-bottom-color: var(--border-color); }
+.modal-footer { background-color: var(--modal-footer-bg); border-top-color: var(--border-color); }
+.btn-close { filter: invert(var(--bs-btn-close-invert)); }
+[data-theme="dark"] .btn-close { filter: invert(1); }
+
+/* --- ガイド用追加CSS (修正版) --- */
+.guide-section { margin-bottom: 2.5rem; } /* ゆとりを持たせる */
+.guide-section h6 { border-left: 4px solid var(--text-sub); padding-left: 12px; margin-bottom: 1.2rem; color: var(--text-main); font-weight: bold; }
+.guide-demo-box { background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.guide-demo-card { width: 100%; pointer-events: none; margin: 0 auto; }
+.guide-desc { font-size: 0.95rem; color: var(--text-main); margin-bottom: 10px; line-height: 1.5; }
+.guide-icon-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.guide-icon-badge { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-sub); flex-shrink: 0; }
+.text-muted-dark-friendly { color: var(--text-sub) !important; }
+
+/* ガイド内のデモ要素のダークモード対応 */
+[data-theme="dark"] .bg-light-subtle { background-color: var(--bg-card) !important; }
+[data-theme="dark"] .bg-white { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
+[data-theme="dark"] .bg-light { background-color: var(--tray-bg) !important; color: var(--text-main) !important; }
+[data-theme="dark"] .border { border-color: var(--border-color) !important; }
+
+/* 入力フォームがあるカードの背景色 */
+.card.bg-light-subtle { background-color: var(--bg-card) !important; }
 </style>
 </head>
 <body data-theme="light">
@@ -172,10 +203,11 @@ html, body {
                 <button class="btn btn-outline-secondary btn-sm" onclick="copyUrl()"><i class="fas fa-link"></i> URL</button>
                 <button class="btn btn-sm btn-warning text-white" onclick="modals.batch.show()"><i class="fas fa-paste"></i></button>
                 <button class="btn btn-sm btn-info text-white" onclick="modals.guide.show()"><i class="fas fa-book-open"></i></button>
+                <button class="btn btn-sm btn-danger text-white" onclick="window.resetData()" title="データリセット"><i class="fas fa-trash"></i></button>
             </div>
         </div>
 
-        <div class="card p-2 mb-3 shadow-sm border-0 bg-light-subtle">
+        <div class="card p-3 mb-3 shadow-sm border-0 bg-light-subtle">
             <div class="row g-2">
                 <div class="col-7"><input type="text" id="newMemberName" class="form-control form-control-sm" placeholder="メンバー名"></div>
                 <div class="col-5"><button class="btn btn-primary btn-sm w-100" onclick="addMember()">追加</button></div>
@@ -186,10 +218,10 @@ html, body {
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <small class="fw-bold text-muted"><i class="fas fa-car me-1"></i>配車状況</small>
-            <button class="btn btn-outline-danger btn-sm py-0" style="font-size: 0.75rem;" onclick="clearAll()">全解除</button>
+            <small class="fw-bold text-muted-dark-friendly"><i class="fas fa-car me-1"></i>配車状況</small>
+            <button class="btn btn-outline-danger btn-sm py-0" style="font-size: 0.75rem;" onclick="window.clearAll()">全解除</button>
         </div>
-        <div id="cars-container" class="row g-2 pb-5"></div>
+        <div id="cars-container" class="row g-3 pb-5"></div>
     </div>
 
     <div id="bottom-tray">
@@ -199,18 +231,21 @@ html, body {
                 <span id="waiting-count" class="badge bg-secondary rounded-pill">0</span>
             </div>
             
-            <div class="btn-group">
+            <div class="d-flex gap-1">
                 <button class="btn btn-sm btn-outline-secondary" onclick="autoAssign('fill')">埋める</button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="autoAssign('shuffle')"><i class="fas fa-random"></i></button>
-                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
-                    <li><h6 class="dropdown-header">自動割当設定</h6></li>
-                    <li><label class="dropdown-item"><input type="checkbox" id="optFemale" class="form-check-input me-2">女子をまとめる</label></li>
-                    <li><label class="dropdown-item"><input type="checkbox" id="optMale" class="form-check-input me-2">男子をまとめる</label></li>
-                    <li><label class="dropdown-item"><input type="checkbox" id="optGrade" class="form-check-input me-2">学年優先</label></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><button class="dropdown-item text-danger" onclick="window.resetData()"><i class="fas fa-trash me-2"></i>リセット</button></li>
-                </ul>
+                <button class="btn btn-sm btn-outline-primary" onclick="autoAssign('shuffle')"><i class="fas fa-random"></i> 自動割当</button>
+                
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-secondary text-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog"></i> 設定
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><h6 class="dropdown-header">自動割当の優先順位</h6></li>
+                        <li><label class="dropdown-item"><input type="checkbox" id="optFemale" class="form-check-input me-2">女子をまとめる</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" id="optMale" class="form-check-input me-2">男子をまとめる</label></li>
+                        <li><label class="dropdown-item"><input type="checkbox" id="optGrade" class="form-check-input me-2">学年をまとめる</label></li>
+                    </ul>
+                </div>
             </div>
         </div>
         
@@ -246,16 +281,107 @@ html, body {
 <div class="modal fade" id="guideModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title fw-bold"><i class="fas fa-book-reader me-2 text-info"></i>使い方ガイド</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-4 bg-light-subtle">
-                <h6 class="guide-section-title text-primary"><i class="fas fa-1 me-2"></i>メンバーと車を登録</h6>
-                <div class="guide-step-box bg-white border"><p class="small mb-2">画面上部の入力欄から追加、または「一括登録」ボタンでExcel等からコピペできます。</p></div>
-                <h6 class="guide-section-title text-success mt-4"><i class="fas fa-2 me-2"></i>ドラッグして車に乗せる</h6>
-                <div class="guide-step-box bg-white border"><p class="small mb-3">下の「待機リスト」から「車」の空き枠へカードをドラッグします。</p></div>
-                <h6 class="guide-section-title text-info mt-4"><i class="fas fa-3 me-2"></i>タップして状態を変更</h6>
-                <div class="guide-step-box bg-white border"><p class="small mb-2">名前クリックで性別・学年を変更。アイコンでメモやロックができます。</p></div>
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="fas fa-book-reader me-2"></i>使い方</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">理解しました</button></div>
+            <div class="modal-body p-4">
+                
+                <div class="guide-section">
+                    <h6>1. 登録する（手動・一括）</h6>
+                    <p class="guide-desc">画面上部の入力欄、または「一括登録」ボタンからメンバーと車を追加します。</p>
+                    <div class="guide-demo-box">
+                        <div class="d-flex gap-2 mb-3 align-items-center">
+                            <div class="border rounded bg-white px-3 py-2 text-muted-dark-friendly flex-grow-1">田中 太郎</div>
+                            <button class="btn btn-primary disabled">追加</button>
+                        </div>
+                        <p class="small text-muted-dark-friendly mb-0">※ <span class="badge bg-warning text-white"><i class="fas fa-paste"></i></span> ボタンでフォームの回答やスプレッドシートの名前一覧からの一括登録の使用を推奨します。</p>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h6>2. 車に乗せる（移動）</h6>
+                    <p class="guide-desc">カードをドラッグ＆ドロップして動かします。</p>
+                    <div class="row align-items-center justify-content-center text-center g-3 my-3">
+                        <div class="col-5">
+                            <div class="border rounded p-3 bg-light">待機リスト</div>
+                        </div>
+                        <div class="col-2"><i class="fas fa-arrow-right fa-lg text-primary"></i></div>
+                        <div class="col-5">
+                            <div class="border rounded p-3 bg-white dashed">車（空き枠）</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h6>3. メンバーカードの操作</h6>
+                    <p class="guide-desc">カードには様々な機能があります。名前をタップすると属性が変わります。</p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="member-card guide-demo-card" data-gender="male" data-freshman="false"><div class="member-name-text text-center">男子</div></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="member-card guide-demo-card" data-gender="female" data-freshman="false"><div class="member-name-text text-center">女子</div></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="member-card guide-demo-card" data-gender="male" data-freshman="true"><div class="member-name-text text-center">1年男子</div></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="member-card guide-demo-card" data-gender="female" data-freshman="true"><div class="member-name-text text-center">1年女子</div></div>
+                        </div>
+                    </div>
+                    <div class="alert alert-secondary py-2 small mb-4">
+                        <i class="fas fa-hand-pointer me-2"></i><strong>名前をクリック</strong>： 男 → 女 → 1男 → 1女 の順に切り替わります。
+                    </div>
+
+                    <div class="guide-icon-row">
+                        <div class="guide-icon-badge"><i class="fas fa-sticky-note"></i></div>
+                        <div class="small text-muted-dark-friendly"><strong>メモ機能</strong>：住所や備考を入力できます。入力があるとアイコンがオレンジになります。</div>
+                    </div>
+                    <div class="guide-icon-row">
+                        <div class="guide-icon-badge"><i class="fas fa-unlock"></i></div>
+                        <div class="small text-muted-dark-friendly"><strong>ロック機能</strong>：タップして鍵（<i class="fas fa-lock text-warning"></i>）をかけると、自動割当や全解除で動かなくなります。確定した人に便利です。</div>
+                    </div>
+                    <div class="guide-icon-row">
+                        <div class="guide-icon-badge"><i class="fas fa-times"></i></div>
+                        <div class="small text-muted-dark-friendly"><strong>削除/降車</strong>：車から降ろして待機リストへ戻します。（待機リスト内で押すと完全削除）</div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h6>4. 車の設定</h6>
+                    <div class="guide-demo-box">
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                            <span class="fw-bold">佐藤車</span>
+                            <span class="badge bg-secondary">3/4</span>
+                        </div>
+                        <p class="small text-muted-dark-friendly mb-0">右上の数字（定員）をクリックすると、乗車人数を変更できます。<br>運転手名をタップで性別変更、アイコンで運転手メモも可能です。</p>
+                    </div>
+                </div>
+
+                <div class="guide-section mb-0">
+                    <h6>5. 便利ツール</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-card">
+                                <span class="badge bg-primary mb-2"><i class="fas fa-random"></i> 自動割当</span>
+                                <p class="small mb-0 text-muted-dark-friendly">「設定」で女子をまとめるなどを決めてから実行すると、自動でメンバーを車に割り振ります。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-card">
+                                <span class="badge bg-success mb-2">LINE / URL</span>
+                                <p class="small mb-0 text-muted-dark-friendly">現在の結果をテキストでコピーしたり、この部屋のURLをグループに共有して、共同編集・閲覧出来ます。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">理解しました</button>
+            </div>
         </div>
     </div>
 </div>
@@ -280,7 +406,6 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let dbRef;
 
-// ★重要★ クライアントID（このブラウザを識別し、自分の変更が跳ね返ってきた時に無視するために使用）
 const myClientId = Math.random().toString(36).substring(2) + Date.now().toString(36);
 
 let isRemoteUpdate = false;
@@ -293,7 +418,6 @@ const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_v10_split' };
 const D = document, L = localStorage, J = JSON;
 const $ = (s, p=D) => p.querySelector(s), $$ = (s, p=D) => p.querySelectorAll(s), ce = (t, c) => { const e = D.createElement(t); if(c) e.className = c; return e; }, getInt = v => parseInt(v) || 0;
 
-// URLルームID処理（前回のリロード対策を維持）
 let roomId = new URLSearchParams(window.location.search).get('room');
 if (!roomId) roomId = localStorage.getItem('syawari_last_room_id');
 if (!roomId) {
@@ -306,14 +430,12 @@ if (!window.location.search.includes('room=')) {
 }
 dbRef = ref(db, 'rooms/' + roomId);
 
-// 接続監視
 const statusEl = $('#status-indicator');
 const statusText = $('#status-text');
 const updateStatus = (cls, txt) => {
     statusEl.className = cls; statusText.textContent = txt;
 };
 
-// --- 初期化 ---
 D.addEventListener('DOMContentLoaded', () => {
     modals.edit = new bootstrap.Modal($('#commonEditModal'));
     modals.batch = new bootstrap.Modal($('#batchImportModal'));
@@ -331,16 +453,33 @@ D.addEventListener('DOMContentLoaded', () => {
         if (t.classList.contains('lock-btn')) {
             toggleLock(t.closest('.member-card')); return;
         }
+        
+        // 削除ボタンの挙動修正
         if (t.classList.contains('delete-btn')) {
             const card = t.closest('.member-card');
             const box = t.closest('.car-box');
+            
             if (card) {
                 if (card.dataset.locked === 'true') return alert('ロックされています');
-                if (confirm('削除して待機リストに戻しますか？')) $('#waiting-list').appendChild(card);
+                
+                // 親要素が待機リスト(waiting-list)か車内(seat-slot)かで挙動を分岐
+                if (card.parentElement.id === 'waiting-list') {
+                    if (confirm('このメンバーを【完全に削除】しますか？')) {
+                        card.remove(); // 待機リストなら完全削除
+                    }
+                } else {
+                    if (confirm('車から降ろして【待機リスト】に戻しますか？')) {
+                        $('#waiting-list').appendChild(card); // 車内なら待機リストへ戻す
+                    }
+                }
             } else if (box) {
                 if (confirm('この車を削除しますか？')) {
                     $$('.member-card', box).forEach(m => $('#waiting-list').appendChild(m));
-                    box.closest('.col-12, .col-md-6').remove();
+                    if (box.parentElement && box.parentElement.classList.contains('col-12')) {
+                        box.parentElement.remove();
+                    } else {
+                        box.closest('.col-12').remove();
+                    }
                 }
             }
             updateUI(); save();
@@ -359,7 +498,6 @@ D.addEventListener('DOMContentLoaded', () => {
     checkTheme();
     mql.addEventListener('change', checkTheme);
     
-    // 接続確認用
     onValue(ref(db, ".info/connected"), (snap) => {
         if (snap.val() === true) {
             updateStatus('connected', 'オンライン');
@@ -369,7 +507,6 @@ D.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// リセット
 window.resetData = () => { 
     if(confirm('データを全消去してリセットしますか？\n(注意: 全員の画面で消えます)')) { 
         L.removeItem(CFG.STORE + '_' + roomId);
@@ -378,11 +515,10 @@ window.resetData = () => {
 };
 
 function save() {
-    // 変更中は黄色
     if(statusEl.className === 'connected') updateStatus('saving', '保存中...');
 
     const d = getData();
-    d.lastUpdatedBy = myClientId; // ★自分が変更したことを記録
+    d.lastUpdatedBy = myClientId;
 
     L.setItem(CFG.STORE + '_' + roomId, J.stringify(d));
     
@@ -407,8 +543,6 @@ function load() {
 
         const val = snapshot.val();
         if (val) {
-            // ★ここが修正点: 自分が最後に保存したデータなら、画面更新をスキップする
-            // これにより、自分がドラッグ中に画面が再描画されてドロップできなくなるバグを防ぐ
             if (val.lastUpdatedBy === myClientId) {
                 return;
             }
@@ -469,7 +603,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
                 <span>${name}車</span>
-                <div><span class="badge bg-secondary capacity-badge me-2" style="cursor:pointer" onclick="editCapacity(this)">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn"></i></div>
+                <div><span class="badge bg-secondary capacity-badge me-2" style="cursor:pointer" onclick="window.editCapacity(this)">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn"></i></div>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>
         </div>
@@ -610,15 +744,20 @@ function autoAssign(mode) {
     }
     
     if(!mems.length) return;
+    
+    // Shuffle logic
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
     mems = shuffle(mems);
     
+    // Sort logic for grouping
     if(opts.f || opts.m || opts.g) {
         mems.sort((a,b) => {
             let sA=0, sB=0;
             if(opts.g) { if(a.isFreshman) sA+=10; if(b.isFreshman) sB+=10; }
             if(opts.f && a.gender==='female') sA+=20;
             if(opts.f && b.gender==='female') sB+=20;
+            if(opts.m && a.gender==='male') sA+=20;
+            if(opts.m && b.gender==='male') sB+=20;
             return sB - sA;
         });
     }
