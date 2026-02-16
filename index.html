@@ -150,7 +150,7 @@ html, body {
 /* メンバーカード */
 .member-card { 
     background: var(--bg-card); 
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color); 
     border-left-width: 5px; 
     border-radius: var(--radius-sm); 
     padding: 6px 8px;
@@ -364,80 +364,113 @@ html, body {
                 <h5 class="modal-title fw-bold"><i class="fas fa-book-reader me-2 text-info"></i>使い方ガイド</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
+            <div class="modal-body p-4 bg-light-subtle">
                 
-                <h6 class="guide-section-title text-primary">STEP 1. メンバーと車を登録</h6>
-                <div class="guide-step-box d-flex align-items-start gap-3">
-                    <div class="guide-icon-lg text-primary"><i class="fas fa-user-plus"></i></div>
-                    <div>
-                        <strong>メンバーを追加する</strong><br>
-                        <span class="small opacity-75">
-                            名前を入力して「追加」ボタンを押します。<br>
-                            人数が多い場合は、画面右上の <i class="fas fa-paste text-warning"></i> ボタン（一括登録）を使うと、名簿からコピペでまとめて登録できて便利です。
-                        </span>
+                <h6 class="guide-section-title text-primary"><i class="fas fa-1 me-2"></i>メンバーと車を登録</h6>
+                <div class="guide-step-box bg-white border">
+                    <p class="small mb-2">画面上部の入力欄から追加します。</p>
+                    <div class="row g-2 align-items-center opacity-75" style="pointer-events: none;">
+                        <div class="col-7"><input class="form-control form-control-sm" value="山田太郎" readonly></div>
+                        <div class="col-5"><button class="btn btn-primary btn-sm w-100">追加</button></div>
                     </div>
-                </div>
-                <div class="guide-step-box d-flex align-items-start gap-3">
-                    <div class="guide-icon-lg text-success"><i class="fas fa-car"></i></div>
-                    <div>
-                        <strong>車を追加する</strong><br>
-                        <span class="small opacity-75">
-                            運転手の名前と定員を入力して「車追加」ボタンを押します。
-                        </span>
+                    <div class="text-center my-2 text-muted" style="font-size: 0.8rem;">または</div>
+                    <div class="d-flex align-items-center gap-2 justify-content-center">
+                        <button class="btn btn-sm btn-warning text-white" style="pointer-events: none;"><i class="fas fa-paste"></i></button>
+                        <span class="small">ボタンで、名簿から一括コピペ登録も可能です。</span>
                     </div>
                 </div>
 
-                <h6 class="guide-section-title text-success mt-4">STEP 2. ドラッグして配車</h6>
-                <div class="guide-step-box d-flex align-items-start gap-3">
-                    <div class="guide-icon-lg text-secondary"><i class="fas fa-hand-pointer"></i></div>
-                    <div>
-                        <strong>人を車に乗せる</strong><br>
-                        <span class="small opacity-75">
-                            下の「待機メンバー」リストから、上の「車」の空きスペースへ、名前をドラッグ＆ドロップして移動させます。
-                        </span>
-                    </div>
-                </div>
-                <div class="guide-step-box d-flex align-items-start gap-3">
-                    <div class="guide-icon-lg text-secondary"><i class="fas fa-random"></i></div>
-                    <div>
-                        <strong>自動で割り振る</strong><br>
-                        <span class="small opacity-75">
-                            右下の「シャッフル」アイコンや「埋める」ボタンを押すと、空いている席に自動でメンバーを割り振ります。<br>
-                            「男子・女子をまとめる」などの条件も設定可能です。
-                        </span>
+                <h6 class="guide-section-title text-success mt-4"><i class="fas fa-2 me-2"></i>ドラッグして車に乗せる</h6>
+                <div class="guide-step-box bg-white border">
+                    <p class="small mb-3">下の「待機リスト」から、上の「車」の空き枠へカードをドラッグします。</p>
+                    
+                    <div class="row g-2">
+                        <div class="col-5">
+                            <div class="small fw-bold text-center mb-1 text-muted">待機リスト</div>
+                            <div class="p-2 border rounded bg-light text-center" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                                <div class="member-card w-100 shadow-sm" data-gender="male" data-freshman="false" style="pointer-events: none; transform: rotate(-3deg);">
+                                    <div class="member-name-text">移動する人</div>
+                                    <div class="card-bottom-row"><i class="fas fa-unlock text-muted"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-arrow-right fa-2x text-success"></i>
+                        </div>
+
+                        <div class="col-5">
+                            <div class="small fw-bold text-center mb-1 text-muted">田中車</div>
+                            <div class="car-box mb-0 p-1" style="pointer-events: none;">
+                                <div class="car-layout-grid">
+                                    <div class="driver-seat py-1" data-gender="male">
+                                        <div class="driver-label">DRIVER</div>
+                                        <div class="driver-name-disp small">田中</div>
+                                    </div>
+                                    <div class="seat-slot bg-white border-dashed d-flex align-items-center justify-content-center">
+                                        <small class="text-muted">ここへ<br>ドロップ</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <h6 class="guide-section-title text-warning mt-4">STEP 3. 調整と仕上げ</h6>
-                <div class="row g-2">
-                    <div class="col-md-6">
-                        <div class="guide-step-box h-100">
-                            <strong><i class="fas fa-palette me-2"></i>色を変える (性別・学年)</strong><br>
-                            <span class="small opacity-75">
-                                名前をタップすると色が切り替わります。<br>
-                                <span class="guide-badge-sample" style="border-left-color:var(--border-male); background:var(--bg-male);">男</span>
-                                <span class="guide-badge-sample" style="border-left-color:var(--border-female); background:var(--bg-female);">女</span>
-                                <span class="guide-badge-sample" style="border-left-color:var(--border-male-fresh); background:var(--bg-male-fresh);">1男</span>
-                            </span>
+                <h6 class="guide-section-title text-info mt-4"><i class="fas fa-3 me-2"></i>タップして状態を変更</h6>
+                <div class="guide-step-box bg-white border">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <p class="small mb-2">名前をクリックすると<strong>性別・学年</strong>の色が変わります。</p>
+                            <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr;">
+                                <div class="member-card" data-gender="male" data-freshman="false" style="pointer-events: none;"><span class="small fw-bold">上回生(男)</span></div>
+                                <div class="member-card" data-gender="female" data-freshman="false" style="pointer-events: none;"><span class="small fw-bold">上回生(女)</span></div>
+                                <div class="member-card" data-gender="male" data-freshman="true" style="pointer-events: none;"><span class="small fw-bold">1年生(男)</span></div>
+                                <div class="member-card" data-gender="female" data-freshman="true" style="pointer-events: none;"><span class="small fw-bold">1年生(女)</span></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="guide-step-box h-100">
-                            <strong><i class="fas fa-lock me-2"></i>ロック機能</strong><br>
-                            <span class="small opacity-75">
-                                カードの <i class="fas fa-unlock"></i> 鍵アイコンを押すとロックされます。<br>
-                                ロックされた人は「自動割当」や「リセット」で勝手に移動しなくなります。
-                            </span>
+                        <div class="col-4 text-center">
+                            <i class="fas fa-hand-pointer fa-2x text-muted mb-2"></i>
+                            <div class="small text-muted">自動判定が<br>違う時は<br>タップ！</div>
                         </div>
                     </div>
                 </div>
-                <div class="mt-2 text-center small text-muted">
-                    <i class="fab fa-line text-success me-1"></i>LINEボタンで配車表をテキストコピーできます。
+
+                <h6 class="guide-section-title text-secondary mt-4"><i class="fas fa-4 me-2"></i>便利な機能アイコン</h6>
+                <div class="guide-step-box bg-white border">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                             <div class="member-card" style="width: 80px; pointer-events: none;">
+                                <div class="card-bottom-row mt-0">
+                                    <i class="fas fa-sticky-note text-warning"></i>
+                                    <i class="fas fa-lock text-warning"></i>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="small">
+                            <div><i class="fas fa-sticky-note text-warning me-1"></i> <strong>メモ機能:</strong> 備考を入力できます。</div>
+                            <div><i class="fas fa-lock text-warning me-1"></i> <strong>ロック:</strong> 自動割当やリセットで移動しなくなります。</div>
+                        </div>
+                    </div>
+                    <hr class="my-2">
+                    <div class="row text-center small mt-3">
+                        <div class="col-4">
+                            <span class="btn btn-outline-secondary btn-sm disabled mb-1"><i class="fas fa-random"></i></span>
+                            <div class="text-muted">自動割当</div>
+                        </div>
+                        <div class="col-4">
+                            <span class="btn btn-outline-primary btn-sm disabled mb-1"><i class="fab fa-line"></i> LINE</span>
+                            <div class="text-muted">テキストコピー</div>
+                        </div>
+                        <div class="col-4">
+                            <span class="btn btn-outline-secondary btn-sm disabled mb-1"><i class="fas fa-link"></i> URL</span>
+                            <div class="text-muted">共有用URL</div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">はじめる</button>
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">理解しました</button>
             </div>
         </div>
     </div>
@@ -690,7 +723,7 @@ function setupSortable(el) {
 function updateUI() {
     $$('.car-box').forEach(b => {
         const c = getInt(b.dataset.capacity);
-        const n = $$('.seat-slot .member-card').length;
+        const n = $$('.seat-slot .member-card', b).length;
         const badge = $('.capacity-badge', b);
         badge.textContent = `${n}/${c}`;
         badge.className = `badge capacity-badge me-2 bg-${n>c?'danger':(n===c?'success':'secondary')}`;
