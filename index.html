@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>山歩会 車割メーカー（統合版）</title>
+<title>山歩会 車割メーカー（修正版）</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -24,7 +24,7 @@
     
     /* モーダル */
     --modal-bg: #ffffff;
-    --modal-header-bg: #e9ecef; /* Bootstrapのlight-subtleに近い色 */
+    --modal-header-bg: #e9ecef;
     --modal-footer-bg: #f8f9fa;
 
     /* --- 性別・学年カラー設定 --- */
@@ -79,7 +79,6 @@ html, body {
     display: flex; flex-direction: column; z-index: 20; position: relative;
     transition: height 0.3s ease, min-height 0.3s ease;
 }
-/* 最小化時のスタイル */
 #bottom-tray.minimized {
     height: 46px !important;
     min-height: 46px !important;
@@ -105,7 +104,32 @@ html, body {
 #waiting-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; min-height: 100px; }
 
 .btn { border-radius: var(--radius-sm); font-weight: 600; }
-.form-control { background-color: var(--bg-card); color: var(--text-main); border-color: var(--border-color); }
+
+/* フォームコントロールのダークモード対応強化 */
+.form-control { 
+    background-color: var(--bg-card); 
+    color: var(--text-main); 
+    border-color: var(--border-color); 
+}
+.form-control:focus {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: var(--border-male); /* フォーカス時は少し青っぽく */
+}
+.form-control::placeholder {
+    color: var(--text-sub);
+    opacity: 0.6;
+}
+/* チェックボックスのダークモード対応 */
+.form-check-input { 
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    cursor: pointer;
+}
+[data-theme="dark"] .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
 
 /* ステータス表示 */
 #status-indicator {
@@ -118,9 +142,9 @@ html, body {
     color: var(--text-main);
 }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #ccc; }
-#status-indicator.connected .status-dot { background-color: #2e7d32; } /* 緑 */
-#status-indicator.saving .status-dot { background-color: #fbc02d; } /* 黄 */
-#status-indicator.error .status-dot { background-color: #c62828; } /* 赤 */
+#status-indicator.connected .status-dot { background-color: #2e7d32; }
+#status-indicator.saving .status-dot { background-color: #fbc02d; }
+#status-indicator.error .status-dot { background-color: #c62828; }
 
 .member-card { 
     background: var(--bg-card); border: 1px solid var(--border-color); border-left-width: 5px; 
@@ -129,6 +153,7 @@ html, body {
     display: flex; flex-direction: column; justify-content: center;
     min-height: 60px; touch-action: none; cursor: grab;
     font-size: 0.9rem; user-select: none; -webkit-user-select: none;
+    padding-right: 24px; /* 右上に削除ボタン用のスペース */
 }
 .member-card:active { cursor: grabbing; }
 
@@ -142,6 +167,15 @@ html, body {
 .member-name-text { font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; font-size: 0.95rem;}
 .card-bottom-row { display: flex; justify-content: space-between; margin-top: 4px; }
 .action-btn { opacity: 0.5; padding: 4px; cursor: pointer; } .action-btn:hover { opacity: 1; }
+
+/* 削除ボタン（右上オーバーレイ） */
+.delete-btn-overlay {
+    position: absolute; top: 2px; right: 2px;
+    font-size: 0.85rem; opacity: 0.3; cursor: pointer; padding: 4px; z-index: 5;
+    color: var(--text-main);
+}
+.delete-btn-overlay:hover { opacity: 1; color: #c62828; }
+
 .memo-popup { font-size: 0.75rem; background: rgba(255,255,255,0.9); padding: 2px 4px; border-radius: 4px; border-left: 3px solid var(--accent-color); display: none; margin-top: 3px; color: #333; }
 [data-theme="dark"] .memo-popup { background: rgba(0,0,0,0.6); color: #ddd; }
 
@@ -184,8 +218,8 @@ html, body {
 .btn-close { filter: invert(var(--bs-btn-close-invert)); }
 [data-theme="dark"] .btn-close { filter: invert(1); }
 
-/* --- ガイド用追加CSS (修正版) --- */
-.guide-section { margin-bottom: 2.5rem; } /* ゆとりを持たせる */
+/* --- ガイド用追加CSS --- */
+.guide-section { margin-bottom: 2.5rem; }
 .guide-section h6 { border-left: 4px solid var(--text-sub); padding-left: 12px; margin-bottom: 1.2rem; color: var(--text-main); font-weight: bold; }
 .guide-demo-box { background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
 .guide-demo-card { width: 100%; pointer-events: none; margin: 0 auto; }
@@ -194,17 +228,16 @@ html, body {
 .guide-icon-badge { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-sub); flex-shrink: 0; }
 .text-muted-dark-friendly { color: var(--text-sub) !important; }
 
-/* ガイド内のデモ要素のダークモード対応 */
-[data-theme="dark"] .bg-light-subtle { background-color: var(--bg-card) !important; }
+/* ダークモード時のユーティリティクラス上書き */
+[data-theme="dark"] .bg-light-subtle { 
+    background-color: var(--bg-card) !important; 
+    color: var(--text-main) !important; 
+}
 [data-theme="dark"] .bg-white { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .bg-light { background-color: var(--tray-bg) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .border { border-color: var(--border-color) !important; }
-
-/* 入力フォームがあるカードの背景色 */
 .card.bg-light-subtle { background-color: var(--bg-card) !important; }
 
-/* チェックボックス調整 */
-.form-check-input { cursor: pointer; }
 </style>
 </head>
 <body data-theme="light">
@@ -240,7 +273,7 @@ html, body {
                       type="checkbox"
                       id="isDriverCheck"
                       onchange="toggleCapacityInput()">
-                    <label class="form-check-label small ms-1 fw-bold" for="isDriverCheck" style="user-select:none; cursor:pointer;">
+                    <label class="form-check-label small ms-1 fw-bold" for="isDriverCheck" style="user-select:none; cursor:pointer; color: var(--text-main);">
                       運転
                     </label>
                 </div>
@@ -249,7 +282,7 @@ html, body {
                     <input type="number"
                       id="unifiedCapacity"
                       class="form-control form-control-sm px-1 text-center"
-                      value="3"
+                      placeholder="定員"
                       disabled>
                 </div>
               
@@ -314,7 +347,7 @@ html, body {
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-12"><p class="small text-muted-dark-friendly mb-2">※Excelやスプレッドシートからコピー＆ペーストできます。</p></div>
-                    <div class="col-md-4"><label class="form-label fw-bold small text-primary">同乗者 (改行区切り)</label><textarea id="batchMembers" class="form-control" style="height:150px; font-size:0.9rem;"></textarea></div>
+                    <div class="col-md-4"><label class="form-label fw-bold small text-primary">同乗者 (改行区切り)</label><textarea id="batchMembers" class="form-control" style="height:150px; font-size:0.9rem;" placeholder="（例）&#13;田中 太郎&#13;佐藤 花子&#13;鈴木 次郎&#13;高橋 美咲&#13;伊藤 健太&#13;渡辺 陽子&#13;山本 大輔"></textarea></div>
                     <div class="col-md-4"><label class="form-label fw-bold small text-success">1年生 (改行区切り)</label><textarea id="batchFreshmen" class="form-control" style="height:150px; font-size:0.9rem;"></textarea></div>
                     <div class="col-md-4"><label class="form-label fw-bold small text-secondary">運転手 (改行区切り)</label><textarea id="batchDrivers" class="form-control" style="height:150px; font-size:0.9rem;"></textarea></div>
                 </div>
@@ -389,7 +422,7 @@ html, body {
                             <strong>「同乗者」「1年生」「運転手」</strong>のそれぞれの列をコピーして、該当する欄に貼り付けます。
                         </div>
                     </div>
-                    </div>
+                </div>
 
                 <div class="guide-section">
                     <h6>2. 車に乗せる（移動）</h6>
@@ -437,7 +470,7 @@ html, body {
                     </div>
                     <div class="guide-icon-row">
                         <div class="guide-icon-badge"><i class="fas fa-times"></i></div>
-                        <div class="small text-muted-dark-friendly"><strong>削除/降車</strong>：車から降ろして待機リストへ戻します。（待機リスト内で押すと完全削除）</div>
+                        <div class="small text-muted-dark-friendly"><strong>削除ボタン</strong>：カード右上の「×」で削除します。</div>
                     </div>
                 </div>
 
@@ -446,7 +479,7 @@ html, body {
                     <div class="guide-demo-box">
                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
                             <span class="fw-bold">佐藤車</span>
-                            <span class="badge bg-secondary">3/4</span>
+                            <span class="badge bg-secondary">3/4 <i class="fas fa-pen ms-1"></i></span>
                         </div>
                         <p class="small text-muted-dark-friendly mb-0">右上の数字（定員）をクリックすると、乗車人数を変更できます。<br>運転手名をタップで性別変更、アイコンで運転手メモも可能です。</p>
                     </div>
@@ -482,7 +515,8 @@ html, body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// setだけでなくupdateをインポート
+import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCBJhqD5T05TTQqWw3d2bFbr6keSe9mRyE",
@@ -546,22 +580,21 @@ D.addEventListener('DOMContentLoaded', () => {
             toggleLock(t.closest('.member-card')); return;
         }
         
-        // 削除ボタンの挙動
-        if (t.classList.contains('delete-btn')) {
+        // 削除ボタンの挙動（クラス名変更に対応）
+        if (t.classList.contains('delete-btn') || t.classList.contains('delete-btn-overlay')) {
             const card = t.closest('.member-card');
             const box = t.closest('.car-box');
             
             if (card) {
                 if (card.dataset.locked === 'true') return alert('ロックされています');
                 
-                // 親要素が待機リスト(waiting-list)か車内(seat-slot)かで挙動を分岐
                 if (card.parentElement.id === 'waiting-list') {
                     if (confirm('このメンバーを【完全に削除】しますか？')) {
-                        card.remove(); // 待機リストなら完全削除
+                        card.remove(); 
                     }
                 } else {
                     if (confirm('車から降ろして【待機リスト】に戻しますか？')) {
-                        $('#waiting-list').appendChild(card); // 車内なら待機リストへ戻す
+                        $('#waiting-list').appendChild(card);
                     }
                 }
             } else if (box) {
@@ -581,7 +614,6 @@ D.addEventListener('DOMContentLoaded', () => {
     $('#saveEditBtn').onclick = () => { saveCb && saveCb(); };
     $('#editModalInput').onkeypress = e => { if(e.key==='Enter' && saveCb) saveCb(); };
     
-    // --- 変更: 新しい統合フォームのエンターキー処理 ---
     $('#newUnifiedName').onkeypress = e => { if(e.key==='Enter') addUnified(); };
 
     setupSortable($('#waiting-list'));
@@ -619,13 +651,18 @@ function save() {
     if (!isRemoteUpdate && dbRef) {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => { 
-            set(dbRef, d).then(() => {
+            // setではなくupdateを使用し、衝突を減らす
+            update(dbRef, {
+                waiting: d.waiting,
+                cars: d.cars,
+                trayMinimized: d.trayMinimized,
+                lastUpdatedBy: d.lastUpdatedBy
+            }).then(() => {
                 updateStatus('connected', '保存完了');
                 setTimeout(() => { if(statusEl.className==='connected') statusText.textContent = 'オンライン'; }, 2000);
             }).catch(e => {
                 console.error(e);
                 updateStatus('error', '保存失敗!');
-                alert('クラウドへの保存に失敗しました。ネット環境を確認してください。');
             }); 
         }, 500);
     }
@@ -654,12 +691,15 @@ function load() {
     });
 }
 
-// --- 追加機能: フォーム制御と追加ロジック ---
 function toggleCapacityInput() {
   const checked = document.getElementById("isDriverCheck").checked;
   const cap = document.getElementById("unifiedCapacity");
   cap.disabled = !checked;
-  if(checked) cap.focus();
+  if(checked) {
+      cap.focus();
+  } else {
+      cap.value = ""; // チェック外したらクリア
+  }
 }
 window.toggleCapacityInput = toggleCapacityInput;
 
@@ -671,15 +711,13 @@ function addUnified() {
   const isDriver = document.getElementById("isDriverCheck").checked;
 
   if (isDriver) {
-    const cap = document.getElementById("unifiedCapacity").value;
-    // addCarは既存関数を呼び出し（引数ありならDOM参照しない）
+    let cap = document.getElementById("unifiedCapacity").value;
+    if(!cap) cap = "3"; // デフォルト値
     addCar(name, cap);
   } else {
-    // addMemberは既存関数を呼び出し（引数ありならDOM参照しない）
     addMember(name);
   }
   
-  // 性別自動判定と保存を実行（既存関数は引数ありだとこれらをスキップするため）
   detectGender(name);
   save();
 
@@ -687,22 +725,21 @@ function addUnified() {
   nameInput.value = "";
   document.getElementById("isDriverCheck").checked = false;
   document.getElementById("unifiedCapacity").disabled = true;
-  nameInput.focus();
+  document.getElementById("unifiedCapacity").value = "";
+  nameInput.focus(); // フォーカスを戻す
 }
 window.addUnified = addUnified;
 
-// --- 追加機能: トレイ開閉ロジック ---
 function toggleTray() {
   const tray = document.getElementById("bottom-tray");
   tray.classList.toggle("minimized");
-  save(); // 状態同期のために保存
+  save();
 }
 window.toggleTray = toggleTray;
 
 
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
-    // 既存の入力欄IDは削除されたため、引数nがない場合は安全策をとる(統合フォームではnが必ず渡される)
-    const name = n || ($('#newMemberName') ? $('#newMemberName').value : '');
+    const name = n;
     if(!name) return;
     
     const div = ce('div', 'member-card');
@@ -711,27 +748,25 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     div.dataset.freshman = f;
     div.dataset.locked = locked;
     
+    // 削除ボタンを右上に移動 (delete-btn-overlay)
     div.innerHTML = `
+        <div class="delete-btn-overlay"><i class="fas fa-times"></i></div>
         <div class="member-name-text">${name}</div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${m}</div>
         <div class="card-bottom-row">
             <i class="fas fa-sticky-note action-btn edit-btn ${m?'text-warning':''}"></i>
-            <div><i class="fas ${locked?'fa-lock text-warning':'fa-unlock'} action-btn lock-btn"></i><i class="fas fa-times action-btn delete-btn"></i></div>
+            <div><i class="fas ${locked?'fa-lock text-warning':'fa-unlock'} action-btn lock-btn"></i></div>
         </div>
     `;
     parent.appendChild(div);
-    
-    // nが無い場合（旧UI動作）のみここでsave等を呼ぶ
-    if(!n && $('#newMemberName')) { $('#newMemberName').value=''; detectGender(name); save(); }
     updateUI();
     return div;
 }
 window.addMember = addMember;
 
 function addCar(n, cap, mems=[], dm='', dg='unknown') {
-    // 既存の入力欄IDは削除されたため、引数nがない場合は安全策をとる
-    const name = n || ($('#newCarName') ? $('#newCarName').value : '');
-    const c = getInt(cap || ($('#newCarCapacity') ? $('#newCarCapacity').value : 3));
+    const name = n;
+    const c = getInt(cap);
     if(!name) return;
 
     const col = ce('div', 'col-12 col-md-6 col-lg-4');
@@ -745,11 +780,17 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     `;
     for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"></div>`;
 
+    // バッジに鉛筆アイコンを追加
     col.innerHTML = `
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
                 <span>${name}車</span>
-                <div><span class="badge bg-secondary capacity-badge me-2" style="cursor:pointer" onclick="window.editCapacity(this)">0/${c}</span><i class="fas fa-trash-alt action-btn delete-btn"></i></div>
+                <div>
+                  <span class="badge bg-secondary capacity-badge me-2" style="cursor:pointer" onclick="window.editCapacity(this)" title="クリックで定員変更">
+                    ${0}/${c} <i class="fas fa-pen ms-1" style="font-size:0.8em"></i>
+                  </span>
+                  <i class="fas fa-trash-alt action-btn delete-btn"></i>
+                </div>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>
         </div>
@@ -760,9 +801,6 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
         setupSortable(slot);
         if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].isFreshman, slot, mems[i].locked);
     });
-
-    // nが無い場合（旧UI動作）のみここでsave等を呼ぶ
-    if(!n && $('#newCarName')) { $('#newCarName').value=''; detectGender(name); save(); }
     updateUI();
 }
 window.addCar = addCar;
@@ -797,7 +835,8 @@ function updateUI() {
         const c = getInt(b.dataset.capacity);
         const n = $$('.seat-slot .member-card', b).length;
         const badge = $('.capacity-badge', b);
-        badge.textContent = `${n}/${c}`;
+        // アイコンを含めたHTMLを再設定
+        badge.innerHTML = `${n}/${c} <i class="fas fa-pen ms-1" style="font-size:0.8em"></i>`;
         badge.className = `badge capacity-badge me-2 bg-${n>c?'danger':(n===c?'success':'secondary')}`;
         b.classList.toggle('over-capacity', n>c);
     });
@@ -806,7 +845,6 @@ function updateUI() {
 
 function getData() {
     return {
-        // ▼ 変更: トレイ開閉状態を保存データに追加
         trayMinimized: document.getElementById("bottom-tray")
                            .classList.contains("minimized"),
 
@@ -828,7 +866,6 @@ function getMemData(el) {
 }
 
 function restore(d) {
-    // ▼ 変更: トレイ開閉状態の復元
     const tray = document.getElementById("bottom-tray");
     if (d.trayMinimized) {
       tray.classList.add("minimized");
