@@ -161,7 +161,7 @@ html, body {
     flex-direction: column; 
     justify-content: center;
     min-height: 60px;
-    touch-action: manipulation;
+    touch-action: none; /* 【修正】ドラッグ時のブラウザスクロールを防止 */
     cursor: grab;
     font-size: 0.9rem;
     user-select: none;
@@ -225,12 +225,12 @@ html, body {
 .sortable-ghost { opacity: 0.3; background: var(--accent-color) !important; }
 .sortable-fallback { 
     opacity: 1 !important; 
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important; 
-    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4) !important; 
+    transform: scale(1.05); /* 掴んでいる感を出すために少し大きく */
     cursor: grabbing !important;
     z-index: 99999 !important;
-    will-change: transform;
-    transform: translate3d(0, 0, 0) !important; /* GPU強制 */
+    pointer-events: none; /* 【修正】ドラッグ中の要素がタッチイベントを邪魔しないようにする */
+    /* 【修正】transform: translate3d(0, 0, 0) !important; を削除 */
 }
 
 /* ガイド用スタイル */
@@ -563,8 +563,6 @@ function save() {
 
 function load() {
     onValue(dbRef, (snapshot) => {
-        // ★修正点1: キュー処理中（一括登録の男女判別中）は、外部からのデータ反映を無視する
-        // これにより、Firebaseの保存完了通知による画面リセットで判別ループが上書きされるのを防ぐ
         if (isProcessingQueue) return;
 
         const val = snapshot.val();
@@ -663,14 +661,15 @@ function setupSortable(el) {
         group: 'shared',
         animation: 150,
         scroll: true, 
-        scrollSensitivity: 80,
-        scrollSpeed: 40,
-        bubbleScroll: true,
-        delay: 100,
-        delayOnTouchOnly: true,
-        touchStartThreshold: 5,
+        scrollSensitivity: 120, // 【修正】感度を上げて端でのスクロール反応を良くする
+        scrollSpeed: 20, // 【修正】スピードは控えめにして制御しやすく
+        bubbleScroll: false, // 【修正】親要素のスクロール干渉を防ぐ
+        delay: 150, // 【修正】少し長押し判定にすることで誤スクロール防止
+        delayOnTouchOnly: true, // 【修正】PCでは即時反応
+        touchStartThreshold: 3, // 【修正】少しのブレは許容
         fallbackOnBody: true,
         swapThreshold: 0.65,
+        emptyInsertThreshold: 8, // 【修正】空のスロットに入れやすくする
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-fallback',
@@ -679,8 +678,6 @@ function setupSortable(el) {
         onAdd: (evt) => {
             const item = evt.item;
             const target = evt.to;
-            // ★修正点2: 待機リストへのドロップ時は「交換」を行わないようにする
-            // 待機リストは人数無制限なので、入れ替える必要がないため
             if (target.id !== 'waiting-list') {
                 const children = Array.from(target.children).filter(c => c !== item && !c.classList.contains('sortable-fallback'));
                 if (children.length > 0) evt.from.appendChild(children[0]);
@@ -693,7 +690,7 @@ function setupSortable(el) {
 function updateUI() {
     $$('.car-box').forEach(b => {
         const c = getInt(b.dataset.capacity);
-        const n = $$('.seat-slot .member-card', b).length;
+        const n = $$('.seat-slot .member-card').length;
         const badge = $('.capacity-badge', b);
         badge.textContent = `${n}/${c}`;
         badge.className = `badge capacity-badge me-2 bg-${n>c?'danger':(n===c?'success':'secondary')}`;
