@@ -58,6 +58,16 @@
     color-scheme: dark;
 }
 
+/* ダークモードの見やすさ改善 */
+[data-theme="dark"] .dropdown-menu { background-color: var(--modal-bg); border-color: var(--border-color); }
+[data-theme="dark"] .dropdown-item { color: var(--text-main); }
+[data-theme="dark"] .dropdown-item:hover { background-color: var(--tray-bg); color: var(--text-main); }
+[data-theme="dark"] .dropdown-header { color: var(--text-sub); }
+[data-theme="dark"] .dropdown-divider { border-top-color: var(--border-color); }
+[data-theme="dark"] .form-control:disabled { background-color: rgba(255, 255, 255, 0.05); color: var(--text-sub); border-color: var(--border-color); opacity: 1; }
+[data-theme="dark"] .list-group-item { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); }
+[data-theme="dark"] .list-group-item:hover { background-color: var(--tray-bg); color: var(--text-main); }
+
 html, body {
     height: 100%; margin: 0; padding: 0; overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -71,31 +81,35 @@ html, body {
     -webkit-overflow-scrolling: touch; scroll-behavior: auto; position: relative; z-index: 10;
 }
 
+/* トレイのハンドル */
+#tray-handle {
+    height: 24px; display: flex; justify-content: center; align-items: center; cursor: pointer;
+    background: var(--tray-bg); border-top: 1px solid var(--border-color);
+    border-radius: 16px 16px 0 0; width: 100%;
+}
+.handle-bar {
+    width: 40px; height: 5px; background-color: var(--text-sub); border-radius: 3px; opacity: 0.6;
+}
+
 /* トレイの開閉アニメーション設定 */
 #bottom-tray {
     height: 38%; min-height: 200px; background-color: var(--tray-bg);
-    border-top: 1px solid var(--border-color);
     box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
     display: flex; flex-direction: column; z-index: 20; position: relative;
     transition: height 0.3s ease, min-height 0.3s ease;
+    border-radius: 16px 16px 0 0;
 }
 #bottom-tray.minimized {
-    height: 46px !important;
-    min-height: 46px !important;
+    height: 66px !important;
+    min-height: 66px !important;
     overflow: hidden;
 }
 #bottom-tray.minimized #waiting-list-container {
     display: none;
 }
-#tray-toggle-icon {
-    transition: transform 0.3s ease;
-}
-#bottom-tray.minimized #tray-toggle-icon {
-    transform: rotate(180deg);
-}
 
 #bottom-tray-header {
-    padding: 8px 12px; background: var(--bg-card);
+    padding: 4px 12px 8px 12px; background: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
     display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
 }
@@ -105,7 +119,6 @@ html, body {
 
 .btn { border-radius: var(--radius-sm); font-weight: 600; }
 
-/* フォームコントロールのダークモード対応強化 */
 .form-control { 
     background-color: var(--bg-card); 
     color: var(--text-main); 
@@ -114,13 +127,13 @@ html, body {
 .form-control:focus {
     background-color: var(--bg-card);
     color: var(--text-main);
-    border-color: var(--border-male); /* フォーカス時は少し青っぽく */
+    border-color: var(--border-male);
 }
 .form-control::placeholder {
     color: var(--text-sub);
     opacity: 0.6;
 }
-/* チェックボックスのダークモード対応 */
+
 .form-check-input { 
     background-color: var(--bg-card);
     border-color: var(--border-color);
@@ -131,21 +144,6 @@ html, body {
     border-color: #0d6efd;
 }
 
-/* ステータス表示 */
-#status-indicator {
-    position: fixed; top: 10px; left: 10px; z-index: 1050;
-    font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;
-    background: var(--bg-card); border: 1px solid var(--border-color);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    display: flex; align-items: center; gap: 6px; pointer-events: none;
-    transition: all 0.3s ease;
-    color: var(--text-main);
-}
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #ccc; }
-#status-indicator.connected .status-dot { background-color: #2e7d32; }
-#status-indicator.saving .status-dot { background-color: #fbc02d; }
-#status-indicator.error .status-dot { background-color: #c62828; }
-
 .member-card { 
     background: var(--bg-card); border: 1px solid var(--border-color); border-left-width: 5px; 
     border-radius: var(--radius-sm); padding: 6px 8px; position: relative; 
@@ -153,7 +151,7 @@ html, body {
     display: flex; flex-direction: column; justify-content: center;
     min-height: 60px; touch-action: none; cursor: grab;
     font-size: 0.9rem; user-select: none; -webkit-user-select: none;
-    padding-right: 24px; /* 右上に削除ボタン用のスペース */
+    padding-right: 24px;
 }
 .member-card:active { cursor: grabbing; }
 
@@ -168,7 +166,6 @@ html, body {
 .card-bottom-row { display: flex; justify-content: space-between; margin-top: 4px; }
 .action-btn { opacity: 0.5; padding: 4px; cursor: pointer; } .action-btn:hover { opacity: 1; }
 
-/* 削除ボタン（右上オーバーレイ） */
 .delete-btn-overlay {
     position: absolute; top: 2px; right: 2px;
     font-size: 0.85rem; opacity: 0.3; cursor: pointer; padding: 4px; z-index: 5;
@@ -211,14 +208,12 @@ html, body {
     transform: scale(1.05); cursor: grabbing !important; z-index: 99999 !important; pointer-events: none;
 }
 
-/* --- モーダル修正 --- */
 .modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--border-color); }
 .modal-header { background-color: var(--modal-header-bg); border-bottom-color: var(--border-color); }
 .modal-footer { background-color: var(--modal-footer-bg); border-top-color: var(--border-color); }
 .btn-close { filter: invert(var(--bs-btn-close-invert)); }
 [data-theme="dark"] .btn-close { filter: invert(1); }
 
-/* --- ガイド用追加CSS --- */
 .guide-section { margin-bottom: 2.5rem; }
 .guide-section h6 { border-left: 4px solid var(--text-sub); padding-left: 12px; margin-bottom: 1.2rem; color: var(--text-main); font-weight: bold; }
 .guide-demo-box { background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
@@ -228,58 +223,74 @@ html, body {
 .guide-icon-badge { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-sub); flex-shrink: 0; }
 .text-muted-dark-friendly { color: var(--text-sub) !important; }
 
-/* ダークモード時のユーティリティクラス上書き */
-[data-theme="dark"] .bg-light-subtle { 
-    background-color: var(--bg-card) !important; 
-    color: var(--text-main) !important; 
-}
+[data-theme="dark"] .bg-light-subtle { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .bg-white { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .bg-light { background-color: var(--tray-bg) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .border { border-color: var(--border-color) !important; }
 .card.bg-light-subtle { background-color: var(--bg-card) !important; }
 
+/* ツールボタンのアイコン＋文字スタイル */
+.tool-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-sub);
+    min-width: 44px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.tool-btn:hover {
+    color: var(--text-main);
+    background: rgba(0,0,0,0.05);
+}
+[data-theme="dark"] .tool-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+.tool-btn i { font-size: 1.1rem; margin-bottom: 3px; }
+.tool-btn span { font-size: 0.55rem; line-height: 1; font-weight: bold; white-space: nowrap; }
+
 </style>
 </head>
 <body data-theme="light">
 
-<div id="status-indicator">
-    <div class="status-dot"></div><span id="status-text">接続中...</span>
-</div>
-
 <div id="app-layout">
     
     <div id="top-area">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-mountain me-2 opacity-50"></i>車割メーカー</h5>
-            <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-vertical fa-lg"></i>
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-1">
+            <div class="d-flex align-items-center flex-grow-1 me-2">
+                <i class="fas fa-mountain me-2 opacity-50 fs-5"></i>
+                <input type="text" id="roomNameInput" class="form-control form-control-sm fw-bold border-0 bg-transparent px-1" placeholder="部屋名（企画名）" style="box-shadow: none; font-size: 1.1rem; color: var(--text-main);">
+            </div>
+            
+            <div class="d-flex gap-1">
+                <button class="btn tool-btn" onclick="copyUrl()" title="URLをコピー">
+                    <i class="fas fa-link"></i><span>リンク</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
-                    <li><button class="dropdown-item" onclick="copyLine()"><i class="fab fa-line me-2"></i>LINEにコピー</button></li>
-                    <li><button class="dropdown-item" onclick="copyUrl()"><i class="fas fa-link me-2"></i>URLをコピー</button></li>
-                    <li><button class="dropdown-item" onclick="modals.batch.show()"><i class="fas fa-paste me-2"></i>一括登録</button></li>
-                    <li><button class="dropdown-item" onclick="modals.guide.show()"><i class="fas fa-book-open me-2"></i>使い方</button></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><button class="dropdown-item text-danger" onclick="window.resetData()"><i class="fas fa-trash me-2"></i>全データリセット</button></li>
-                </ul>
+                <button class="btn tool-btn" onclick="modals.batch.show()" title="一括登録">
+                    <i class="fas fa-paste"></i><span>一括登録</span>
+                </button>
+                <button class="btn tool-btn" onclick="modals.guide.show()" title="使い方">
+                    <i class="fas fa-book-open"></i><span>使い方</span>
+                </button>
+                <button class="btn tool-btn" onclick="showHistory()" title="履歴">
+                    <i class="fas fa-history"></i><span>履歴</span>
+                </button>
             </div>
         </div>
 
         <div class="card p-3 mb-3 shadow-sm border-0 bg-light-subtle">
-            <div class="mb-2">
-                <input type="text" id="newUnifiedName" class="form-control" placeholder="名前を入力">
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="isDriverCheck" onchange="toggleCapacityInput()">
-                    <label class="form-check-label fw-bold" for="isDriverCheck" style="user-select:none; cursor:pointer; color: var(--text-main);">
+            <div class="d-flex gap-2 mb-2 align-items-center">
+                <input type="text" id="newUnifiedName" class="form-control flex-grow-1" placeholder="名前を入力">
+                <div class="form-check mb-0 d-flex align-items-center gap-1 text-nowrap">
+                    <input class="form-check-input mt-0" type="checkbox" id="isDriverCheck" onchange="toggleCapacityInput()">
+                    <label class="form-check-label fw-bold mb-0" for="isDriverCheck" style="user-select:none; cursor:pointer; color: var(--text-main);">
                       運転手
                     </label>
                 </div>
-                <div style="width: 40%;">
-                    <input type="number" id="unifiedCapacity" class="form-control text-center" placeholder="定員" disabled>
-                </div>
+                <input type="number" id="unifiedCapacity" class="form-control text-center" placeholder="定員" disabled style="width: 70px;">
             </div>
             <button class="btn btn-primary btn-sm w-100 fw-bold py-2" onclick="addUnified()">
                 <i class="fas fa-plus me-1"></i>追加
@@ -293,12 +304,11 @@ html, body {
     </div>
 
     <div id="bottom-tray">
+        <div id="tray-handle" onclick="toggleTray()">
+            <div class="handle-bar"></div>
+        </div>
         <div id="bottom-tray-header">
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-sm btn-outline-dark border-0 py-0 px-2" onclick="toggleTray()" title="トレイを開閉">
-                  <i id="tray-toggle-icon" class="fas fa-chevron-down small"></i>
-                </button>
-
                 <small class="fw-bold"><i class="fas fa-users me-1"></i>待機メンバー</small>
                 <span id="waiting-count" class="badge bg-secondary rounded-pill">0</span>
             </div>
@@ -507,11 +517,25 @@ html, body {
     </div>
 </div>
 
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="fas fa-history me-2"></i>履歴</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="history-list" class="list-group list-group-flush">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-// setだけでなくupdateをインポート
 import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -540,32 +564,27 @@ const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_v10_split' };
 const D = document, L = localStorage, J = JSON;
 const $ = (s, p=D) => p.querySelector(s), $$ = (s, p=D) => p.querySelectorAll(s), ce = (t, c) => { const e = D.createElement(t); if(c) e.className = c; return e; }, getInt = v => parseInt(v) || 0;
 
-// 【修正箇所】ルームIDの取得ロジックを変更
-// URLパラメータにroomがない場合は、ローカルストレージを見に行かず、必ず新規作成する
 let roomId = new URLSearchParams(window.location.search).get('room');
 
 if (!roomId) {
-    // URLにIDが無い場合、確実に新しいIDを生成する
     roomId = Math.random().toString(36).substring(2, 8);
-    // 新しいIDでURLを書き換える
     const newUrl = `${window.location.pathname}?room=${roomId}`;
     window.history.replaceState({path: newUrl}, '', newUrl);
 }
 
-// 最後に訪れたルームとして保存だけはしておく（次回以降の利便性のため）
 localStorage.setItem('syawari_last_room_id', roomId);
 dbRef = ref(db, 'rooms/' + roomId);
 
-const statusEl = $('#status-indicator');
-const statusText = $('#status-text');
+// ステータス表示の代わりにコンソール出力のみ行うように変更
 const updateStatus = (cls, txt) => {
-    statusEl.className = cls; statusText.textContent = txt;
+    console.log(`Status changed: [${cls}] ${txt}`);
 };
 
 D.addEventListener('DOMContentLoaded', () => {
     modals.edit = new bootstrap.Modal($('#commonEditModal'));
     modals.batch = new bootstrap.Modal($('#batchImportModal'));
     modals.guide = new bootstrap.Modal($('#guideModal'));
+    modals.history = new bootstrap.Modal($('#historyModal'));
     window.modals = modals;
 
     D.body.onclick = e => {
@@ -580,7 +599,6 @@ D.addEventListener('DOMContentLoaded', () => {
             toggleLock(t.closest('.member-card')); return;
         }
         
-        // 削除ボタンの挙動（クラス名変更に対応）
         if (t.classList.contains('delete-btn') || t.classList.contains('delete-btn-overlay')) {
             const card = t.closest('.member-card');
             const box = t.closest('.car-box');
@@ -615,6 +633,10 @@ D.addEventListener('DOMContentLoaded', () => {
     $('#editModalInput').onkeypress = e => { if(e.key==='Enter' && saveCb) saveCb(); };
     
     $('#newUnifiedName').onkeypress = e => { if(e.key==='Enter') addUnified(); };
+    $('#roomNameInput').addEventListener('input', () => {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(save, 500);
+    });
 
     setupSortable($('#waiting-list'));
     load();
@@ -631,6 +653,19 @@ D.addEventListener('DOMContentLoaded', () => {
             updateStatus('error', '切断中...');
         }
     });
+
+    // 5分ごとの履歴自動保存
+    setInterval(() => {
+        if (isRemoteUpdate || !dbRef) return;
+        const currentData = getData();
+        let hist = JSON.parse(localStorage.getItem('syawari_history_' + roomId) || '[]');
+        if (hist.length > 0) {
+            if (JSON.stringify(hist[0].data) === JSON.stringify(currentData)) return;
+        }
+        hist.unshift({ time: Date.now(), data: currentData });
+        if (hist.length > 20) hist = hist.slice(0, 20);
+        localStorage.setItem('syawari_history_' + roomId, JSON.stringify(hist));
+    }, 300000);
 });
 
 window.resetData = () => { 
@@ -641,7 +676,7 @@ window.resetData = () => {
 };
 
 function save() {
-    if(statusEl.className === 'connected') updateStatus('saving', '保存中...');
+    updateStatus('saving', '保存中...');
 
     const d = getData();
     d.lastUpdatedBy = myClientId;
@@ -651,15 +686,14 @@ function save() {
     if (!isRemoteUpdate && dbRef) {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => { 
-            // setではなくupdateを使用し、衝突を減らす
             update(dbRef, {
+                roomName: d.roomName,
                 waiting: d.waiting,
                 cars: d.cars,
                 trayMinimized: d.trayMinimized,
                 lastUpdatedBy: d.lastUpdatedBy
             }).then(() => {
                 updateStatus('connected', '保存完了');
-                setTimeout(() => { if(statusEl.className==='connected') statusText.textContent = 'オンライン'; }, 2000);
             }).catch(e => {
                 console.error(e);
                 updateStatus('error', '保存失敗!');
@@ -683,6 +717,7 @@ function load() {
             isRemoteUpdate = false;
             L.setItem(CFG.STORE + '_' + roomId, J.stringify(val));
         } else {
+            $('#roomNameInput').value = '';
             $('#waiting-list').innerHTML = '';
             $('#cars-container').innerHTML = '';
             updateUI();
@@ -698,7 +733,7 @@ function toggleCapacityInput() {
   if(checked) {
       cap.focus();
   } else {
-      cap.value = ""; // チェック外したらクリア
+      cap.value = ""; 
   }
 }
 window.toggleCapacityInput = toggleCapacityInput;
@@ -712,7 +747,7 @@ function addUnified() {
 
   if (isDriver) {
     let cap = document.getElementById("unifiedCapacity").value;
-    if(!cap) cap = "3"; // デフォルト値
+    if(!cap) cap = "3"; 
     addCar(name, cap);
   } else {
     addMember(name);
@@ -721,12 +756,11 @@ function addUnified() {
   detectGender(name);
   save();
 
-  // 入力リセット
   nameInput.value = "";
   document.getElementById("isDriverCheck").checked = false;
   document.getElementById("unifiedCapacity").disabled = true;
   document.getElementById("unifiedCapacity").value = "";
-  nameInput.focus(); // フォーカスを戻す
+  nameInput.focus(); 
 }
 window.addUnified = addUnified;
 
@@ -736,7 +770,6 @@ function toggleTray() {
   save();
 }
 window.toggleTray = toggleTray;
-
 
 function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
     const name = n;
@@ -748,7 +781,6 @@ function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), loc
     div.dataset.freshman = f;
     div.dataset.locked = locked;
     
-    // 削除ボタンを右上に移動 (delete-btn-overlay)
     div.innerHTML = `
         <div class="delete-btn-overlay"><i class="fas fa-times"></i></div>
         <div class="member-name-text">${name}</div>
@@ -780,7 +812,6 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
     `;
     for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"></div>`;
 
-    // バッジに鉛筆アイコンを追加
     col.innerHTML = `
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
@@ -835,7 +866,6 @@ function updateUI() {
         const c = getInt(b.dataset.capacity);
         const n = $$('.seat-slot .member-card', b).length;
         const badge = $('.capacity-badge', b);
-        // アイコンを含めたHTMLを再設定
         badge.innerHTML = `${n}/${c} <i class="fas fa-pen ms-1" style="font-size:0.8em"></i>`;
         badge.className = `badge capacity-badge me-2 bg-${n>c?'danger':(n===c?'success':'secondary')}`;
         b.classList.toggle('over-capacity', n>c);
@@ -845,6 +875,7 @@ function updateUI() {
 
 function getData() {
     return {
+        roomName: $('#roomNameInput').value,
         trayMinimized: document.getElementById("bottom-tray")
                            .classList.contains("minimized"),
 
@@ -866,6 +897,7 @@ function getMemData(el) {
 }
 
 function restore(d) {
+    $('#roomNameInput').value = d.roomName || '';
     const tray = document.getElementById("bottom-tray");
     if (d.trayMinimized) {
       tray.classList.add("minimized");
@@ -941,11 +973,9 @@ function autoAssign(mode) {
     
     if(!mems.length) return;
     
-    // Shuffle logic
     const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
     mems = shuffle(mems);
     
-    // Sort logic for grouping
     if(opts.f || opts.m || opts.g) {
         mems.sort((a,b) => {
             let sA=0, sB=0;
@@ -1031,17 +1061,34 @@ window.executeBatch = executeBatch;
 function copyUrl() { navigator.clipboard.writeText(window.location.href).then(()=>alert('URLをコピーしました')); }
 window.copyUrl = copyUrl;
 
-function copyLine() {
-    const d=getData(); let t="【山歩会 車割表】\n\n";
-    d.cars.forEach(c=>{ 
-        t+=`🚗 ${c.name} (${c.members.length}/${c.capacity})\n`;
-        if(c.driverMemo) t+=`  [Memo] ${c.driverMemo}\n`;
-        t+=`  メンバー: ${c.members.map(m=>m.name+(m.isFreshman?'(1)':'')+(m.memo?`(${m.memo})`:'')).join(", ")||"なし"}\n\n`;
-    });
-    if(d.waiting.length) t+="📍 未割当\n"+d.waiting.map(m=>m.name).join(", ")+"\n";
-    navigator.clipboard.writeText(t+"\n"+window.location.href.split('?')[0]).then(()=>alert('LINE用テキストをコピーしました'));
-}
-window.copyLine = copyLine;
+window.showHistory = () => {
+    const hist = JSON.parse(localStorage.getItem('syawari_history_' + roomId) || '[]');
+    const container = document.getElementById('history-list');
+    container.innerHTML = '';
+    if (hist.length === 0) {
+        container.innerHTML = '<div class="p-3 text-center text-muted">履歴がありません</div>';
+    } else {
+        hist.forEach((h) => {
+            const d = new Date(h.time);
+            const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+            const btn = document.createElement('button');
+            btn.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            btn.innerHTML = `
+                <span>${timeStr}</span>
+                <span class="badge bg-primary rounded-pill">復元</span>
+            `;
+            btn.onclick = () => {
+                if (confirm('この状態に復元しますか？（現在の状態は上書きされます）')) {
+                    restore(h.data);
+                    save();
+                    modals.history.hide();
+                }
+            };
+            container.appendChild(btn);
+        });
+    }
+    modals.history.show();
+};
 </script>
 </body>
 </html>
