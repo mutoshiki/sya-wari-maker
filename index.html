@@ -914,8 +914,8 @@ window.editCapacity = editCapacity;
 
 function setupSortable(el) {
     new Sortable(el, {
-        group: 'shared', animation: 150, scroll: true, scrollSensitivity: 120, scrollSpeed: 20, 
-        bubbleScroll: false, delay: 150, delayOnTouchOnly: true, touchStartThreshold: 3, 
+        group: 'shared', animation: 150, scroll: true, scrollSensitivity: 100, scrollSpeed: 20, 
+        bubbleScroll: true, delay: 150, delayOnTouchOnly: true, touchStartThreshold: 3, 
         fallbackOnBody: true, swapThreshold: 0.65, emptyInsertThreshold: 8, 
         ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', dragClass: 'sortable-fallback',
         forceFallback: true,
