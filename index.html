@@ -28,12 +28,16 @@
     --modal-header-bg: #ffffff;
     --modal-footer-bg: #f8fafc;
 
-    /* --- 性別・学年カラー設定 (少し落ち着いた色合いに) --- */
+    /* --- 性別カラー設定 --- */
     --bg-male: #eff6ff; --border-male: #bfdbfe; --text-male: #1d4ed8;
     --bg-female: #fef2f2; --border-female: #fecaca; --text-female: #b91c1c;
-    --bg-male-fresh: #f0fdf4; --border-male-fresh: #bbf7d0; --text-male-fresh: #15803d;
-    --bg-female-fresh: #fff7ed; --border-female-fresh: #fed7aa; --text-female-fresh: #c2410c;
     --bg-unknown: #f8fafc; --border-unknown: #cbd5e1; --text-unknown: #475569;
+
+    /* --- 学年バッジカラー --- */
+    --grade1-bg: #f0fdf4; --grade1-border: #bbf7d0; --grade1-text: #15803d; --grade1-badge: #22c55e;
+    --grade2-bg: #fff7ed; --grade2-border: #fed7aa; --grade2-text: #c2410c; --grade2-badge: #f97316;
+    --grade3-bg: #fdf4ff; --grade3-border: #e9d5ff; --grade3-text: #7e22ce; --grade3-badge: #a855f7;
+    --grade4-bg: #f0f9ff; --grade4-border: #bae6fd; --grade4-text: #0369a1; --grade4-badge: #0ea5e9;
 
     --radius-main: 6px;
     --radius-sm: 4px;
@@ -61,9 +65,12 @@
 
     --bg-male: rgba(59, 130, 246, 0.15); --border-male: #3b82f6; --text-male: #bfdbfe;
     --bg-female: rgba(239, 68, 68, 0.15); --border-female: #ef4444; --text-female: #fecaca;
-    --bg-male-fresh: rgba(34, 197, 94, 0.15); --border-male-fresh: #22c55e; --text-male-fresh: #bbf7d0;
-    --bg-female-fresh: rgba(249, 115, 22, 0.15); --border-female-fresh: #f97316; --text-female-fresh: #fed7aa;
     --bg-unknown: rgba(148, 163, 184, 0.15); --border-unknown: #64748b; --text-unknown: #cbd5e1;
+
+    --grade1-bg: rgba(34,197,94,0.15); --grade1-border: #22c55e; --grade1-text: #bbf7d0; --grade1-badge: #22c55e;
+    --grade2-bg: rgba(249,115,22,0.15); --grade2-border: #f97316; --grade2-text: #fed7aa; --grade2-badge: #f97316;
+    --grade3-bg: rgba(168,85,247,0.15); --grade3-border: #a855f7; --grade3-text: #e9d5ff; --grade3-badge: #a855f7;
+    --grade4-bg: rgba(14,165,233,0.15); --grade4-border: #0ea5e9; --grade4-text: #bae6fd; --grade4-badge: #0ea5e9;
     color-scheme: dark;
 }
 
@@ -167,12 +174,114 @@ html, body {
 }
 .member-card:active { cursor: grabbing; }
 
-.member-card[data-gender="male"][data-freshman="false"] { background: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
-.member-card[data-gender="female"][data-freshman="false"] { background: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
-.member-card[data-gender="male"][data-freshman="true"] { background: var(--bg-male-fresh); border-color: var(--border-male-fresh); color: var(--text-male-fresh); }
-.member-card[data-gender="female"][data-freshman="true"] { background: var(--bg-female-fresh); border-color: var(--border-female-fresh); color: var(--text-female-fresh); }
-.member-card[data-freshman="true"]:not([data-gender="male"]):not([data-gender="female"]) { background: var(--bg-unknown); border-color: var(--border-unknown); color: var(--text-unknown); }
+.member-card[data-gender="male"] { background: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
+.member-card[data-gender="female"] { background: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
+.member-card[data-gender="unknown"] { background: var(--bg-unknown); border-color: var(--border-unknown); color: var(--text-unknown); }
 .member-card[data-locked="true"] { border-color: #f59e0b; box-shadow: 0 0 0 1px #f59e0b; }
+
+/* 学年バッジ */
+.grade-badge {
+    font-size: 0.6rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;
+    display: inline-block; line-height: 1.4;
+}
+.grade-badge[data-grade="1"] { background: var(--grade1-badge); color: #fff; }
+.grade-badge[data-grade="2"] { background: var(--grade2-badge); color: #fff; }
+.grade-badge[data-grade="3"] { background: var(--grade3-badge); color: #fff; }
+.grade-badge[data-grade="4"] { background: var(--grade4-badge); color: #fff; }
+.grade-badge[data-grade="0"] { display: none; }
+
+/* スプレッドシートビュー */
+#view-toggle-bar {
+    display: flex; gap: 4px; padding: 4px 10px;
+    background: var(--bg-card); border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.view-tab {
+    flex: 1; padding: 6px 4px; font-size: 0.75rem; font-weight: 600;
+    border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+    background: transparent; color: var(--text-sub); cursor: pointer;
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.view-tab.active {
+    background: var(--accent-color); color: #fff; border-color: var(--accent-color);
+}
+.view-tab:not(.active):hover { background: var(--bg-body); color: var(--text-main); }
+
+/* スプレッドシートビューのキャンバス */
+#sheet-view-area {
+    display: none; flex: 1; overflow: hidden; position: relative;
+    touch-action: none; background: var(--bg-body);
+}
+#sheet-view-area.active { display: flex; }
+#sheet-canvas {
+    position: absolute;
+    transform-origin: 0 0;
+    will-change: transform;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+    padding: 16px;
+    min-width: max-content;
+}
+
+/* スプレッドシートの車カラム */
+.sheet-car-col {
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    min-width: 140px; flex-shrink: 0;
+}
+.sheet-car-col:last-child { border-right: none; }
+.sheet-car-header {
+    background: var(--accent-color); color: #fff;
+    padding: 6px 10px; font-weight: 700; font-size: 0.8rem;
+    text-align: center; position: sticky; top: 0; z-index: 2;
+    border-bottom: 2px solid rgba(0,0,0,0.15);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sheet-driver-row {
+    padding: 6px 8px; border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem; background: var(--driver-bg);
+    display: flex; align-items: center; gap: 4px;
+}
+.sheet-driver-row[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
+.sheet-driver-row[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-seat-row {
+    padding: 5px 8px; border-bottom: 1px solid var(--border-color);
+    font-size: 0.8rem; min-height: 36px; display: flex; align-items: center;
+    background: var(--seat-slot-bg); gap: 4px; flex-wrap: wrap;
+    color: var(--text-main);
+}
+.sheet-seat-row.empty { color: var(--text-sub); font-style: italic; font-size: 0.72rem; }
+.sheet-seat-row[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
+.sheet-seat-row[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-capacity-badge {
+    font-size: 0.65rem; padding: 1px 5px; border-radius: 3px;
+    background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border-color);
+}
+
+/* ズームヒント */
+#sheet-hint {
+    position: absolute; bottom: 12px; right: 12px;
+    background: rgba(0,0,0,0.5); color: #fff;
+    font-size: 0.7rem; padding: 4px 8px; border-radius: 4px;
+    pointer-events: none; opacity: 0; transition: opacity 0.3s;
+}
+#sheet-hint.visible { opacity: 1; }
+
+/* ズームコントロール */
+#zoom-controls {
+    position: absolute; bottom: 12px; left: 12px;
+    display: flex; gap: 4px; flex-direction: column;
+}
+#zoom-controls button {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    color: var(--text-main); font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+#zoom-controls button:active { transform: scale(0.92); }
 
 .member-name-text { font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; font-size: 0.95rem;}
 .card-bottom-row { display: flex; justify-content: space-between; margin-top: 4px; }
@@ -241,6 +350,17 @@ html, body {
 [data-theme="dark"] .border { border-color: var(--border-color) !important; }
 .card.bg-light-subtle { background-color: var(--bg-card) !important; border: 1px solid var(--border-color) !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;}
 
+.grade-select-btn {
+    font-size: 0.75rem; padding: 2px 8px; border-radius: 3px;
+    border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-sub);
+    transition: all 0.15s; cursor: pointer;
+}
+.grade-select-btn.active[data-grade="0"] { background: var(--border-color); color: var(--text-main); font-weight: 700; }
+.grade-select-btn.active[data-grade="1"] { box-shadow: 0 0 0 2px #22c55e; }
+.grade-select-btn.active[data-grade="2"] { box-shadow: 0 0 0 2px #f97316; }
+.grade-select-btn.active[data-grade="3"] { box-shadow: 0 0 0 2px #a855f7; }
+.grade-select-btn.active[data-grade="4"] { box-shadow: 0 0 0 2px #0ea5e9; }
+
 /* ツールボタンのアイコン＋文字スタイル */
 .tool-btn {
     border: 1px solid transparent;
@@ -270,6 +390,15 @@ html, body {
   </head>
   <body data-theme="light">
     <div id="app-layout">
+      <!-- ビュー切り替えタブ -->
+      <div id="view-toggle-bar">
+        <button class="view-tab active" id="tab-list" onclick="switchView('list')">
+          <i class="fas fa-list"></i> 通常ビュー
+        </button>
+        <button class="view-tab" id="tab-sheet" onclick="switchView('sheet')">
+          <i class="fas fa-table"></i> スプレッドシートビュー
+        </button>
+      </div>
       <div id="top-area">
         <div class="d-flex justify-content-between align-items-center mb-3 mt-1">
           <div class="d-flex align-items-center flex-grow-1 me-2">
@@ -304,6 +433,16 @@ html, body {
             </div>
             <input type="number" id="unifiedCapacity" class="form-control text-center" placeholder="定員" disabled="" style="width: 70px;">
           </div>
+          <div class="d-flex gap-2 mb-2 align-items-center">
+            <label class="small fw-bold text-nowrap" style="color:var(--text-sub); min-width:36px;">学年</label>
+            <div class="d-flex gap-1 flex-wrap">
+              <button type="button" class="btn btn-sm grade-select-btn active" data-grade="0" onclick="selectGrade(this)">なし</button>
+              <button type="button" class="btn btn-sm grade-select-btn" data-grade="1" onclick="selectGrade(this)" style="background:#22c55e;color:#fff;border:none;">1年</button>
+              <button type="button" class="btn btn-sm grade-select-btn" data-grade="2" onclick="selectGrade(this)" style="background:#f97316;color:#fff;border:none;">2年</button>
+              <button type="button" class="btn btn-sm grade-select-btn" data-grade="3" onclick="selectGrade(this)" style="background:#a855f7;color:#fff;border:none;">3年</button>
+              <button type="button" class="btn btn-sm grade-select-btn" data-grade="4" onclick="selectGrade(this)" style="background:#0ea5e9;color:#fff;border:none;">4年</button>
+            </div>
+          </div>
           <button class="btn btn-primary btn-sm w-100 fw-bold py-2" style="background-color: var(--accent-color); border: none;" onclick="addUnified()">
             <i class="fas fa-plus me-1"></i>追加 </button>
         </div>
@@ -313,6 +452,18 @@ html, body {
         </div>
         <div id="cars-container" class="row g-3 pb-5"></div>
       </div>
+
+      <!-- スプレッドシートビュー -->
+      <div id="sheet-view-area">
+        <div id="sheet-canvas"></div>
+        <div id="sheet-hint"><i class="fas fa-hand-pointer me-1"></i>ドラッグで移動 / ピンチでズーム</div>
+        <div id="zoom-controls">
+          <button onclick="zoomIn()" title="拡大"><i class="fas fa-plus"></i></button>
+          <button onclick="zoomOut()" title="縮小"><i class="fas fa-minus"></i></button>
+          <button onclick="resetZoom()" title="リセット" style="font-size:0.7rem;">⟲</button>
+        </div>
+      </div>
+
       <div id="bottom-tray">
         <div id="tray-handle" onclick="toggleTray()">
           <div class="handle-bar"></div>
@@ -390,15 +541,27 @@ html, body {
               <div class="col-12">
                 <p class="small text-muted-dark-friendly mb-2">※現在のメンバーと車が表示されています。ここで編集・追加・削除すると、画面上のデータも更新されます。</p>
               </div>
-              <div class="col-md-4">
+              <div class="col-6 col-md-3">
                 <label class="form-label fw-bold small text-primary" style="color: var(--accent-color) !important;">同乗者 (改行区切り)</label>
-                <textarea id="batchMembers" class="form-control" style="height:150px; font-size:0.9rem;" placeholder="（例）&#10;田中 太郎&#10;佐藤 花子&#10;鈴木 次郎&#10;高橋 美咲&#10;伊藤 健太&#10;渡辺 陽子&#10;山本 大輔"></textarea>
+                <textarea id="batchMembers" class="form-control" style="height:150px; font-size:0.9rem;" placeholder="（例）&#10;田中 太郎&#10;佐藤 花子&#10;鈴木 次郎"></textarea>
               </div>
-              <div class="col-md-4">
-                <label class="form-label fw-bold small text-success" style="color: #10b981 !important;">1年生 (改行区切り)</label>
-                <textarea id="batchFreshmen" class="form-control" style="height:150px; font-size:0.9rem;"></textarea>
+              <div class="col-6 col-md-3">
+                <label class="form-label fw-bold small" style="color: #22c55e !important;">1年生 (改行区切り)</label>
+                <textarea id="batchGrade1" class="form-control" style="height:150px; font-size:0.9rem;"></textarea>
               </div>
-              <div class="col-md-4">
+              <div class="col-6 col-md-3">
+                <label class="form-label fw-bold small" style="color: #f97316 !important;">2年生 (改行区切り)</label>
+                <textarea id="batchGrade2" class="form-control" style="height:150px; font-size:0.9rem;"></textarea>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label fw-bold small" style="color: #a855f7 !important;">3年生 (改行区切り)</label>
+                <textarea id="batchGrade3" class="form-control" style="height:150px; font-size:0.9rem;"></textarea>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label fw-bold small" style="color: #0ea5e9 !important;">4年生 (改行区切り)</label>
+                <textarea id="batchGrade4" class="form-control" style="height:150px; font-size:0.9rem;"></textarea>
+              </div>
+              <div class="col-6 col-md-3">
                 <label class="form-label fw-bold small text-secondary" style="color: var(--text-sub) !important;">運転手 (改行区切り)</label>
                 <textarea id="batchDrivers" class="form-control" style="height:150px; font-size:0.9rem;"></textarea>
               </div>
@@ -703,7 +866,11 @@ D.addEventListener('DOMContentLoaded', () => {
     load();
 
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
-    const checkTheme = () => D.body.dataset.theme = mql.matches ? 'dark' : 'light';
+    const checkTheme = () => {
+        const theme = mql.matches ? 'dark' : 'light';
+        D.body.dataset.theme = theme;
+        D.documentElement.setAttribute('data-bs-theme', theme);
+    };
     checkTheme();
     mql.addEventListener('change', checkTheme);
     
@@ -814,13 +981,15 @@ function addUnified() {
   if (!name) return;
 
   const isDriver = document.getElementById("isDriverCheck").checked;
+  const gradeBtn = document.querySelector('.grade-select-btn.active');
+  const grade = gradeBtn ? parseInt(gradeBtn.dataset.grade)||0 : 0;
 
   if (isDriver) {
     let cap = document.getElementById("unifiedCapacity").value;
     if(!cap) cap = "3"; 
     addCar(name, cap);
   } else {
-    addMember(name);
+    addMember(name, '', 'unknown', grade);
   }
   
   detectGender(name);
@@ -841,22 +1010,23 @@ function toggleTray() {
 }
 window.toggleTray = toggleTray;
 
-function addMember(n, m='', g='unknown', f=false, parent=$('#waiting-list'), locked=false) {
+function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false) {
     const name = n;
     if(!name) return;
     
     const div = ce('div', 'member-card');
     div.dataset.name = name;
     div.dataset.gender = g;
-    div.dataset.freshman = f;
+    div.dataset.grade = grade;
     div.dataset.locked = locked;
     
+    const gradeHtml = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
     div.innerHTML = `
         <div class="delete-btn-overlay"><i class="fas fa-times"></i></div>
         <div class="member-name-text">${name}</div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${m}</div>
         <div class="card-bottom-row">
-            <i class="fas fa-sticky-note action-btn edit-btn ${m?'text-warning':''}"></i>
+            <div style="display:flex;gap:4px;align-items:center;">${gradeHtml}<i class="fas fa-sticky-note action-btn edit-btn ${m?'text-warning':''}"></i></div>
             <div><i class="fas ${locked?'fa-lock text-warning':'fa-unlock'} action-btn lock-btn"></i></div>
         </div>
     `;
@@ -900,7 +1070,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown') {
 
     $$('.seat-slot', col).forEach((slot, i) => {
         setupSortable(slot);
-        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].isFreshman, slot, mems[i].locked);
+        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked);
     });
     updateUI();
 }
@@ -908,7 +1078,7 @@ window.addCar = addCar;
 
 function editCapacity(el) {
     const box = el.closest('.car-box');
-    handleEdit('capacity', { closest: () => box, val: () => box.dataset.capacity });
+    handleEdit('capacity', { closest: (s) => s ? box.closest(s) : box, val: () => box.dataset.capacity });
 };
 window.editCapacity = editCapacity;
 
@@ -941,6 +1111,9 @@ function updateUI() {
         b.classList.toggle('over-capacity', n>c);
     });
     $('#waiting-count').textContent = $$('#waiting-list .member-card').length;
+    if (typeof currentView !== 'undefined' && currentView === 'sheet') {
+        renderSheetView();
+    }
 }
 
 function getData() {
@@ -962,7 +1135,7 @@ function getData() {
 function getMemData(el) {
     return {
         name: el.dataset.name, memo: $('.memo-popup', el).innerText,
-        gender: el.dataset.gender, isFreshman: el.dataset.freshman === 'true', locked: el.dataset.locked === 'true'
+        gender: el.dataset.gender, grade: parseInt(el.dataset.grade)||0, locked: el.dataset.locked === 'true'
     };
 }
 
@@ -977,7 +1150,7 @@ function restore(d) {
 
     $('#waiting-list').innerHTML = '';
     $('#cars-container').innerHTML = '';
-    (d.waiting||[]).forEach(m => addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked));
+    (d.waiting||[]).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked));
     (d.cars||[]).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender));
     updateUI();
 }
@@ -990,13 +1163,12 @@ function clearAll() {
 window.clearAll = clearAll;
 
 function toggleStatus(el) {
-    const g = el.dataset.gender, f = el.dataset.freshman === 'true';
-    let nG = 'male', nF = false;
-    if (g==='male' && !f) { nG='female'; nF=false; }
-    else if (g==='female' && !f) { nG='male'; nF=true; }
-    else if (g==='male' && f) { nG='female'; nF=true; }
-    else { nG='male'; nF=false; }
-    el.dataset.gender = nG; el.dataset.freshman = nF;
+    const g = el.dataset.gender;
+    let nG = 'male';
+    if (g==='male') { nG='female'; }
+    else if (g==='female') { nG='unknown'; }
+    else { nG='male'; }
+    el.dataset.gender = nG;
     save();
 }
 
@@ -1049,7 +1221,7 @@ function autoAssign(mode) {
     if(opts.f || opts.m || opts.g) {
         mems.sort((a,b) => {
             let sA=0, sB=0;
-            if(opts.g) { if(a.isFreshman) sA+=10; if(b.isFreshman) sB+=10; }
+            if(opts.g) { sA += (a.grade||0)*10; sB += (b.grade||0)*10; }
             if(opts.f && a.gender==='female') sA+=20;
             if(opts.f && b.gender==='female') sB+=20;
             if(opts.m && a.gender==='male') sA+=20;
@@ -1062,9 +1234,9 @@ function autoAssign(mode) {
     mems.forEach(m => {
         if(emptySlots.length) {
             const s = emptySlots.shift();
-            addMember(m.name, m.memo, m.gender, m.isFreshman, s, m.locked);
+            addMember(m.name, m.memo, m.gender, m.grade||0, s, m.locked);
         } else {
-            addMember(m.name, m.memo, m.gender, m.isFreshman, $('#waiting-list'), m.locked);
+            addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked);
         }
     });
     updateUI(); save();
@@ -1073,7 +1245,7 @@ window.autoAssign = autoAssign;
 
 function handleEdit(type, el) {
     const isCap = type === 'capacity';
-    const box = isCap ? el.closest() : null;
+    const box = isCap ? el.closest('.car-box') : null;
     const card = !isCap ? el.closest('.member-card') : null;
     const driver = !isCap && !card ? el.closest('.driver-seat') : null;
 
@@ -1090,7 +1262,7 @@ function handleEdit(type, el) {
         if(isCap) {
             const newC = getInt(v);
             if(newC > 0) {
-                const boxEl = el.closest();
+                const boxEl = el.closest('.car-box');
                 const grid = $('.car-layout-grid', boxEl);
                 const current = $$('.seat-slot', grid);
                 if(newC > current.length) {
@@ -1120,28 +1292,35 @@ window.openBatchModal = () => {
     const data = getData();
     
     let members = [];
-    let freshmen = [];
+    let grade1 = [], grade2 = [], grade3 = [], grade4 = [];
     let drivers = [];
 
-    // 待機メンバーから取得
     data.waiting.forEach(m => {
-        if(m.isFreshman) freshmen.push(m.name);
+        if(m.grade===1) grade1.push(m.name);
+        else if(m.grade===2) grade2.push(m.name);
+        else if(m.grade===3) grade3.push(m.name);
+        else if(m.grade===4) grade4.push(m.name);
         else members.push(m.name);
     });
 
-    // 車に配置されているメンバーから取得
     data.cars.forEach(c => {
         drivers.push(c.name);
         c.members.forEach(m => {
             if(m && m.name) {
-                if(m.isFreshman) freshmen.push(m.name);
+                if(m.grade===1) grade1.push(m.name);
+                else if(m.grade===2) grade2.push(m.name);
+                else if(m.grade===3) grade3.push(m.name);
+                else if(m.grade===4) grade4.push(m.name);
                 else members.push(m.name);
             }
         });
     });
 
     $('#batchMembers').value = members.join('\n');
-    $('#batchFreshmen').value = freshmen.join('\n');
+    $('#batchGrade1').value = grade1.join('\n');
+    $('#batchGrade2').value = grade2.join('\n');
+    $('#batchGrade3').value = grade3.join('\n');
+    $('#batchGrade4').value = grade4.join('\n');
     $('#batchDrivers').value = drivers.join('\n');
     
     modals.batch.show();
@@ -1150,23 +1329,23 @@ window.openBatchModal = () => {
 function executeBatch() {
     const v = id => $(id).value.split(/\n/).map(s=>s.trim()).filter(Boolean);
     const m = v('#batchMembers');
-    const f = v('#batchFreshmen');
+    const g1 = v('#batchGrade1');
+    const g2 = v('#batchGrade2');
+    const g3 = v('#batchGrade3');
+    const g4 = v('#batchGrade4');
     const d = v('#batchDrivers');
     
     const currentData = getData();
     
-    // 現在のメンバーをMapで管理して既存データ(メモ、性別、ロック、配置場所)を保持
     const existingMembers = new Map();
     const existingDrivers = new Map();
     const memberLocations = new Map();
 
-    // 待機リストのメンバーを保存
     currentData.waiting.forEach(mem => {
         existingMembers.set(mem.name, mem);
         memberLocations.set(mem.name, {type: 'waiting'});
     });
 
-    // 車にいるメンバーと運転手を保存
     currentData.cars.forEach(car => {
         existingDrivers.set(car.name, car);
         car.members.forEach((mem, index) => {
@@ -1177,82 +1356,62 @@ function executeBatch() {
         });
     });
 
-    // 新しいリスト（入力されたもの）
-    const newMembersList = new Set([...m, ...f]);
     const newDriversList = new Set(d);
 
-    // --- 削除処理 ---
-    // 画面上のメンバーを一旦すべて消す
     $('#waiting-list').innerHTML = '';
-    
-    // 車も一旦すべて消す
     $('#cars-container').innerHTML = '';
 
-    // --- 追加・更新処理 ---
-    
-    // 1. まず車を再生成する
     d.forEach(driverName => {
         if(existingDrivers.has(driverName)) {
-            // 既存の車
             const oldCar = existingDrivers.get(driverName);
-            // メンバーは後で入れるので空配列を渡す
             addCar(driverName, oldCar.capacity, [], oldCar.driverMemo, oldCar.driverGender);
         } else {
-            // 新規の車
             addCar(driverName, 3);
             detectGender(driverName);
         }
     });
 
-    // 車のDOMを取得しておく
     const carBoxes = Array.from($$('.car-box'));
 
-    // 2. メンバーを配置していく
-    m.forEach(name => {
-         placeMember(name, false);
-    });
-    
-    f.forEach(name => {
-         placeMember(name, true);
+    const gradeMap = new Map();
+    g1.forEach(n => gradeMap.set(n, 1));
+    g2.forEach(n => gradeMap.set(n, 2));
+    g3.forEach(n => gradeMap.set(n, 3));
+    g4.forEach(n => gradeMap.set(n, 4));
+    m.forEach(n => { if(!gradeMap.has(n)) gradeMap.set(n, 0); });
+
+    [...m, ...g1, ...g2, ...g3, ...g4].forEach(name => {
+        placeMember(name, gradeMap.get(name)||0);
     });
 
-    function placeMember(name, isFreshman) {
+    function placeMember(name, grade) {
         if (existingMembers.has(name)) {
-            // 既存メンバーの場合、元の場所に戻すことを試みる
             const oldData = existingMembers.get(name);
             const loc = memberLocations.get(name);
-            
-            // 学年の更新（入力側を正とする）
-            oldData.isFreshman = isFreshman;
+            oldData.grade = grade;
 
             if (loc.type === 'car' && newDriversList.has(loc.carName)) {
-                // 元の車がまだ存在する場合、その車のスロットを探す
                 const targetCarBox = carBoxes.find(b => $('.driver-name-disp', b).innerText === loc.carName);
                 if (targetCarBox) {
                     const slots = $$('.seat-slot', targetCarBox);
-                    // スロットが空いているか確認
                     if(slots[loc.slot] && slots[loc.slot].children.length === 0) {
-                        addMember(name, oldData.memo, oldData.gender, isFreshman, slots[loc.slot], oldData.locked);
+                        addMember(name, oldData.memo, oldData.gender, grade, slots[loc.slot], oldData.locked);
                     } else {
-                        // スロットが埋まっていたり無くなっていたら空きスロットを探す
                         const emptySlot = Array.from(slots).find(s => s.children.length === 0);
                         if(emptySlot) {
-                             addMember(name, oldData.memo, oldData.gender, isFreshman, emptySlot, oldData.locked);
+                             addMember(name, oldData.memo, oldData.gender, grade, emptySlot, oldData.locked);
                         } else {
-                             // 車がいっぱいなら待機リストへ
-                             addMember(name, oldData.memo, oldData.gender, isFreshman, $('#waiting-list'), oldData.locked);
+                             addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked);
                         }
                     }
                 } else {
-                     addMember(name, oldData.memo, oldData.gender, isFreshman, $('#waiting-list'), oldData.locked);
+                     addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked);
                 }
             } else {
-                // 待機リストだった、または車が削除された場合
-                addMember(name, oldData.memo, oldData.gender, isFreshman, $('#waiting-list'), oldData.locked);
+                addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked);
             }
         } else {
-            // 新規メンバー
-            addMember(name, '', 'unknown', isFreshman, $('#waiting-list'));
+            addMember(name, '', 'unknown', grade, $('#waiting-list'));
             detectGender(name);
         }
     }
@@ -1263,6 +1422,215 @@ function executeBatch() {
 window.executeBatch = executeBatch;
 
 function copyUrl() { navigator.clipboard.writeText(window.location.href).then(()=>alert('URLをコピーしました')); }
+
+// 学年ボタン選択
+function selectGrade(btn) {
+    document.querySelectorAll('.grade-select-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+window.selectGrade = selectGrade;
+
+// ====== ビュー切替 ======
+let currentView = 'list';
+function switchView(view) {
+    currentView = view;
+    const listArea = document.getElementById('top-area');
+    const sheetArea = document.getElementById('sheet-view-area');
+    const bottomTray = document.getElementById('bottom-tray');
+    const trayHandle = document.getElementById('tray-handle');
+    const tabList = document.getElementById('tab-list');
+    const tabSheet = document.getElementById('tab-sheet');
+
+    if (view === 'sheet') {
+        listArea.style.display = 'none';
+        bottomTray.style.display = 'none';
+        sheetArea.classList.add('active');
+        tabList.classList.remove('active');
+        tabSheet.classList.add('active');
+        renderSheetView();
+        showSheetHint();
+    } else {
+        listArea.style.display = '';
+        bottomTray.style.display = '';
+        sheetArea.classList.remove('active');
+        tabList.classList.add('active');
+        tabSheet.classList.remove('active');
+    }
+}
+window.switchView = switchView;
+
+function showSheetHint() {
+    const hint = document.getElementById('sheet-hint');
+    hint.classList.add('visible');
+    setTimeout(() => hint.classList.remove('visible'), 3000);
+}
+
+// スプレッドシートビューのレンダリング
+function renderSheetView() {
+    const canvas = document.getElementById('sheet-canvas');
+    canvas.innerHTML = '';
+    const data = getData();
+
+    if (!data.cars.length) {
+        canvas.innerHTML = '<div style="color:var(--text-sub);padding:32px;font-size:0.9rem;">車がまだ登録されていません</div>';
+        return;
+    }
+
+    // 最大座席数
+    const maxSeats = Math.max(...data.cars.map(c => parseInt(c.capacity)||0));
+
+    // ヘッダー行ラベル列
+    const labelCol = document.createElement('div');
+    labelCol.className = 'sheet-car-col';
+    labelCol.style.minWidth = '60px';
+    labelCol.innerHTML = `
+        <div class="sheet-car-header" style="background:var(--bg-body);color:var(--text-sub);border-bottom:2px solid var(--border-color);">　</div>
+        <div class="sheet-driver-row" style="font-weight:700;color:var(--text-sub);font-size:0.72rem;background:var(--bg-body);">運転手</div>
+        ${Array.from({length:maxSeats},(_,i)=>`<div class="sheet-seat-row" style="background:var(--bg-body);color:var(--text-sub);font-size:0.72rem;font-weight:600;">席 ${i+1}</div>`).join('')}
+    `;
+    canvas.appendChild(labelCol);
+
+    data.cars.forEach(car => {
+        const col = document.createElement('div');
+        col.className = 'sheet-car-col';
+
+        const cap = parseInt(car.capacity)||0;
+        const filled = (car.members||[]).filter(Boolean).length;
+        const capColor = filled > cap ? '#ef4444' : filled === cap ? '#22c55e' : 'var(--text-sub)';
+
+        let html = `<div class="sheet-car-header">${car.name}車 <span class="sheet-capacity-badge" style="color:${capColor}">${filled}/${cap}</span></div>`;
+
+        // 運転手行
+        const dg = car.driverGender || 'unknown';
+        html += `<div class="sheet-driver-row" data-gender="${dg}">
+            <i class="fas fa-car" style="font-size:0.65rem;opacity:0.6;"></i>
+            <span style="font-weight:700;">${car.name}</span>
+        </div>`;
+
+        // 座席行
+        for (let i = 0; i < maxSeats; i++) {
+            const mem = (car.members||[])[i];
+            if (i >= cap) {
+                html += `<div class="sheet-seat-row" style="background:var(--bg-body);"></div>`;
+            } else if (mem && mem.name) {
+                const g = mem.gender || 'unknown';
+                const grade = mem.grade || 0;
+                const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+                html += `<div class="sheet-seat-row" data-gender="${g}">${gradeBadge}<span>${mem.name}</span></div>`;
+            } else {
+                html += `<div class="sheet-seat-row empty">空き</div>`;
+            }
+        }
+
+        col.innerHTML = html;
+        canvas.appendChild(col);
+    });
+
+    // 待機メンバー列
+    if (data.waiting && data.waiting.length) {
+        const waitCol = document.createElement('div');
+        waitCol.className = 'sheet-car-col';
+        let wHtml = `<div class="sheet-car-header" style="background:#64748b;">待機中 (${data.waiting.length})</div>`;
+        wHtml += `<div class="sheet-driver-row" style="color:var(--text-sub);font-size:0.72rem;">─</div>`;
+        data.waiting.forEach(m => {
+            const g = m.gender||'unknown';
+            const grade = m.grade||0;
+            const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+            wHtml += `<div class="sheet-seat-row" data-gender="${g}">${gradeBadge}<span>${m.name}</span></div>`;
+        });
+        waitCol.innerHTML = wHtml;
+        canvas.appendChild(waitCol);
+    }
+}
+
+// ====== パン & ピンチズーム ======
+let sheetScale = 1, sheetX = 0, sheetY = 0;
+let isPanning = false, panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
+let lastPinchDist = 0;
+
+function applySheetTransform() {
+    const canvas = document.getElementById('sheet-canvas');
+    if (canvas) canvas.style.transform = `translate(${sheetX}px,${sheetY}px) scale(${sheetScale})`;
+}
+
+function zoomIn() { sheetScale = Math.min(sheetScale * 1.25, 4); applySheetTransform(); }
+function zoomOut() { sheetScale = Math.max(sheetScale / 1.25, 0.3); applySheetTransform(); }
+function resetZoom() { sheetScale=1; sheetX=0; sheetY=0; applySheetTransform(); }
+window.zoomIn = zoomIn; window.zoomOut = zoomOut; window.resetZoom = resetZoom;
+
+D.addEventListener('DOMContentLoaded', () => {
+    const area = document.getElementById('sheet-view-area');
+
+    // マウスパン
+    area.addEventListener('mousedown', e => {
+        if (e.target.closest('button')) return;
+        isPanning = true; panStartX = e.clientX; panStartY = e.clientY;
+        panOriginX = sheetX; panOriginY = sheetY;
+        area.style.cursor = 'grabbing';
+    });
+    D.addEventListener('mousemove', e => {
+        if (!isPanning) return;
+        sheetX = panOriginX + (e.clientX - panStartX);
+        sheetY = panOriginY + (e.clientY - panStartY);
+        applySheetTransform();
+    });
+    D.addEventListener('mouseup', () => { isPanning = false; area.style.cursor = ''; });
+
+    // マウスホイールズーム
+    area.addEventListener('wheel', e => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+        const rect = area.getBoundingClientRect();
+        const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+        sheetX = mx - (mx - sheetX) * factor;
+        sheetY = my - (my - sheetY) * factor;
+        sheetScale = Math.max(0.3, Math.min(4, sheetScale * factor));
+        applySheetTransform();
+    }, { passive: false });
+
+    // タッチパン & ピンチ
+    area.addEventListener('touchstart', e => {
+        if (e.target.closest('button')) return;
+        if (e.touches.length === 1) {
+            isPanning = true;
+            panStartX = e.touches[0].clientX; panStartY = e.touches[0].clientY;
+            panOriginX = sheetX; panOriginY = sheetY;
+        } else if (e.touches.length === 2) {
+            isPanning = false;
+            lastPinchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    }, { passive: true });
+
+    area.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && isPanning) {
+            sheetX = panOriginX + (e.touches[0].clientX - panStartX);
+            sheetY = panOriginY + (e.touches[0].clientY - panStartY);
+            applySheetTransform();
+        } else if (e.touches.length === 2) {
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            if (lastPinchDist > 0) {
+                const factor = dist / lastPinchDist;
+                const rect = area.getBoundingClientRect();
+                const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                sheetX = cx - (cx - sheetX) * factor;
+                sheetY = cy - (cy - sheetY) * factor;
+                sheetScale = Math.max(0.3, Math.min(4, sheetScale * factor));
+                applySheetTransform();
+            }
+            lastPinchDist = dist;
+        }
+    }, { passive: false });
+
+    area.addEventListener('touchend', () => { isPanning = false; lastPinchDist = 0; });
+});
 window.copyUrl = copyUrl;
 
 window.showHistory = () => {
