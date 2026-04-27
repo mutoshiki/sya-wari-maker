@@ -571,6 +571,29 @@ html, body {
     border-radius: var(--radius-sm);
     padding: 3px;
 }
+.quick-edit-mode .sheet-chip.draggable {
+    animation: sheetJiggle 0.34s ease-in-out infinite alternate;
+    transform-origin: 50% 50%;
+}
+.quick-edit-mode .sheet-chip.draggable:nth-child(2n) {
+    animation-delay: -0.17s;
+}
+.quick-edit-mode .sheet-chip.draggable:nth-child(3n) {
+    animation-duration: 0.38s;
+}
+.quick-edit-mode .sheet-chip-drag,
+.quick-edit-mode .sortable-fallback {
+    animation: none !important;
+}
+@keyframes sheetJiggle {
+    from { transform: rotate(-0.7deg) translateY(-0.5px); }
+    to { transform: rotate(0.7deg) translateY(0.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .quick-edit-mode .sheet-chip.draggable {
+        animation: none;
+    }
+}
 .quick-edit-mode #sheet-title-bar {
     box-shadow: inset 0 -2px 0 var(--accent-color);
 }
@@ -642,11 +665,11 @@ html, body {
 }
 .car-box.over-capacity { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
 [data-theme="dark"] .car-box.over-capacity { background: rgba(239, 68, 68, 0.15); }
-.car-layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.car-layout-grid { display: grid; grid-template-columns: 1fr; gap: 5px; }
 
 .driver-seat { 
     background: var(--driver-bg); border: 1px solid var(--border-color); border-left-width: 3px;
-    border-radius: var(--radius-sm); padding: 7px; min-height: 60px;
+    border-radius: var(--radius-sm); padding: 7px 9px; min-height: 50px;
     display: flex; flex-direction: column; justify-content: center;
 }
 .driver-seat[data-gender="male"] { background: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
@@ -655,7 +678,7 @@ html, body {
 
 .seat-slot {
     background-color: var(--seat-slot-bg); border: 1px dashed var(--border-color); border-radius: var(--radius-sm);
-    min-height: 60px; display: flex; flex-direction: column;
+    min-height: 50px; display: flex; flex-direction: column;
 }
 
 .sortable-ghost { opacity: 0.4; background: var(--border-color) !important; }
@@ -2111,27 +2134,27 @@ function autoScrollSheetQuickEdit(clientX, clientY) {
     const area = document.getElementById('sheet-view-area');
     if (!area) return;
     const rect = area.getBoundingClientRect();
-    const edgeX = Math.min(70, rect.width / 5);
-    const edgeY = Math.min(90, rect.height / 5);
+    const edgeX = Math.min(56, rect.width / 6);
+    const edgeY = Math.min(70, rect.height / 6);
     let moved = false;
 
     if (clientX < rect.left + edgeX) {
         const intensity = (rect.left + edgeX - clientX) / edgeX;
-        sheetX += Math.ceil(8 + intensity * 18);
+        sheetX += Math.ceil(3 + intensity * 9);
         moved = true;
     } else if (clientX > rect.right - edgeX) {
         const intensity = (clientX - (rect.right - edgeX)) / edgeX;
-        sheetX -= Math.ceil(8 + intensity * 18);
+        sheetX -= Math.ceil(3 + intensity * 9);
         moved = true;
     }
 
     if (clientY < rect.top + edgeY) {
         const intensity = (rect.top + edgeY - clientY) / edgeY;
-        sheetY += Math.ceil(8 + intensity * 18);
+        sheetY += Math.ceil(3 + intensity * 9);
         moved = true;
     } else if (clientY > rect.bottom - edgeY) {
         const intensity = (clientY - (rect.bottom - edgeY)) / edgeY;
-        sheetY -= Math.ceil(8 + intensity * 18);
+        sheetY -= Math.ceil(3 + intensity * 9);
         moved = true;
     }
 
@@ -2708,11 +2731,12 @@ function setupSheetSortables() {
             group: 'sheet-shared',
             draggable: '.sheet-chip.draggable',
             animation: 170,
-            delay: 520,
-            delayOnTouchOnly: false,
-            touchStartThreshold: 4,
+            delay: 220,
+            delayOnTouchOnly: true,
+            touchStartThreshold: 6,
             forceFallback: true,
-            fallbackTolerance: 0,
+            fallbackOnBody: true,
+            fallbackTolerance: 3,
             ghostClass: 'sheet-chip-ghost',
             dragClass: 'sheet-chip-drag',
             scroll: false,
