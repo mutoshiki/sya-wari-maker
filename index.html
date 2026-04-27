@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja" data-bs-theme="light">
   <head>
@@ -234,6 +235,7 @@ html, body {
     will-change: transform;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 0;
     padding: 16px;
@@ -275,6 +277,11 @@ html, body {
 .sheet-seat-row.empty { color: var(--text-sub); font-style: italic; font-size: 0.72rem; }
 .sheet-seat-row[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
 .sheet-seat-row[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-cell-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .sheet-dropzone,
 .sheet-waiting-list {
     width: 100%;
@@ -322,6 +329,46 @@ html, body {
 .sheet-chip-drag {
     box-shadow: 0 8px 20px rgba(0,0,0,0.18);
 }
+.sheet-wait-block {
+    flex: 0 0 100%;
+    width: 100%;
+    margin-top: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-card);
+}
+.sheet-wait-header {
+    background: #64748b;
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+.sheet-wait-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-card);
+}
+.sheet-wait-item {
+    min-height: 38px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--seat-slot-bg);
+}
+.sheet-wait-item[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
+.sheet-wait-item[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-wait-item.empty {
+    color: var(--text-sub);
+    justify-content: center;
+    font-size: 0.78rem;
+}
 .sheet-capacity-badge {
     font-size: 0.65rem; padding: 1px 5px; border-radius: 3px;
     background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border-color);
@@ -349,6 +396,26 @@ html, body {
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 #zoom-controls button:active { transform: scale(0.92); }
+#sheet-quick-edit-btn {
+    position: absolute;
+    bottom: 14px;
+    right: 12px;
+    z-index: 4;
+    display: none;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+#sheet-quick-edit-btn.active {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}
 
 .member-name-text { font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; font-size: 0.95rem;}
 .card-bottom-row { display: flex; justify-content: space-between; margin-top: 4px; }
@@ -566,6 +633,9 @@ html, body {
           <button onclick="zoomOut()" title="縮小"><i class="fas fa-minus"></i></button>
           <button onclick="resetZoom()" title="リセット" style="font-size:0.7rem;">⟲</button>
         </div>
+        <button id="sheet-quick-edit-btn" type="button" onclick="toggleQuickEdit()">
+          <i class="fas fa-hand-paper me-1"></i>クイック編集
+        </button>
       </div>
 
       <div id="bottom-tray" style="display: none;">
@@ -1128,6 +1198,7 @@ let editLockPassphrase = '';
 let trustedEditPassphrase = '';
 let isDraggingCards = false;
 let activeSheetSortable = [];
+let quickEditMode = false;
 
 const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_v10_split' };
 const D = document, L = localStorage, J = JSON;
@@ -1226,7 +1297,10 @@ D.addEventListener('DOMContentLoaded', () => {
     };
     checkTheme();
     mql.addEventListener('change', checkTheme);
-    document.addEventListener('pointermove', e => autoScrollEditingView(e.clientY), { passive: true });
+    document.addEventListener('pointermove', e => {
+        autoScrollEditingView(e.clientY);
+        autoScrollSheetQuickEdit(e.clientX, e.clientY);
+    }, { passive: true });
     
     onValue(ref(db, ".info/connected"), (snap) => {
         if (snap.val() === true) {
@@ -1295,7 +1369,28 @@ function updateEditLockButton() {
     icon.className = `fas ${editLockEnabled ? 'fa-lock text-warning' : 'fa-unlock'}`;
     label.textContent = editLockEnabled ? '保護中' : '保護';
     btn.title = editLockEnabled ? '編集保護を解除' : '編集保護を設定';
+    updateQuickEditButton();
 }
+
+function updateQuickEditButton() {
+    const btn = document.getElementById('sheet-quick-edit-btn');
+    if (!btn) return;
+    const canQuickEdit = hasTrustedEditAccess();
+    btn.style.display = canQuickEdit ? '' : 'none';
+    if (!canQuickEdit) quickEditMode = false;
+    btn.classList.toggle('active', quickEditMode && canQuickEdit);
+    btn.innerHTML = quickEditMode
+        ? '<i class="fas fa-table me-1"></i>表に戻す'
+        : '<i class="fas fa-hand-paper me-1"></i>クイック編集';
+}
+
+function toggleQuickEdit() {
+    if (!hasTrustedEditAccess()) return;
+    quickEditMode = !quickEditMode;
+    updateQuickEditButton();
+    if (currentView === 'sheet') renderSheetView();
+}
+window.toggleQuickEdit = toggleQuickEdit;
 
 function requestPassphrase(message) {
     const value = window.prompt(message);
@@ -1576,6 +1671,38 @@ function autoScrollEditingView(clientY) {
             area.scrollTop += Math.ceil(10 + intensity * 22);
         }
     });
+}
+
+function autoScrollSheetQuickEdit(clientX, clientY) {
+    if (!isDraggingCards || currentView !== 'sheet' || !quickEditMode) return;
+    const area = document.getElementById('sheet-view-area');
+    if (!area) return;
+    const rect = area.getBoundingClientRect();
+    const edgeX = Math.min(70, rect.width / 5);
+    const edgeY = Math.min(90, rect.height / 5);
+    let moved = false;
+
+    if (clientX < rect.left + edgeX) {
+        const intensity = (rect.left + edgeX - clientX) / edgeX;
+        sheetX += Math.ceil(8 + intensity * 18);
+        moved = true;
+    } else if (clientX > rect.right - edgeX) {
+        const intensity = (clientX - (rect.right - edgeX)) / edgeX;
+        sheetX -= Math.ceil(8 + intensity * 18);
+        moved = true;
+    }
+
+    if (clientY < rect.top + edgeY) {
+        const intensity = (rect.top + edgeY - clientY) / edgeY;
+        sheetY += Math.ceil(8 + intensity * 18);
+        moved = true;
+    } else if (clientY > rect.bottom - edgeY) {
+        const intensity = (clientY - (rect.bottom - edgeY)) / edgeY;
+        sheetY -= Math.ceil(8 + intensity * 18);
+        moved = true;
+    }
+
+    if (moved) applySheetTransform();
 }
 
 function updateUI() {
@@ -2053,7 +2180,7 @@ function showSheetHint() {
 }
 
 function isSheetDragHandle(target) {
-    return hasTrustedEditAccess() && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
+    return quickEditMode && hasTrustedEditAccess() && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
 }
 
 function escapeHtml(text) {
@@ -2066,10 +2193,16 @@ function escapeHtml(text) {
     }[ch]));
 }
 
+function renderSheetPlain(member) {
+    const grade = member.grade || 0;
+    const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+    return `${gradeBadge}<span class="sheet-cell-text">${escapeHtml(member.name)}</span>`;
+}
+
 function renderSheetChip(member) {
     const grade = member.grade || 0;
     const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
-    const draggable = !member.locked && hasTrustedEditAccess();
+    const draggable = !member.locked && hasTrustedEditAccess() && quickEditMode;
     const lockIcon = member.locked ? `<i class="fas fa-lock" style="font-size:0.62rem; opacity:0.7;"></i>` : '';
     return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${escapeHtml(member.name)}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge}<span class="sheet-chip-text">${escapeHtml(member.name)}</span>${lockIcon}</div>`;
 }
@@ -2130,7 +2263,7 @@ function syncSheetToMainData() {
 
 function setupSheetSortables() {
     clearSheetSortables();
-    if (!hasTrustedEditAccess()) return;
+    if (!hasTrustedEditAccess() || !quickEditMode) return;
     const zones = Array.from(document.querySelectorAll('.sheet-dropzone, .sheet-waiting-list'));
     zones.forEach(zone => {
         activeSheetSortable.push(new Sortable(zone, {
@@ -2178,6 +2311,7 @@ function renderSheetView() {
     const canvas = document.getElementById('sheet-canvas');
     clearSheetSortables();
     canvas.innerHTML = '';
+    updateQuickEditButton();
     const data = getData();
 
     if (!data.cars.length) {
@@ -2229,9 +2363,13 @@ function renderSheetView() {
                 html += `<div class="sheet-seat-row" style="background:var(--bg-body);"></div>`;
             } else if (mem && mem.name) {
                 const g = mem.gender || 'unknown';
-                html += `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${renderSheetChip(mem)}</div></div>`;
+                html += quickEditMode
+                    ? `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${renderSheetChip(mem)}</div></div>`
+                    : `<div class="sheet-seat-row" data-gender="${g}">${renderSheetPlain(mem)}</div>`;
             } else {
-                html += `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`;
+                html += quickEditMode
+                    ? `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`
+                    : `<div class="sheet-seat-row empty">空き</div>`;
             }
         }
 
@@ -2241,10 +2379,16 @@ function renderSheetView() {
 
     // 待機メンバー列
     const waitCol = document.createElement('div');
-    waitCol.className = 'sheet-car-col';
-    let wHtml = `<div class="sheet-car-header" style="background:#64748b;">待機中 (${data.waiting.length})</div>`;
-    wHtml += `<div class="sheet-driver-row" style="color:var(--text-sub);font-size:0.72rem;">─</div>`;
-    wHtml += `<div class="sheet-seat-row" style="align-items:stretch; min-height:40px;"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${data.waiting.map(m => renderSheetChip(m)).join('')}</div></div>`;
+    waitCol.className = 'sheet-wait-block';
+    let wHtml = `<div class="sheet-wait-header">待機中 (${data.waiting.length})</div>`;
+    if (quickEditMode) {
+        wHtml += `<div class="sheet-wait-body"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${data.waiting.map(m => renderSheetChip(m)).join('')}</div></div>`;
+    } else {
+        wHtml += `<div class="sheet-wait-body">${data.waiting.length ? data.waiting.map(m => {
+            const g = m.gender || 'unknown';
+            return `<div class="sheet-wait-item" data-gender="${g}">${renderSheetPlain(m)}</div>`;
+        }).join('') : '<div class="sheet-wait-item empty">待機メンバーはいません</div>'}</div>`;
+    }
     waitCol.innerHTML = wHtml;
     canvas.appendChild(waitCol);
 
@@ -2391,28 +2535,32 @@ window.executeDebugMode = function() {
     const carCount = parseInt(document.getElementById('debugCarCount').value) || 3;
 
     const drivers = [
-        { name: '亀仙人', cap: 3 },
-        { name: 'ヤムチャ', cap: 4 },
-        { name: 'ピッコロ', cap: 4 },
-        { name: 'クリリン', cap: 3 },
-        { name: 'テンシンハン', cap: 5 },
+        { name: '高橋 健介', cap: 4, gender: 'male' },
+        { name: '中村 美咲', cap: 4, gender: 'female' },
+        { name: '小林 恒一', cap: 5, gender: 'male' },
+        { name: '松本 彩花', cap: 3, gender: 'female' },
+        { name: '山口 直人', cap: 4, gender: 'male' },
     ];
 
     const members = [
-        { name: '孫悟空', grade: 1, gender: 'male' },
-        { name: '孫悟飯', grade: 1, gender: 'male', memo: '飯行く' },
-        { name: 'ブルマ', grade: 2, gender: 'female' },
-        { name: 'チチ', grade: 2, gender: 'female', memo: '温泉行く' },
-        { name: 'ベジータ', grade: 2, gender: 'male' },
-        { name: 'フリーザ', grade: 3, gender: 'male' },
-        { name: 'トランクス', grade: 1, gender: 'male', memo: '飯行く' },
-        { name: 'ゴテンクス', grade: 1, gender: 'male' },
-        { name: '人造人間18号', grade: 3, gender: 'female', memo: '温泉行く' },
-        { name: 'ナッパ', grade: 4, gender: 'male' },
-        { name: 'ランチ', grade: 4, gender: 'female' },
-        { name: 'ビーデル', grade: 2, gender: 'female' },
-        { name: 'セル', grade: 3, gender: 'unknown' },
-        { name: 'ブウ', grade: 4, gender: 'unknown' },
+        { name: '田中 太郎', grade: 1, gender: 'male' },
+        { name: '佐藤 花', grade: 1, gender: 'female' },
+        { name: '鈴木 陽介', grade: 1, gender: 'male' },
+        { name: '伊藤 美月', grade: 1, gender: 'female' },
+        { name: '渡辺 大地', grade: 1, gender: 'male' },
+        { name: '加藤 ひかり', grade: 1, gender: 'female' },
+        { name: '山本 蓮', grade: 1, gender: 'male' },
+        { name: '井上 結衣', grade: 1, gender: 'female' },
+        { name: '木村 亮', grade: 2, gender: 'male' },
+        { name: '清水 春香', grade: 2, gender: 'female' },
+        { name: '阿部 航', grade: 2, gender: 'male' },
+        { name: '森川 さくら', grade: 2, gender: 'female' },
+        { name: '石井 拓海', grade: 2, gender: 'male', memo: '温泉行く' },
+        { name: '小川 恒一', grade: 3, gender: 'male' },
+        { name: '岡田 真帆', grade: 3, gender: 'female', memo: '飯行く' },
+        { name: '長谷川 翼', grade: 3, gender: 'male' },
+        { name: '村上 紗季', grade: 4, gender: 'female' },
+        { name: '近藤 直樹', grade: 4, gender: 'male' },
     ];
 
     // データをリセット
@@ -2423,7 +2571,7 @@ window.executeDebugMode = function() {
     // 車を追加
     const usedDrivers = drivers.slice(0, carCount);
     usedDrivers.forEach(d => {
-        addCar(d.name, d.cap, [], '', 'male');
+        addCar(d.name, d.cap, [], '', d.gender);
     });
 
     // メンバーをシャッフルして追加
