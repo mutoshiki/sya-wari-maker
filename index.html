@@ -40,8 +40,10 @@
     --grade3-bg: #fdf4ff; --grade3-border: #e9d5ff; --grade3-text: #7e22ce; --grade3-badge: #a855f7;
     --grade4-bg: #f0f9ff; --grade4-border: #bae6fd; --grade4-text: #0369a1; --grade4-badge: #0ea5e9;
 
-    --radius-main: 6px;
-    --radius-sm: 4px;
+    --radius-main: 8px;
+    --radius-sm: 6px;
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-float: 0 10px 24px rgba(15, 23, 42, 0.14);
     color-scheme: light;
 }
 
@@ -89,6 +91,7 @@ html, body {
     height: 100%; margin: 0; padding: 0; overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bg-body); color: var(--text-main);
+    letter-spacing: 0;
 }
 
 #app-layout { display: flex; flex-direction: column; height: 100dvh; }
@@ -136,6 +139,22 @@ html, body {
 #waiting-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; min-height: 100px; }
 
 .btn { border-radius: var(--radius-sm); font-weight: 500; }
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-outline-primary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-outline-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-secondary {
+    background-color: var(--text-sub);
+    border-color: var(--text-sub);
+}
 
 .form-control { 
     background-color: var(--bg-card); 
@@ -167,7 +186,7 @@ html, body {
 .member-card { 
     background: var(--bg-card); border: 1px solid var(--border-color); border-left-width: 4px; 
     border-radius: var(--radius-sm); padding: 6px 8px; position: relative; 
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02); color: var(--text-main); 
+    box-shadow: var(--shadow-card); color: var(--text-main); 
     display: flex; flex-direction: column; justify-content: center;
     min-height: 60px; touch-action: none; cursor: grab;
     font-size: 0.9rem; user-select: none; -webkit-user-select: none;
@@ -193,12 +212,12 @@ html, body {
 
 /* スプレッドシートビュー */
 #view-toggle-bar {
-    display: flex; gap: 4px; padding: 4px 10px;
+    display: flex; gap: 6px; padding: 6px 10px;
     background: var(--bg-card); border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
 }
 .view-tab {
-    flex: 1; padding: 6px 4px; font-size: 0.75rem; font-weight: 600;
+    flex: 1; padding: 7px 4px; font-size: 0.75rem; font-weight: 700;
     border: 1px solid var(--border-color); border-radius: var(--radius-sm);
     background: transparent; color: var(--text-sub); cursor: pointer;
     transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -393,7 +412,7 @@ html, body {
     background: var(--bg-card); border: 1px solid var(--border-color);
     color: var(--text-main); font-size: 1rem; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-card);
 }
 #zoom-controls button:active { transform: scale(0.92); }
 #sheet-quick-edit-btn {
@@ -407,7 +426,7 @@ html, body {
     border: 1px solid var(--border-color);
     background: var(--bg-card);
     color: var(--text-main);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    box-shadow: var(--shadow-card);
     font-size: 0.8rem;
     font-weight: 700;
 }
@@ -438,7 +457,7 @@ html, body {
 
 .car-box { 
     background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-main); 
-    padding: 10px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    padding: 10px; margin-bottom: 12px; box-shadow: var(--shadow-card);
 }
 .car-header { 
     display: flex; justify-content: space-between; align-items: center; 
@@ -468,7 +487,7 @@ html, body {
     transform: scale(1.02); cursor: grabbing !important; z-index: 99999 !important; pointer-events: none;
 }
 
-.modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--border-color); border-radius: var(--radius-main); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.modal-content { background-color: var(--modal-bg); color: var(--text-main); border-color: var(--border-color); border-radius: var(--radius-main); box-shadow: var(--shadow-float); }
 .modal-header { background-color: var(--modal-header-bg); border-bottom-color: var(--border-color); }
 .modal-footer { background-color: var(--modal-footer-bg); border-top-color: var(--border-color); }
 .btn-close { filter: invert(var(--bs-btn-close-invert)); }
@@ -487,7 +506,7 @@ html, body {
 [data-theme="dark"] .bg-white { background-color: var(--bg-card) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .bg-light { background-color: var(--tray-bg) !important; color: var(--text-main) !important; }
 [data-theme="dark"] .border { border-color: var(--border-color) !important; }
-.card.bg-light-subtle { background-color: var(--bg-card) !important; border: 1px solid var(--border-color) !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;}
+.card.bg-light-subtle { background-color: var(--bg-card) !important; border: 1px solid var(--border-color) !important; box-shadow: var(--shadow-card) !important;}
 
 .grade-select-btn {
     font-size: 0.75rem; padding: 2px 8px; border-radius: 3px;
@@ -526,9 +545,9 @@ html, body {
 .tool-btn span { font-size: 0.6rem; line-height: 1; font-weight: 500; white-space: nowrap; }
 
 .guide-step-btn {
-    padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border-color);
+    padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-color);
     background: var(--bg-card); color: var(--text-sub); font-size: 0.72rem;
-    font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s;
+    font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s;
     flex-shrink: 0;
 }
 .guide-step-btn.active {
@@ -544,11 +563,33 @@ html, body {
 }
 .guide-feature-card {
     background: var(--bg-card); border: 1px solid var(--border-color);
-    border-radius: 8px; padding: 14px; 
+    border-radius: var(--radius-main); padding: 14px; 
+    box-shadow: var(--shadow-card);
 }
 .guide-feature-title {
     font-weight: 700; font-size: 0.88rem; color: var(--text-main);
     margin-bottom: 8px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;
+}
+
+#guideModal .modal-header {
+    background: var(--modal-header-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: var(--radius-main) var(--radius-main) 0 0 !important;
+}
+#guideModal .modal-title {
+    color: var(--text-main) !important;
+}
+#guideModal .btn-close-white {
+    filter: none;
+}
+[data-theme="dark"] #guideModal .btn-close-white {
+    filter: invert(1);
+}
+#guideModal .modal-body {
+    background: var(--bg-body);
+}
+#guideModal .guide-step-panel {
+    padding: 18px !important;
 }
 
 </style>
@@ -763,14 +804,13 @@ html, body {
     <div class="modal fade" id="guideModal" tabindex="-1">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header" style="background: linear-gradient(135deg, var(--accent-color) 0%, #1d4ed8 100%); border-radius: 6px 6px 0 0;">
+          <div class="modal-header">
             <div>
-              <h5 class="modal-title fw-bold text-white mb-0" style="font-size: 1.05rem;">
+              <h5 class="modal-title fw-bold mb-0" style="font-size: 1.05rem;">
                 <i class="fas fa-map me-2"></i>使い方ガイド
               </h5>
-              <small class="text-white" style="opacity:0.8; font-size:0.72rem;">よく使う流れだけ、さっと確認できます</small>
             </div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
           <!-- ステップインジケーター -->
@@ -788,8 +828,8 @@ html, body {
             <div class="guide-step-panel" data-panel="0" style="padding: 20px;">
               <div style="text-align:center; margin-bottom: 18px;">
                 <div style="font-size: 3rem; margin-bottom: 8px;">🚗</div>
-                <h5 class="fw-bold mb-2" style="color: var(--text-main);">使い方は3ステップです</h5>
-                <p class="text-muted-dark-friendly mb-0" style="font-size:0.88rem; max-width: 360px; margin: 0 auto;">登録して、自動で割って、必要なら少しだけ直す。まずはこれだけでOKです。</p>
+                <h5 class="fw-bold mb-2" style="color: var(--text-main);">まずはこの流れで進めます</h5>
+                <p class="text-muted-dark-friendly mb-0" style="font-size:0.88rem; max-width: 360px; margin: 0 auto;">参加者と車を登録したら、自動割当。最後に気になるところだけ調整します。</p>
               </div>
 
               <div class="guide-feature-card mb-3">
@@ -801,7 +841,7 @@ html, body {
                   <div style="text-align:center; color:var(--accent-color); font-size:1.1rem;">→</div>
                   <div style="text-align:center; padding:12px; background:var(--bg-body); border-radius:8px;">
                     <div style="font-size:1.4rem;">🚙</div>
-                    <div class="fw-bold" style="font-size:0.85rem; margin-top:4px;">車を追加</div>
+                    <div class="fw-bold" style="font-size:0.85rem; margin-top:4px;">車を登録</div>
                   </div>
                   <div style="text-align:center; color:var(--accent-color); font-size:1.1rem;">→</div>
                   <div style="text-align:center; padding:12px; background:var(--bg-body); border-radius:8px;">
@@ -818,13 +858,13 @@ html, body {
                 </div>
                 <div class="guide-feature-card">
                   <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:#10b981;"></i>表ビュー</div>
-                  <div style="font-size:0.8rem; color:var(--text-sub);">全体確認や共有用。必要な時だけクイック編集も使えます。</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">全体の確認と共有に使います。必要なときだけクイック編集できます。</div>
                 </div>
               </div>
             </div>
 
             <div class="guide-step-panel" data-panel="1" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">① メンバーを入れる</h6>
+              <h6 class="guide-step-title">① メンバー登録</h6>
 
               <div class="guide-feature-card mb-3">
                 <div class="guide-feature-title"><i class="fas fa-user-plus me-2" style="color:var(--accent-color);"></i>少人数なら手入力</div>
@@ -833,7 +873,7 @@ html, body {
                     <div style="flex:1; background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:7px 10px; font-size:0.82rem; color:var(--text-sub);">名前を入力</div>
                     <div style="background:var(--accent-color); color:#fff; border-radius:6px; padding:7px 12px; font-size:0.82rem; font-weight:700;">追加</div>
                   </div>
-                  <div style="font-size:0.78rem; color:var(--text-sub);">学年を選んでから追加すると、色付きで見やすくなります。</div>
+                  <div style="font-size:0.78rem; color:var(--text-sub);">学年を選んでおくと、あとで見分けやすくなります。</div>
                 </div>
               </div>
 
@@ -854,7 +894,7 @@ html, body {
             </div>
 
             <div class="guide-step-panel" data-panel="2" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">② 車を入れる</h6>
+              <h6 class="guide-step-title">② 車の登録</h6>
 
               <div class="guide-feature-card mb-3">
                 <div class="guide-feature-title"><i class="fas fa-car me-2" style="color:var(--accent-color);"></i>運転手として追加</div>
@@ -881,16 +921,16 @@ html, body {
             </div>
 
             <div class="guide-step-panel" data-panel="3" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">③ まずは自動で割る</h6>
+              <h6 class="guide-step-title">③ 自動割当</h6>
 
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-random me-2" style="color:var(--accent-color);"></i>おすすめの使い方</div>
+                <div class="guide-feature-title"><i class="fas fa-random me-2" style="color:var(--accent-color);"></i>まずは自動割当</div>
                 <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:8px; align-items:center; margin-top:10px;">
-                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">待機中に集める</div>
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">待機中に並べる</div>
                   <div style="color:var(--accent-color);">→</div>
                   <div style="background:var(--accent-color); color:#fff; border-radius:8px; padding:10px; text-align:center; font-size:0.78rem; font-weight:700;">自動割当</div>
                   <div style="color:var(--accent-color);">→</div>
-                  <div style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">必要な所だけ直す</div>
+                  <div style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">あとで微調整</div>
                 </div>
               </div>
 
@@ -910,7 +950,7 @@ html, body {
             </div>
 
             <div class="guide-step-panel" data-panel="4" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">④ そのあと少しだけ直す</h6>
+              <h6 class="guide-step-title">④ 手直し</h6>
 
               <div class="guide-feature-card mb-3">
                 <div class="guide-feature-title"><i class="fas fa-hand-paper me-2" style="color:#f59e0b;"></i>長押しして動かす</div>
@@ -930,7 +970,7 @@ html, body {
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div class="guide-feature-card">
                   <div class="guide-feature-title"><i class="fas fa-lock me-2" style="color:#f59e0b;"></i>ロック</div>
-                  <div style="font-size:0.8rem; color:var(--text-sub);">決まった人はロックすると、自動割当でも動きません。</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">場所が決まった人はロックしておくと、自動割当でも動きません。</div>
                 </div>
                 <div class="guide-feature-card">
                   <div class="guide-feature-title"><i class="fas fa-times me-2" style="color:#ef4444;"></i>× ボタン</div>
@@ -940,7 +980,7 @@ html, body {
             </div>
 
             <div class="guide-step-panel" data-panel="5" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">⑤ 最後に確認と共有</h6>
+              <h6 class="guide-step-title">⑤ 確認と共有</h6>
 
               <div class="guide-feature-card mb-3">
                 <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:#10b981;"></i>表ビューで全体を見る</div>
