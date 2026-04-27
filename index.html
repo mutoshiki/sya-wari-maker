@@ -7,9 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-
+/* --- 基本設定 --- */
 :root {
-    
+    /* --- [Light Mode] クリーンでプロフェッショナルなSaaS風 --- */
     --bg-body: #f1f5f9;
     --text-main: #1e293b;
     --text-sub: #64748b;
@@ -170,7 +170,7 @@ html, body {
     display: flex; flex-direction: column; justify-content: center;
     min-height: 60px; touch-action: none; cursor: grab;
     font-size: 0.9rem; user-select: none; -webkit-user-select: none;
-    padding-right: 32px; /* 削除ボタンと被らないように余白拡大 */
+    padding-right: 44px; /* 削除ボタンと被らないように余白拡大 */
 }
 .member-card:active { cursor: grabbing; }
 
@@ -267,9 +267,61 @@ html, body {
     background: var(--seat-slot-bg); gap: 4px; flex-wrap: wrap;
     color: var(--text-main);
 }
+.sheet-seat-row.drop-target,
+.sheet-driver-row.drop-target {
+    box-shadow: inset 0 0 0 2px var(--accent-color);
+    background: rgba(37, 99, 235, 0.08);
+}
 .sheet-seat-row.empty { color: var(--text-sub); font-style: italic; font-size: 0.72rem; }
 .sheet-seat-row[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
 .sheet-seat-row[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-dropzone,
+.sheet-waiting-list {
+    width: 100%;
+    min-height: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+.sheet-waiting-list {
+    justify-content: flex-start;
+}
+.sheet-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 4px 6px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(0,0,0,0.08);
+    font-size: 0.78rem;
+    line-height: 1.2;
+    user-select: none;
+}
+[data-theme="dark"] .sheet-chip {
+    background: rgba(15,23,42,0.35);
+    border-color: rgba(255,255,255,0.08);
+}
+.sheet-chip.draggable {
+    cursor: grab;
+    touch-action: none;
+}
+.sheet-chip.locked {
+    opacity: 0.72;
+}
+.sheet-chip-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sheet-chip-ghost {
+    opacity: 0.45;
+}
+.sheet-chip-drag {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
 .sheet-capacity-badge {
     font-size: 0.65rem; padding: 1px 5px; border-radius: 3px;
     background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border-color);
@@ -304,9 +356,13 @@ html, body {
 
 /* 削除ボタンの押しやすさ改善 */
 .delete-btn-overlay {
-    position: absolute; top: 0; right: 0;
-    font-size: 1.1rem; opacity: 0.5; cursor: pointer; padding: 8px 12px; z-index: 5;
+    position: absolute; top: -4px; right: -4px;
+    width: 40px; height: 40px;
+    font-size: 1.15rem; opacity: 0.6; cursor: pointer; z-index: 8;
     color: var(--text-main); transition: opacity 0.2s, color 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    touch-action: manipulation;
 }
 .delete-btn-overlay:hover { opacity: 1; color: #ef4444; }
 
@@ -642,7 +698,7 @@ html, body {
               <h5 class="modal-title fw-bold text-white mb-0" style="font-size: 1.05rem;">
                 <i class="fas fa-map me-2"></i>使い方ガイド
               </h5>
-              <small class="text-white" style="opacity:0.8; font-size:0.72rem;">山歩会 車割メーカーの完全マニュアル</small>
+              <small class="text-white" style="opacity:0.8; font-size:0.72rem;">よく使う流れだけ、さっと確認できます</small>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
@@ -664,7 +720,7 @@ html, body {
               <div style="text-align:center; margin-bottom: 20px;">
                 <div style="font-size: 3rem; margin-bottom: 8px;">🚗</div>
                 <h5 class="fw-bold" style="color: var(--text-main);">山歩会 車割メーカーへようこそ</h5>
-                <p class="text-muted-dark-friendly" style="font-size:0.9rem; max-width: 380px; margin: 0 auto;">山行の移動手配をかんたんに。メンバーを登録して、車に割り当てるだけ！</p>
+                <p class="text-muted-dark-friendly" style="font-size:0.9rem; max-width: 380px; margin: 0 auto;">まずは登録、次に自動割当。必要ならあとから細かく整える、という使い方がおすすめです。</p>
               </div>
 
               <!-- 2つのビュー説明 -->
@@ -687,7 +743,7 @@ html, body {
                 <div style="display:flex; flex-direction:column; gap: 10px;">
                   <div style="display:flex; align-items:center; gap: 12px;">
                     <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">1</div>
-                    <div><span class="fw-bold" style="font-size:0.88rem;">メンバーを登録する</span><br><span style="font-size:0.75rem; color:var(--text-sub);">名前・学年を入力して「追加」。大人数なら一括登録が便利</span></div>
+                    <div><span class="fw-bold" style="font-size:0.88rem;">メンバーを登録する</span><br><span style="font-size:0.75rem; color:var(--text-sub);">少人数なら手入力、名簿があるなら一括登録</span></div>
                   </div>
                   <div style="display:flex; align-items:center; gap: 12px;">
                     <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">2</div>
@@ -695,7 +751,7 @@ html, body {
                   </div>
                   <div style="display:flex; align-items:center; gap: 12px;">
                     <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">3</div>
-                    <div><span class="fw-bold" style="font-size:0.88rem;">メンバーを車に割り当てる</span><br><span style="font-size:0.75rem; color:var(--text-sub);">自動割当 or ドラッグ＆ドロップで手動配置</span></div>
+                    <div><span class="fw-bold" style="font-size:0.88rem;">メンバーを車に割り当てる</span><br><span style="font-size:0.75rem; color:var(--text-sub);">まず自動割当、最後に必要な人だけ手で調整</span></div>
                   </div>
                   <div style="display:flex; align-items:center; gap: 12px;">
                     <div style="width:28px; height:28px; border-radius:50%; background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">✓</div>
@@ -838,10 +894,10 @@ html, body {
                   </div>
                 </div>
                 <div style="background:var(--bg-body); border-radius:6px; padding:10px; font-size:0.8rem; color:var(--text-sub); margin-top:4px;">
-                  <div class="fw-bold mb-2" style="color:var(--text-main);">⚙️ 設定ボタンでカスタマイズ</div>
-                  <div><i class="fas fa-venus me-1"></i>女子をまとめる：同じ車に女性を集めます</div>
-                  <div><i class="fas fa-mars me-1"></i>男子をまとめる：同じ車に男性を集めます</div>
-                  <div><i class="fas fa-graduation-cap me-1"></i>学年をまとめる：同じ学年のメンバーを同じ車に</div>
+                  <div class="fw-bold mb-2" style="color:var(--text-main);">⚙️ 設定ボタンで調整</div>
+                  <div><i class="fas fa-venus me-1"></i>女子をまとめる：女性をできるだけ同じ車に寄せます</div>
+                  <div><i class="fas fa-mars me-1"></i>男子をまとめる：男性をできるだけ同じ車に寄せます</div>
+                  <div><i class="fas fa-graduation-cap me-1"></i>学年をまとめる：同学年をできるだけ近い車に寄せます</div>
                 </div>
               </div>
 
@@ -863,7 +919,7 @@ html, body {
                   </div>
                 </div>
                 <div style="font-size:0.8rem; color:var(--text-sub);">
-                  <i class="fas fa-mobile-alt me-1"></i> スマホは長押し(0.15秒)してからドラッグ。PC はクリック＆ドラッグ。
+                  <i class="fas fa-mobile-alt me-1"></i> スマホは少し長押ししてから動かすと安定します。スプレッドシートビューでも長押し移動できます。
                 </div>
               </div>
 
@@ -928,7 +984,7 @@ html, body {
                     <div style="width:32px; height:32px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                       <i class="fas fa-times" style="color:#ef4444;"></i>
                     </div>
-                    <div><div class="fw-bold" style="font-size:0.85rem;">✕ 削除ボタン（右上）</div><div style="font-size:0.78rem; color:var(--text-sub);">車の中にいる場合 → 待機リストに戻す<br>待機リストにいる場合 → 完全に削除（確認あり）</div></div>
+                    <div><div class="fw-bold" style="font-size:0.85rem;">✕ ボタン（右上）</div><div style="font-size:0.78rem; color:var(--text-sub);">車の中なら待機へ戻す、待機中なら完全削除。どちらも確認が出ます。</div></div>
                   </div>
                 </div>
               </div>
@@ -959,7 +1015,7 @@ html, body {
                   <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:#10b981;"></i>スプレッドシートビュー</div>
                   <div style="font-size:0.82rem; color:var(--text-sub); line-height:1.7;">
                     全車の配車状況を一覧で確認。ピンチ操作（スマホ）やマウスホイール（PC）でズームできます。<br>
-                    配車状況を他の人に見せるときに最適なビューです。
+                    編集保護がかかっていない時、またはこの端末で一度合言葉を通した後は、長押しでそのまま並べ替えできます。
                   </div>
                 </div>
 
@@ -1069,6 +1125,9 @@ let saveCb;
 let genderQueue = [], isProcessingQueue = false;
 let editLockEnabled = false;
 let editLockPassphrase = '';
+let trustedEditPassphrase = '';
+let isDraggingCards = false;
+let activeSheetSortable = [];
 
 const CFG = { KEY:'6974b918d0998f075852411e', STORE:'sampokai_v10_split' };
 const D = document, L = localStorage, J = JSON;
@@ -1099,19 +1158,23 @@ D.addEventListener('DOMContentLoaded', () => {
 
     D.body.onclick = e => {
         const t = e.target;
-        if (t.classList.contains('member-name-text') || t.classList.contains('driver-name-disp')) {
-            toggleStatus(t.closest('.member-card') || t.closest('.driver-seat')); return;
+        const nameTrigger = t.closest('.member-name-text, .driver-name-disp');
+        if (nameTrigger) {
+            toggleStatus(nameTrigger.closest('.member-card') || nameTrigger.closest('.driver-seat')); return;
         }
-        if (t.classList.contains('edit-btn')) {
-            handleEdit(t.closest('.driver-seat') ? 'driverMemo' : 'memo', t); return;
+        const editTrigger = t.closest('.edit-btn');
+        if (editTrigger) {
+            handleEdit(editTrigger.closest('.driver-seat') ? 'driverMemo' : 'memo', editTrigger); return;
         }
-        if (t.classList.contains('lock-btn')) {
-            toggleLock(t.closest('.member-card')); return;
+        const lockTrigger = t.closest('.lock-btn');
+        if (lockTrigger) {
+            toggleLock(lockTrigger.closest('.member-card')); return;
         }
-        
-        if (t.classList.contains('delete-btn') || t.classList.contains('delete-btn-overlay')) {
-            const card = t.closest('.member-card');
-            const box = t.closest('.car-box');
+
+        const deleteTrigger = t.closest('.delete-btn, .delete-btn-overlay');
+        if (deleteTrigger) {
+            const card = deleteTrigger.closest('.member-card');
+            const box = deleteTrigger.closest('.car-box');
             
             if (card) {
                 if (card.dataset.locked === 'true') return alert('ロックされています');
@@ -1149,6 +1212,7 @@ D.addEventListener('DOMContentLoaded', () => {
         saveTimer = setTimeout(save, 500);
     });
 
+    loadTrustedEditPassphrase();
     setupSortable($('#waiting-list'));
     load();
     refreshRoomTitle();
@@ -1162,6 +1226,7 @@ D.addEventListener('DOMContentLoaded', () => {
     };
     checkTheme();
     mql.addEventListener('change', checkTheme);
+    document.addEventListener('pointermove', e => autoScrollEditingView(e.clientY), { passive: true });
     
     onValue(ref(db, ".info/connected"), (snap) => {
         if (snap.val() === true) {
@@ -1189,6 +1254,7 @@ window.resetData = () => {
     if(confirm('データを全消去してリセットしますか？\n(注意: 全員の画面で消えます)')) { 
         L.removeItem(CFG.STORE + '_' + roomId);
         L.removeItem('syawari_history_' + roomId);
+        L.removeItem(getTrustedDeviceKey());
         set(dbRef, null).then(() => { location.reload(); }).catch(err => { console.error(err); alert('リセットに失敗しました。'); });
     }
 };
@@ -1198,6 +1264,27 @@ function refreshRoomTitle() {
     if (!titleEl) return;
     const name = ($('#roomNameInput')?.value || '').trim();
     titleEl.textContent = name || '企画名未設定';
+}
+
+function getTrustedDeviceKey() {
+    return `syawari_edit_trust_${roomId}`;
+}
+
+function loadTrustedEditPassphrase() {
+    trustedEditPassphrase = localStorage.getItem(getTrustedDeviceKey()) || '';
+}
+
+function rememberTrustedDevice(passphrase) {
+    trustedEditPassphrase = passphrase || '';
+    if (trustedEditPassphrase) {
+        localStorage.setItem(getTrustedDeviceKey(), trustedEditPassphrase);
+    } else {
+        localStorage.removeItem(getTrustedDeviceKey());
+    }
+}
+
+function hasTrustedEditAccess() {
+    return !editLockEnabled || (!!editLockPassphrase && trustedEditPassphrase === editLockPassphrase);
 }
 
 function updateEditLockButton() {
@@ -1217,12 +1304,14 @@ function requestPassphrase(message) {
 }
 
 function verifyEditPassphrase(message) {
+    if (hasTrustedEditAccess()) return true;
     const input = requestPassphrase(message);
     if (input === null) return false;
     if (input !== editLockPassphrase) {
         alert('合言葉が違います。');
         return false;
     }
+    rememberTrustedDevice(input);
     return true;
 }
 
@@ -1242,6 +1331,7 @@ function toggleEditProtection() {
         }
         editLockEnabled = true;
         editLockPassphrase = first;
+        rememberTrustedDevice(first);
         updateEditLockButton();
         save();
         return;
@@ -1250,6 +1340,7 @@ function toggleEditProtection() {
     if (!verifyEditPassphrase('編集保護を解除する合言葉を入力してください')) return;
     editLockEnabled = false;
     editLockPassphrase = '';
+    rememberTrustedDevice('');
     updateEditLockButton();
     save();
 }
@@ -1312,6 +1403,7 @@ function load() {
                 $('#cars-container').innerHTML = '';
                 editLockEnabled = false;
                 editLockPassphrase = '';
+                rememberTrustedDevice('');
                 updateEditLockButton();
                 refreshRoomTitle();
                 updateUI();
@@ -1443,11 +1535,12 @@ window.editCapacity = editCapacity;
 function setupSortable(el) {
     new Sortable(el, {
         group: 'shared', animation: 150, scroll: true, scrollSensitivity: 100, scrollSpeed: 20, 
-        bubbleScroll: true, delay: 150, delayOnTouchOnly: true, touchStartThreshold: 3, 
-        fallbackOnBody: true, swapThreshold: 0.65, emptyInsertThreshold: 8, 
+        bubbleScroll: true, delay: 120, delayOnTouchOnly: true, touchStartThreshold: 3, 
+        fallbackOnBody: true, fallbackTolerance: 0, swapThreshold: 0.65, emptyInsertThreshold: 8, 
         ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', dragClass: 'sortable-fallback',
         forceFallback: true,
-        onEnd: () => { updateUI(); save(); },
+        onStart: () => { isDraggingCards = true; },
+        onEnd: () => { isDraggingCards = false; updateUI(); save(); },
         onAdd: (evt) => {
             const item = evt.item; const target = evt.to;
             if (target.id !== 'waiting-list') {
@@ -1455,6 +1548,32 @@ function setupSortable(el) {
                 if (children.length > 0) evt.from.appendChild(children[0]);
             }
             updateUI(); save();
+        },
+        onUnchoose: () => { isDraggingCards = false; },
+        onSort: () => { isDraggingCards = true; },
+        onMove: () => {
+            isDraggingCards = true;
+            return true;
+        }
+    });
+}
+
+function autoScrollEditingView(clientY) {
+    if (!isDraggingCards || currentView !== 'list') return;
+    const topArea = document.getElementById('top-area');
+    const waitingContainer = document.getElementById('waiting-list-container');
+    const areas = [topArea, waitingContainer];
+
+    areas.forEach(area => {
+        if (!area || area.offsetParent === null) return;
+        const rect = area.getBoundingClientRect();
+        const edge = Math.min(80, rect.height / 3);
+        if (clientY < rect.top + edge) {
+            const intensity = (rect.top + edge - clientY) / edge;
+            area.scrollTop -= Math.ceil(10 + intensity * 22);
+        } else if (clientY > rect.bottom - edge) {
+            const intensity = (clientY - (rect.bottom - edge)) / edge;
+            area.scrollTop += Math.ceil(10 + intensity * 22);
         }
     });
 }
@@ -1504,6 +1623,10 @@ function restore(d) {
     $('#roomNameInput').value = d.roomName || '';
     editLockEnabled = !!d.editLockEnabled;
     editLockPassphrase = d.editLockPassphrase || '';
+    loadTrustedEditPassphrase();
+    if (editLockPassphrase && trustedEditPassphrase && trustedEditPassphrase !== editLockPassphrase) {
+        rememberTrustedDevice('');
+    }
     updateEditLockButton();
     refreshRoomTitle();
     const tray = document.getElementById("bottom-tray");
@@ -1644,16 +1767,19 @@ function assignBalanced(members, carStates, opts) {
         }
 
         candidates.sort((a, b) => {
-            const aGroup =
-                (opts.f && member.gender === 'female' ? a.counts.female : 0) +
-                (opts.m && member.gender === 'male' ? a.counts.male : 0) +
-                (opts.g && member.grade ? (a.counts.grades[member.grade] || 0) : 0);
-            const bGroup =
-                (opts.f && member.gender === 'female' ? b.counts.female : 0) +
-                (opts.m && member.gender === 'male' ? b.counts.male : 0) +
-                (opts.g && member.grade ? (b.counts.grades[member.grade] || 0) : 0);
+            const aAffinity =
+                (opts.f && member.gender === 'female' ? a.counts.female * 2 : 0) +
+                (opts.m && member.gender === 'male' ? a.counts.male * 2 : 0) +
+                (opts.g && member.grade ? (a.counts.grades[member.grade] || 0) * 3 : 0);
+            const bAffinity =
+                (opts.f && member.gender === 'female' ? b.counts.female * 2 : 0) +
+                (opts.m && member.gender === 'male' ? b.counts.male * 2 : 0) +
+                (opts.g && member.grade ? (b.counts.grades[member.grade] || 0) * 3 : 0);
+            const aLoad = a.counts.total / Math.max(a.slots.length, 1);
+            const bLoad = b.counts.total / Math.max(b.slots.length, 1);
+            if (aAffinity !== bAffinity) return bAffinity - aAffinity;
+            if (aLoad !== bLoad) return aLoad - bLoad;
             if (a.counts.total !== b.counts.total) return a.counts.total - b.counts.total;
-            if (aGroup !== bGroup) return aGroup - bGroup;
             return a.index - b.index;
         });
 
@@ -1892,7 +2018,7 @@ window.selectGrade = selectGrade;
 // ====== ビュー切替 ======
 let currentView = 'sheet'; // デフォルトをスプレッドシートに変更
 function switchView(view) {
-    if (view === 'list' && currentView === 'sheet' && editLockEnabled) {
+    if (view === 'list' && currentView === 'sheet' && editLockEnabled && !hasTrustedEditAccess()) {
         if (!verifyEditPassphrase('編集モードを開くには合言葉を入力してください')) return;
     }
     currentView = view;
@@ -1926,9 +2052,131 @@ function showSheetHint() {
     setTimeout(() => hint.classList.remove('visible'), 3000);
 }
 
+function isSheetDragHandle(target) {
+    return hasTrustedEditAccess() && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
+}
+
+function escapeHtml(text) {
+    return String(text ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[ch]));
+}
+
+function renderSheetChip(member) {
+    const grade = member.grade || 0;
+    const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+    const draggable = !member.locked && hasTrustedEditAccess();
+    const lockIcon = member.locked ? `<i class="fas fa-lock" style="font-size:0.62rem; opacity:0.7;"></i>` : '';
+    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${escapeHtml(member.name)}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge}<span class="sheet-chip-text">${escapeHtml(member.name)}</span>${lockIcon}</div>`;
+}
+
+function clearSheetSortables() {
+    activeSheetSortable.forEach(instance => {
+        try { instance.destroy(); } catch (e) {}
+    });
+    activeSheetSortable = [];
+}
+
+function findMemberCardByName(name) {
+    return Array.from($$('.member-card')).find(card => card.dataset.name === name);
+}
+
+function moveCardToSheetLocation(card, zone) {
+    if (!card || !zone) return;
+    const type = zone.dataset.zoneType;
+    if (type === 'waiting') {
+        $('#waiting-list').appendChild(card);
+        return;
+    }
+    const carName = zone.dataset.carName;
+    const slotIndex = parseInt(zone.dataset.slotIndex, 10);
+    const targetCar = Array.from($$('.car-box')).find(box => $('.driver-name-disp', box)?.innerText === carName);
+    if (!targetCar) return;
+    const slots = $$('.seat-slot', targetCar);
+    const targetSlot = slots[slotIndex];
+    if (!targetSlot) return;
+
+    const existing = Array.from(targetSlot.children).find(child => child !== card);
+    if (existing) {
+        if (card.parentElement && card.parentElement.id === 'waiting-list') {
+            $('#waiting-list').appendChild(existing);
+        } else if (card.parentElement && card.parentElement.classList.contains('seat-slot')) {
+            card.parentElement.appendChild(existing);
+        } else {
+            $('#waiting-list').appendChild(existing);
+        }
+    }
+    targetSlot.appendChild(card);
+}
+
+function syncSheetToMainData() {
+    const names = new Set();
+    document.querySelectorAll('.sheet-dropzone .sheet-chip, .sheet-waiting-list .sheet-chip').forEach(chip => {
+        const name = chip.dataset.name;
+        if (!name || names.has(name)) return;
+        names.add(name);
+        const card = findMemberCardByName(name);
+        if (card && card.dataset.locked !== 'true') {
+            moveCardToSheetLocation(card, chip.parentElement);
+        }
+    });
+    updateUI();
+    save();
+}
+
+function setupSheetSortables() {
+    clearSheetSortables();
+    if (!hasTrustedEditAccess()) return;
+    const zones = Array.from(document.querySelectorAll('.sheet-dropzone, .sheet-waiting-list'));
+    zones.forEach(zone => {
+        activeSheetSortable.push(new Sortable(zone, {
+            group: 'sheet-shared',
+            draggable: '.sheet-chip.draggable',
+            animation: 170,
+            delay: 520,
+            delayOnTouchOnly: false,
+            touchStartThreshold: 4,
+            forceFallback: true,
+            fallbackTolerance: 0,
+            ghostClass: 'sheet-chip-ghost',
+            dragClass: 'sheet-chip-drag',
+            scroll: false,
+            onStart: () => { isDraggingCards = true; },
+            onMove: evt => {
+                if (evt.to.dataset.acceptDrop === 'false') return false;
+                document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+                evt.to.closest('.sheet-seat-row, .sheet-driver-row')?.classList.add('drop-target');
+                return true;
+            },
+            onAdd: evt => {
+                const toZone = evt.to;
+                if (toZone.dataset.zoneType === 'seat') {
+                    Array.from(toZone.childNodes).forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) node.remove();
+                    });
+                }
+                if (toZone.dataset.zoneType !== 'waiting') {
+                    const others = Array.from(toZone.children).filter(c => c !== evt.item);
+                    if (others.length) evt.from.appendChild(others[0]);
+                }
+            },
+            onEnd: () => {
+                isDraggingCards = false;
+                document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+                setTimeout(syncSheetToMainData, 0);
+            }
+        }));
+    });
+}
+
 // スプレッドシートビューのレンダリング
 function renderSheetView() {
     const canvas = document.getElementById('sheet-canvas');
+    clearSheetSortables();
     canvas.innerHTML = '';
     const data = getData();
 
@@ -1981,11 +2229,9 @@ function renderSheetView() {
                 html += `<div class="sheet-seat-row" style="background:var(--bg-body);"></div>`;
             } else if (mem && mem.name) {
                 const g = mem.gender || 'unknown';
-                const grade = mem.grade || 0;
-                const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
-                html += `<div class="sheet-seat-row" data-gender="${g}">${gradeBadge}<span>${mem.name}</span></div>`;
+                html += `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${renderSheetChip(mem)}</div></div>`;
             } else {
-                html += `<div class="sheet-seat-row empty">空き</div>`;
+                html += `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`;
             }
         }
 
@@ -1994,20 +2240,15 @@ function renderSheetView() {
     });
 
     // 待機メンバー列
-    if (data.waiting && data.waiting.length) {
-        const waitCol = document.createElement('div');
-        waitCol.className = 'sheet-car-col';
-        let wHtml = `<div class="sheet-car-header" style="background:#64748b;">待機中 (${data.waiting.length})</div>`;
-        wHtml += `<div class="sheet-driver-row" style="color:var(--text-sub);font-size:0.72rem;">─</div>`;
-        data.waiting.forEach(m => {
-            const g = m.gender||'unknown';
-            const grade = m.grade||0;
-            const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
-            wHtml += `<div class="sheet-seat-row" data-gender="${g}">${gradeBadge}<span>${m.name}</span></div>`;
-        });
-        waitCol.innerHTML = wHtml;
-        canvas.appendChild(waitCol);
-    }
+    const waitCol = document.createElement('div');
+    waitCol.className = 'sheet-car-col';
+    let wHtml = `<div class="sheet-car-header" style="background:#64748b;">待機中 (${data.waiting.length})</div>`;
+    wHtml += `<div class="sheet-driver-row" style="color:var(--text-sub);font-size:0.72rem;">─</div>`;
+    wHtml += `<div class="sheet-seat-row" style="align-items:stretch; min-height:40px;"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${data.waiting.map(m => renderSheetChip(m)).join('')}</div></div>`;
+    waitCol.innerHTML = wHtml;
+    canvas.appendChild(waitCol);
+
+    setupSheetSortables();
 }
 
 // ====== パン & ピンチズーム ======
@@ -2030,7 +2271,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
     // マウスパン
     area.addEventListener('mousedown', e => {
-        if (e.target.closest('button')) return;
+        if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
         isPanning = true; panStartX = e.clientX; panStartY = e.clientY;
         panOriginX = sheetX; panOriginY = sheetY;
         area.style.cursor = 'grabbing';
@@ -2057,7 +2298,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
     // タッチパン & ピンチ
     area.addEventListener('touchstart', e => {
-        if (e.target.closest('button')) return;
+        if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
         if (e.touches.length === 1) {
             isPanning = true;
             panStartX = e.touches[0].clientX; panStartY = e.touches[0].clientY;
