@@ -579,18 +579,114 @@ html, body {
 #guideModal .modal-title {
     color: var(--text-main) !important;
 }
-#guideModal .btn-close-white {
-    filter: none;
-}
-[data-theme="dark"] #guideModal .btn-close-white {
-    filter: invert(1);
-}
 #guideModal .modal-body {
     background: var(--bg-body);
 }
-#guideModal .guide-step-panel {
-    padding: 18px !important;
-}
+        #guideModal .guide-step-panel {
+            padding: 18px !important;
+        }
+
+        /* --- UI polish: keep controls and panels visually aligned --- */
+        #top-area > .d-flex:first-child {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-main);
+            box-shadow: var(--shadow-card);
+            padding: 8px;
+        }
+
+        #roomNameInput {
+            min-width: 0;
+        }
+
+        .form-control,
+        .form-select {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.18rem rgba(37, 99, 235, 0.14);
+        }
+
+        .dropdown-menu {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            border-radius: var(--radius-main);
+            box-shadow: var(--shadow-float);
+            padding: 6px;
+        }
+
+        .dropdown-item {
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 0.86rem;
+            padding: 7px 10px;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background: var(--hover-bg);
+            color: var(--text-main);
+        }
+
+        .modal-header,
+        .modal-footer {
+            background: var(--modal-header-bg);
+            border-color: var(--border-color);
+        }
+
+        .modal-header {
+            padding: 12px 14px;
+        }
+
+        .modal-footer {
+            padding: 10px 14px;
+        }
+
+        .grade-select-btn,
+        .seat-slot,
+        .driver-seat {
+            border-radius: var(--radius-sm);
+        }
+
+        #bottom-tray {
+            box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        #bottom-tray-header .btn {
+            border-radius: var(--radius-sm);
+        }
+
+        .sheet-car-col {
+            background: var(--bg-card);
+        }
+
+        .sheet-car-col:first-child {
+            border-left: 1px solid var(--border-color);
+        }
+
+        .sheet-wait-block {
+            border-radius: var(--radius-main);
+            box-shadow: var(--shadow-card);
+        }
+
+        #debugModal .modal-content {
+            border: 1px solid var(--border-color) !important;
+        }
+
+        #debugModal .modal-header {
+            background: var(--modal-header-bg) !important;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #debugModal .modal-title {
+            color: var(--text-main) !important;
+        }
 
 </style>
   </head>
@@ -1035,14 +1131,14 @@ html, body {
     </div>
     <!-- デバッグモードモーダル -->
     <div class="modal fade" id="debugModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content" style="border: 2px solid #f59e0b;">
-          <div class="modal-header py-2" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
-            <h6 class="modal-title fw-bold text-warning mb-0" style="font-size: 0.9rem;">
-              <i class="fas fa-bug me-2"></i>デバッグモード
-            </h6>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title fw-bold mb-0" style="font-size: 0.9rem;">
+                        <i class="fas fa-bug me-2"></i>デバッグモード
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
           <div class="modal-body">
             <div style="background:#fef3c7; border:1px solid #f59e0b; border-radius:6px; padding:10px; margin-bottom:12px;">
               <div class="fw-bold mb-1" style="font-size:0.82rem; color:#92400e;"><i class="fas fa-exclamation-triangle me-1"></i>注意</div>
