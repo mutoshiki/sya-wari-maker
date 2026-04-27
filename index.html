@@ -76,8 +76,8 @@
     --modal-header-bg: #1e293b;
     --modal-footer-bg: #0f172a;
 
-    --bg-male: rgba(148, 163, 184, 0.12); --border-male: #475569; --text-male: #e2e8f0;
-    --bg-female: rgba(148, 163, 184, 0.10); --border-female: #475569; --text-female: #e2e8f0;
+    --bg-male: rgba(37, 99, 235, 0.22); --border-male: #60a5fa; --text-male: #dbeafe;
+    --bg-female: rgba(190, 24, 93, 0.24); --border-female: #f472b6; --text-female: #fce7f3;
     --bg-unknown: rgba(148, 163, 184, 0.15); --border-unknown: #64748b; --text-unknown: #cbd5e1;
 
     --grade1-bg: rgba(52,211,153,0.14); --grade1-border: rgba(52,211,153,0.42); --grade1-text: #d1fae5; --grade1-badge: rgba(52,211,153,0.14);
@@ -322,6 +322,16 @@ html, body {
 .sheet-seat-row.empty { color: var(--text-sub); font-style: italic; font-size: 0.72rem; }
 .sheet-seat-row[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
 .sheet-seat-row[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-driver-row[data-gender="male"],
+.sheet-seat-row[data-gender="male"],
+.sheet-wait-item[data-gender="male"] {
+    border-left: 3px solid var(--border-male);
+}
+.sheet-driver-row[data-gender="female"],
+.sheet-seat-row[data-gender="female"],
+.sheet-wait-item[data-gender="female"] {
+    border-left: 3px solid var(--border-female);
+}
 .sheet-cell-text {
     white-space: nowrap;
     overflow: hidden;
@@ -359,6 +369,16 @@ html, body {
 .sheet-chip.draggable {
     cursor: grab;
     touch-action: none;
+}
+.sheet-chip[data-gender="male"] {
+    background: var(--bg-male);
+    border-color: var(--border-male);
+    color: var(--text-male);
+}
+.sheet-chip[data-gender="female"] {
+    background: var(--bg-female);
+    border-color: var(--border-female);
+    color: var(--text-female);
 }
 .sheet-chip.locked {
     opacity: 0.72;
@@ -411,6 +431,8 @@ html, body {
 }
 .sheet-wait-item[data-gender="male"] { background: var(--bg-male); color: var(--text-male); }
 .sheet-wait-item[data-gender="female"] { background: var(--bg-female); color: var(--text-female); }
+.sheet-wait-item[data-gender="male"] { border-left: 3px solid var(--border-male); }
+.sheet-wait-item[data-gender="female"] { border-left: 3px solid var(--border-female); }
 .sheet-wait-item.empty {
     color: var(--text-sub);
     justify-content: center;
@@ -1219,7 +1241,7 @@ html, body {
               <div style="text-align:center; margin-bottom: 18px;">
                 <div class="guide-hero-mark"><i class="fas fa-route"></i></div>
                 <h5 class="fw-bold mb-2" style="color: var(--text-main);">最初にやること</h5>
-                <p class="text-muted-dark-friendly mb-0" style="font-size:0.88rem; max-width: 380px; margin: 0 auto;">名簿と車を入れる → 自動割当 → 気になるところを直す。基本はこれだけです。</p>
+                <p class="text-muted-dark-friendly mb-0" style="font-size:0.88rem; max-width: 380px; margin: 0 auto;">まず名簿と車を入れて、自動割当をします。最後に気になるところだけ手で直します。</p>
               </div>
 
               <div class="guide-feature-card mb-3">
@@ -1392,9 +1414,20 @@ html, body {
                 </div>
               </div>
 
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-shield-alt me-2" style="color:var(--accent-color);"></i>編集保護</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">保護ボタンで合言葉を設定すると、編集モードを開くときに確認が入ります。</div>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-hand-pointer me-2" style="color:var(--accent-color);"></i>クイック編集</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">表ビューでも、解除済みの端末なら長押しでカードを動かせます。</div>
+                </div>
+              </div>
+
               <div class="guide-feature-card">
-                <div class="guide-feature-title"><i class="fas fa-history me-2" style="color:#8b5cf6;"></i>困ったら履歴</div>
-                <div style="font-size:0.8rem; color:var(--text-sub);">前の状態に戻したいときは「履歴」から復元できます。</div>
+                <div class="guide-feature-title"><i class="fas fa-cog me-2" style="color:var(--text-sub);"></i>履歴と設定</div>
+                <div style="font-size:0.8rem; color:var(--text-sub);">履歴から前の状態に戻せます。設定には「全員を待機に戻す」「全てリセット」「デバッグモード」があります。</div>
               </div>
             </div>
 
@@ -2509,10 +2542,11 @@ function renderSheetPlain(member) {
 
 function renderSheetChip(member) {
     const grade = member.grade || 0;
+    const gender = member.gender || 'unknown';
     const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
     const draggable = !member.locked && hasTrustedEditAccess() && quickEditMode;
     const lockIcon = member.locked ? `<i class="fas fa-lock" style="font-size:0.62rem; opacity:0.7;"></i>` : '';
-    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${escapeHtml(member.name)}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge}<span class="sheet-chip-text">${escapeHtml(member.name)}</span>${lockIcon}</div>`;
+    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${escapeHtml(member.name)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge}<span class="sheet-chip-text">${escapeHtml(member.name)}</span>${lockIcon}</div>`;
 }
 
 function clearSheetSortables() {
@@ -2844,11 +2878,11 @@ window.executeDebugMode = function() {
     const carCount = parseInt(document.getElementById('debugCarCount').value) || 3;
 
     const drivers = [
-        { name: '高橋 健介', cap: 4, gender: 'male' },
-        { name: '中村 美咲', cap: 4, gender: 'female' },
-        { name: '小林 恒一', cap: 5, gender: 'male' },
+        { name: '高橋 健介', cap: 3, gender: 'male' },
+        { name: '中村 美咲', cap: 3, gender: 'female' },
+        { name: '小林 恒一', cap: 3, gender: 'male' },
         { name: '松本 彩花', cap: 3, gender: 'female' },
-        { name: '山口 直人', cap: 4, gender: 'male' },
+        { name: '山口 直人', cap: 3, gender: 'male' },
     ];
 
     const members = [
@@ -2858,15 +2892,15 @@ window.executeDebugMode = function() {
         { name: '伊藤 美月', grade: 1, gender: 'female' },
         { name: '渡辺 大地', grade: 1, gender: 'male' },
         { name: '加藤 ひかり', grade: 1, gender: 'female' },
+        { name: '石井 拓海', grade: 2, gender: 'male', memo: '温泉行く' },
+        { name: '岡田 真帆', grade: 3, gender: 'female', memo: '飯行く' },
         { name: '山本 蓮', grade: 1, gender: 'male' },
         { name: '井上 結衣', grade: 1, gender: 'female' },
         { name: '木村 亮', grade: 2, gender: 'male' },
         { name: '清水 春香', grade: 2, gender: 'female' },
         { name: '阿部 航', grade: 2, gender: 'male' },
         { name: '森川 さくら', grade: 2, gender: 'female' },
-        { name: '石井 拓海', grade: 2, gender: 'male', memo: '温泉行く' },
         { name: '小川 恒一', grade: 3, gender: 'male' },
-        { name: '岡田 真帆', grade: 3, gender: 'female', memo: '飯行く' },
         { name: '長谷川 翼', grade: 3, gender: 'male' },
         { name: '村上 紗季', grade: 4, gender: 'female' },
         { name: '近藤 直樹', grade: 4, gender: 'male' },
@@ -2884,7 +2918,8 @@ window.executeDebugMode = function() {
     });
 
     // メンバーをシャッフルして追加
-    const shuffled = [...members].sort(() => Math.random() - 0.5);
+    const totalSeats = usedDrivers.reduce((sum, d) => sum + d.cap, 0);
+    const shuffled = members.slice(0, totalSeats).sort(() => Math.random() - 0.5);
     shuffled.forEach(m => {
         addMember(m.name, m.memo || '', m.gender, m.grade, document.getElementById('waiting-list'), false);
     });
