@@ -775,334 +775,196 @@ html, body {
 
           <!-- ステップインジケーター -->
           <div style="background: var(--bg-body); border-bottom: 1px solid var(--border-color); padding: 10px 16px; display:flex; gap:6px; overflow-x:auto; flex-shrink:0;">
-            <button class="guide-step-btn active" data-step="0" onclick="showGuideStep(0)">🚀 はじめに</button>
-            <button class="guide-step-btn" data-step="1" onclick="showGuideStep(1)">① メンバー登録</button>
-            <button class="guide-step-btn" data-step="2" onclick="showGuideStep(2)">② 車を追加</button>
-            <button class="guide-step-btn" data-step="3" onclick="showGuideStep(3)">③ 座席に割当</button>
-            <button class="guide-step-btn" data-step="4" onclick="showGuideStep(4)">④ カード操作</button>
-            <button class="guide-step-btn" data-step="5" onclick="showGuideStep(5)">⑤ 便利機能</button>
+            <button class="guide-step-btn active" data-step="0" onclick="showGuideStep(0)">🚗 まず流れ</button>
+            <button class="guide-step-btn" data-step="1" onclick="showGuideStep(1)">👥 メンバー</button>
+            <button class="guide-step-btn" data-step="2" onclick="showGuideStep(2)">🚙 車</button>
+            <button class="guide-step-btn" data-step="3" onclick="showGuideStep(3)">✨ 割当</button>
+            <button class="guide-step-btn" data-step="4" onclick="showGuideStep(4)">✋ 動かす</button>
+            <button class="guide-step-btn" data-step="5" onclick="showGuideStep(5)">🔗 共有</button>
           </div>
 
           <div class="modal-body p-0" style="overflow-y: auto;">
 
-            <!-- Step 0: はじめに -->
             <div class="guide-step-panel" data-panel="0" style="padding: 20px;">
-              <div style="text-align:center; margin-bottom: 20px;">
+              <div style="text-align:center; margin-bottom: 18px;">
                 <div style="font-size: 3rem; margin-bottom: 8px;">🚗</div>
-                <h5 class="fw-bold" style="color: var(--text-main);">山歩会 車割メーカーへようこそ</h5>
-                <p class="text-muted-dark-friendly" style="font-size:0.9rem; max-width: 380px; margin: 0 auto;">まずは登録、次に自動割当。必要ならあとから細かく整える、という使い方がおすすめです。</p>
+                <h5 class="fw-bold mb-2" style="color: var(--text-main);">使い方は3ステップです</h5>
+                <p class="text-muted-dark-friendly mb-0" style="font-size:0.88rem; max-width: 360px; margin: 0 auto;">登録して、自動で割って、必要なら少しだけ直す。まずはこれだけでOKです。</p>
               </div>
 
-              <!-- 2つのビュー説明 -->
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <div style="background: var(--bg-card); border: 2px solid var(--accent-color); border-radius: 8px; padding: 14px; text-align:center;">
-                  <div style="font-size: 1.5rem; margin-bottom:6px;">✏️</div>
-                  <div class="fw-bold" style="font-size:0.9rem; color: var(--accent-color); margin-bottom:4px;">編集モード</div>
-                  <div style="font-size:0.75rem; color:var(--text-sub);">メンバーの追加・ドラッグ移動など、すべての操作はここで行います</div>
-                </div>
-                <div style="background: var(--bg-card); border: 2px solid #10b981; border-radius: 8px; padding: 14px; text-align:center;">
-                  <div style="font-size: 1.5rem; margin-bottom:6px;">📊</div>
-                  <div class="fw-bold" style="font-size:0.9rem; color: #10b981; margin-bottom:4px;">スプレッドシートビュー</div>
-                  <div style="font-size:0.75rem; color:var(--text-sub);">全体の配車状況を一覧で確認。他の人への共有にも最適です</div>
-                </div>
-              </div>
-
-              <!-- 基本フロー -->
-              <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                <div class="fw-bold mb-3" style="font-size: 0.85rem; color: var(--text-sub); letter-spacing: 0.05em;">📋 基本的な使い方の流れ</div>
-                <div style="display:flex; flex-direction:column; gap: 10px;">
-                  <div style="display:flex; align-items:center; gap: 12px;">
-                    <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">1</div>
-                    <div><span class="fw-bold" style="font-size:0.88rem;">メンバーを登録する</span><br><span style="font-size:0.75rem; color:var(--text-sub);">少人数なら手入力、名簿があるなら一括登録</span></div>
+              <div class="guide-feature-card mb-3">
+                <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:8px; align-items:center;">
+                  <div style="text-align:center; padding:12px; background:var(--bg-body); border-radius:8px;">
+                    <div style="font-size:1.4rem;">👥</div>
+                    <div class="fw-bold" style="font-size:0.85rem; margin-top:4px;">メンバー登録</div>
                   </div>
-                  <div style="display:flex; align-items:center; gap: 12px;">
-                    <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">2</div>
-                    <div><span class="fw-bold" style="font-size:0.88rem;">車（運転手）を登録する</span><br><span style="font-size:0.75rem; color:var(--text-sub);">「運転手」チェックON → 定員入力 → 追加</span></div>
+                  <div style="text-align:center; color:var(--accent-color); font-size:1.1rem;">→</div>
+                  <div style="text-align:center; padding:12px; background:var(--bg-body); border-radius:8px;">
+                    <div style="font-size:1.4rem;">🚙</div>
+                    <div class="fw-bold" style="font-size:0.85rem; margin-top:4px;">車を追加</div>
                   </div>
-                  <div style="display:flex; align-items:center; gap: 12px;">
-                    <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-color); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">3</div>
-                    <div><span class="fw-bold" style="font-size:0.88rem;">メンバーを車に割り当てる</span><br><span style="font-size:0.75rem; color:var(--text-sub);">まず自動割当、最後に必要な人だけ手で調整</span></div>
-                  </div>
-                  <div style="display:flex; align-items:center; gap: 12px;">
-                    <div style="width:28px; height:28px; border-radius:50%; background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">✓</div>
-                    <div><span class="fw-bold" style="font-size:0.88rem;">URLを共有する</span><br><span style="font-size:0.75rem; color:var(--text-sub);">「リンク」ボタンでURLをコピー → LINEで共有</span></div>
+                  <div style="text-align:center; color:var(--accent-color); font-size:1.1rem;">→</div>
+                  <div style="text-align:center; padding:12px; background:var(--bg-body); border-radius:8px;">
+                    <div style="font-size:1.4rem;">✨</div>
+                    <div class="fw-bold" style="font-size:0.85rem; margin-top:4px;">自動割当</div>
                   </div>
                 </div>
               </div>
 
-              <div class="alert py-2 mb-0" style="background: #fefce8; border: 1px solid #fde047; border-radius:6px;">
-                <i class="fas fa-lightbulb me-1" style="color:#ca8a04;"></i>
-                <span style="font-size:0.82rem; color:#78350f;">上部のタブをタップして、各機能の詳細を確認できます</span>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-edit me-2" style="color:var(--accent-color);"></i>編集モード</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">追加、削除、ドラッグ移動はここで行います。</div>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:#10b981;"></i>表ビュー</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">全体確認や共有用。必要な時だけクイック編集も使えます。</div>
+                </div>
               </div>
             </div>
 
-            <!-- Step 1: メンバー登録 -->
             <div class="guide-step-panel" data-panel="1" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">① メンバーを登録する</h6>
+              <h6 class="guide-step-title">① メンバーを入れる</h6>
 
-              <!-- 手動登録 -->
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-user-plus me-2" style="color:var(--accent-color);"></i>手動で1人ずつ追加</div>
-                <div style="background: var(--bg-body); border-radius: 6px; padding: 12px; margin: 10px 0;">
+                <div class="guide-feature-title"><i class="fas fa-user-plus me-2" style="color:var(--accent-color);"></i>少人数なら手入力</div>
+                <div style="background:var(--bg-body); border-radius:8px; padding:12px; margin-top:10px;">
                   <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-                    <div style="flex:1; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; padding:6px 10px; font-size:0.85rem; color:var(--text-sub);">名前を入力</div>
-                    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; padding:6px 10px; font-size:0.8rem; color:var(--text-sub); white-space:nowrap;">□ 運転手</div>
-                    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; padding:6px 8px; font-size:0.8rem; color:var(--text-sub);">定員</div>
+                    <div style="flex:1; background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:7px 10px; font-size:0.82rem; color:var(--text-sub);">名前を入力</div>
+                    <div style="background:var(--accent-color); color:#fff; border-radius:6px; padding:7px 12px; font-size:0.82rem; font-weight:700;">追加</div>
                   </div>
-                  <div style="display:flex; gap:4px; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:0.75rem; color:var(--text-sub);">学年：</span>
-                    <span style="background:var(--border-color); color:var(--text-main); padding:2px 8px; border-radius:3px; font-size:0.75rem;">なし</span>
-                    <span style="background:#22c55e; color:#fff; padding:2px 8px; border-radius:3px; font-size:0.75rem;">1年</span>
-                    <span style="background:#f97316; color:#fff; padding:2px 8px; border-radius:3px; font-size:0.75rem;">2年</span>
-                    <span style="background:#a855f7; color:#fff; padding:2px 8px; border-radius:3px; font-size:0.75rem;">3年</span>
-                    <span style="background:#0ea5e9; color:#fff; padding:2px 8px; border-radius:3px; font-size:0.75rem;">4年</span>
-                  </div>
-                  <div style="background:var(--accent-color); color:#fff; text-align:center; border-radius:4px; padding:6px; font-size:0.85rem; font-weight:600;">＋ 追加</div>
-                </div>
-                <div style="font-size:0.8rem; color:var(--text-sub); line-height:1.6;">
-                  <i class="fas fa-circle-info me-1"></i> 学年を選択してから「追加」すると、カードに学年バッジが表示されます。<br>
-                  <i class="fas fa-keyboard me-1"></i> 名前を入力後、<kbd style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:3px;padding:1px 4px;font-size:0.75rem;">Enter</kbd> キーでもすばやく追加できます。
+                  <div style="font-size:0.78rem; color:var(--text-sub);">学年を選んでから追加すると、色付きで見やすくなります。</div>
                 </div>
               </div>
 
-              <!-- 一括登録 -->
-              <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title">
-                  <i class="fas fa-paste me-2" style="color:#f59e0b;"></i>一括登録（大人数の場合はこちらが便利！）
-                  <span style="background:#fef3c7; color:#92400e; font-size:0.65rem; padding:2px 6px; border-radius:10px; margin-left:6px; font-weight:600;">推奨</span>
-                </div>
-                <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin: 12px 0; flex-wrap:wrap;">
-                  <div style="text-align:center;">
-                    <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:4px;">① Excel / スプレッドシート</div>
-                    <div style="border:1px solid var(--border-color); border-radius:6px; overflow:hidden; width:110px; background:var(--bg-card);">
-                      <div style="background:#10b981; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600;"><i class="fas fa-table me-1"></i>名前列を選択</div>
-                      <div style="padding:6px; font-size:0.7rem; line-height:1.6; color:var(--text-main);">
-                        <div style="background:rgba(37,99,235,0.1); padding:1px 4px;">田中 太郎</div>
-                        <div style="background:rgba(37,99,235,0.1); padding:1px 4px;">鈴木 花子</div>
-                        <div style="background:rgba(37,99,235,0.1); padding:1px 4px;">山田 次郎</div>
-                        <div style="text-align:center; color:var(--text-sub);">…</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div style="text-align:center;">
-                    <i class="fas fa-arrow-right" style="color:var(--accent-color); font-size:1.2rem;"></i>
-                    <div style="font-size:0.65rem; color:var(--accent-color); font-weight:600;">Ctrl+C でコピー</div>
-                  </div>
-                  <div style="text-align:center;">
-                    <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:4px;">② 一括登録画面に貼付け</div>
-                    <div style="border:1px solid var(--border-color); border-radius:6px; padding:8px; width:120px; background:var(--bg-card);">
-                      <div style="font-size:0.65rem; color:#22c55e; font-weight:600; margin-bottom:2px;">1年生（改行区切り）</div>
-                      <div style="border:1px solid var(--border-color); height:40px; border-radius:3px; background:var(--bg-body); padding:4px; font-size:0.65rem; color:var(--text-main); overflow:hidden;">田中 太郎<br>鈴木 花子</div>
-                      <div style="font-size:0.65rem; color:#f97316; font-weight:600; margin: 4px 0 2px;">2年生</div>
-                      <div style="border:1px solid var(--border-color); height:30px; border-radius:3px; background:var(--bg-body); padding:4px; font-size:0.65rem; color:var(--text-sub);">山田 次郎…</div>
-                    </div>
-                  </div>
-                </div>
-                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:10px; font-size:0.8rem; color:#1e3a8a;">
-                  <i class="fas fa-info-circle me-1"></i> Excelの名前列をコピーして、学年ごとの欄に貼り付けるだけ！運転手欄に入力すると車も同時に追加されます。
-                </div>
-              </div>
-            </div>
-
-            <!-- Step 2: 車を追加 -->
-            <div class="guide-step-panel" data-panel="2" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">② 車（運転手）を追加する</h6>
-
-              <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-car me-2" style="color:var(--accent-color);"></i>運転手として追加する</div>
-                <div style="background:var(--bg-body); border-radius:6px; padding:12px; margin: 10px 0;">
-                  <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
-                    <div style="flex:1; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; padding:6px 10px; font-size:0.85rem; min-width:80px;">田中太郎</div>
-                    <div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:4px; padding:6px 10px; font-size:0.8rem; color:#92400e; white-space:nowrap; font-weight:600;">☑ 運転手</div>
-                    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; padding:6px 8px; font-size:0.85rem; color:var(--text-main); width:50px; text-align:center;">4</div>
-                  </div>
-                  <div style="background:var(--accent-color); color:#fff; text-align:center; border-radius:4px; padding:6px; font-size:0.85rem; font-weight:600;">＋ 追加 → 「田中太郎車（定員4）」が追加されます</div>
-                </div>
-                <div style="font-size:0.8rem; color:var(--text-sub); line-height:1.7;">
-                  <div><i class="fas fa-check-circle me-1" style="color:#10b981;"></i>「運転手」チェックを入れると、定員入力欄が有効になります</div>
-                  <div><i class="fas fa-check-circle me-1" style="color:#10b981;"></i>定員を省略すると自動で3に設定されます</div>
-                  <div><i class="fas fa-check-circle me-1" style="color:#10b981;"></i>定員はあとから変更できます（バッジをタップ）</div>
-                </div>
-              </div>
-
-              <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-pen me-2" style="color:#8b5cf6;"></i>定員を後から変更する</div>
-                <div style="display:flex; align-items:center; gap:10px; margin:10px 0; flex-wrap:wrap;">
-                  <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:10px; flex:1; min-width:150px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:6px; margin-bottom:6px;">
-                      <span class="fw-bold" style="font-size:0.9rem;">田中太郎車</span>
-                      <span style="background:#6b7280; color:#fff; border-radius:4px; padding:2px 8px; font-size:0.75rem; cursor:pointer;">3/4 ✏️</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-sub);">← バッジをタップして定員変更</div>
-                  </div>
-                </div>
-                <div style="font-size:0.8rem; color:var(--text-sub);">定員を超えると赤色で警告表示されます。</div>
-              </div>
-            </div>
-
-            <!-- Step 3: 座席に割当 -->
-            <div class="guide-step-panel" data-panel="3" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">③ メンバーを車に割り当てる</h6>
-
-              <!-- 自動割当 -->
-              <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title">
-                  <i class="fas fa-random me-2" style="color:var(--accent-color);"></i>自動割当（かんたん・おすすめ）
-                  <span style="background:#eff6ff; color:#1d4ed8; font-size:0.65rem; padding:2px 6px; border-radius:10px; margin-left:6px; font-weight:600;">おすすめ</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:8px; margin: 10px 0; flex-wrap:wrap;">
-                  <div style="background:var(--bg-body); border:1px solid var(--border-color); border-radius:6px; padding:8px 14px; font-size:0.8rem; color:var(--text-sub);">
-                    <i class="fas fa-users me-1"></i> 待機メンバー (8)
-                  </div>
-                  <i class="fas fa-arrow-right" style="color:var(--accent-color);"></i>
-                  <div style="background:var(--accent-color); color:#fff; border-radius:6px; padding:8px 14px; font-size:0.8rem; font-weight:600;">
-                    <i class="fas fa-random me-1"></i> 自動割当
-                  </div>
-                  <i class="fas fa-arrow-right" style="color:#10b981;"></i>
-                  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:8px 14px; font-size:0.8rem; color:#15803d;">
-                    <i class="fas fa-check me-1"></i> 自動で配置完了！
-                  </div>
-                </div>
-                <div style="background:var(--bg-body); border-radius:6px; padding:10px; font-size:0.8rem; color:var(--text-sub); margin-top:4px;">
-                  <div class="fw-bold mb-2" style="color:var(--text-main);">⚙️ 設定ボタンで調整</div>
-                  <div><i class="fas fa-venus me-1"></i>女子をまとめる：女性をできるだけ同じ車に寄せます</div>
-                  <div><i class="fas fa-mars me-1"></i>男子をまとめる：男性をできるだけ同じ車に寄せます</div>
-                  <div><i class="fas fa-graduation-cap me-1"></i>学年をまとめる：同学年をできるだけ近い車に寄せます</div>
-                </div>
-              </div>
-
-              <!-- 手動 D&D -->
-              <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-hand-paper me-2" style="color:#f59e0b;"></i>ドラッグ＆ドロップで手動配置</div>
-                <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; margin: 10px 0;">
-                  <div style="background:var(--bg-body); border:2px dashed var(--border-color); border-radius:6px; padding:10px; text-align:center;">
-                    <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:6px;">待機リスト</div>
-                    <div style="background:var(--bg-male); border:1px solid var(--border-male); border-radius:4px; padding:4px 8px; font-size:0.8rem; color:var(--text-male); display:inline-block;">田中 太郎</div>
-                  </div>
-                  <div style="text-align:center;">
-                    <i class="fas fa-arrow-right fa-lg" style="color:var(--accent-color);"></i>
-                    <div style="font-size:0.65rem; color:var(--text-sub); margin-top:2px;">長押し＆ドラッグ</div>
-                  </div>
-                  <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:10px; text-align:center;">
-                    <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:6px;">車の空き枠</div>
-                    <div style="border:2px dashed #bfdbfe; border-radius:4px; padding:8px; font-size:0.75rem; color:var(--text-sub);">ここにドロップ</div>
-                  </div>
-                </div>
-                <div style="font-size:0.8rem; color:var(--text-sub);">
-                  <i class="fas fa-mobile-alt me-1"></i> スマホは少し長押ししてから動かすと安定します。スプレッドシートビューでも長押し移動できます。
-                </div>
-              </div>
-
-              <!-- 全解除 -->
               <div class="guide-feature-card">
-                <div class="guide-feature-title"><i class="fas fa-broom me-2" style="color:#ef4444;"></i>やり直したいときは「全員を待機に戻す」</div>
-                <div style="font-size:0.82rem; color:var(--text-sub); line-height:1.7;">
-                  「設定」→「全員を待機に戻す」で、ロックされていないメンバーを全員待機リストに戻せます。<br>
-                  ロックした人はその場に残ります（ロック機能については次のページを参照）。
+                <div class="guide-feature-title"><i class="fas fa-paste me-2" style="color:#f59e0b;"></i>多いときは一括登録</div>
+                <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; margin-top:10px;">
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:6px;">名簿をコピー</div>
+                    <div style="background:rgba(37,99,235,0.08); border-radius:6px; padding:8px; font-size:0.75rem;">田中 太郎<br>佐藤 花子<br>鈴木 次郎</div>
+                  </div>
+                  <div style="color:var(--accent-color); font-size:1.2rem;">→</div>
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:6px;">貼り付けて更新</div>
+                    <div style="background:#10b981; color:#fff; border-radius:6px; padding:8px; font-size:0.78rem; font-weight:700;">一括登録</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Step 4: カード操作 -->
+            <div class="guide-step-panel" data-panel="2" style="display:none; padding: 20px;">
+              <h6 class="guide-step-title">② 車を入れる</h6>
+
+              <div class="guide-feature-card mb-3">
+                <div class="guide-feature-title"><i class="fas fa-car me-2" style="color:var(--accent-color);"></i>運転手として追加</div>
+                <div style="background:var(--bg-body); border-radius:8px; padding:12px; margin-top:10px;">
+                  <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+                    <div style="flex:1; min-width:100px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:7px 10px; font-size:0.82rem;">田中太郎</div>
+                    <div style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; border-radius:6px; padding:7px 10px; font-size:0.78rem; font-weight:700;">☑ 運転手</div>
+                    <div style="width:56px; text-align:center; background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:7px 0; font-size:0.82rem;">4</div>
+                  </div>
+                  <div style="background:var(--accent-color); color:#fff; border-radius:6px; padding:8px; text-align:center; font-size:0.8rem; font-weight:700;">追加すると「田中太郎車」ができます</div>
+                </div>
+              </div>
+
+              <div class="guide-feature-card">
+                <div class="guide-feature-title"><i class="fas fa-pen me-2" style="color:#8b5cf6;"></i>定員はあとで変えられます</div>
+                <div style="margin-top:10px; background:var(--bg-body); border-radius:8px; padding:12px; text-align:center;">
+                  <div style="display:inline-flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px;">
+                    <span class="fw-bold">田中太郎車</span>
+                    <span style="background:#6b7280; color:#fff; border-radius:6px; padding:3px 8px; font-size:0.75rem;">3/4 ✏️</span>
+                  </div>
+                  <div style="font-size:0.78rem; color:var(--text-sub); margin-top:8px;">人数バッジをタップすると定員変更できます。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-step-panel" data-panel="3" style="display:none; padding: 20px;">
+              <h6 class="guide-step-title">③ まずは自動で割る</h6>
+
+              <div class="guide-feature-card mb-3">
+                <div class="guide-feature-title"><i class="fas fa-random me-2" style="color:var(--accent-color);"></i>おすすめの使い方</div>
+                <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:8px; align-items:center; margin-top:10px;">
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">待機中に集める</div>
+                  <div style="color:var(--accent-color);">→</div>
+                  <div style="background:var(--accent-color); color:#fff; border-radius:8px; padding:10px; text-align:center; font-size:0.78rem; font-weight:700;">自動割当</div>
+                  <div style="color:var(--accent-color);">→</div>
+                  <div style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">必要な所だけ直す</div>
+                </div>
+              </div>
+
+              <div class="guide-feature-card mb-3">
+                <div class="guide-feature-title"><i class="fas fa-sliders-h me-2" style="color:#f59e0b;"></i>設定で寄せ方を調整</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:10px;">
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">👩 女子をまとめる</div>
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">👨 男子をまとめる</div>
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">🎓 学年をまとめる</div>
+                </div>
+              </div>
+
+              <div class="guide-feature-card">
+                <div class="guide-feature-title"><i class="fas fa-broom me-2" style="color:#ef4444;"></i>やり直しも簡単</div>
+                <div style="font-size:0.8rem; color:var(--text-sub);">設定の「全員を待機に戻す」で、ロックされていない人だけまとめて戻せます。</div>
+              </div>
+            </div>
+
             <div class="guide-step-panel" data-panel="4" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">④ メンバーカードの操作</h6>
+              <h6 class="guide-step-title">④ そのあと少しだけ直す</h6>
 
-              <!-- 性別設定 -->
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-venus-mars me-2" style="color:#ec4899;"></i>性別の切り替え（名前をタップ）</div>
-                <div style="display:flex; gap:8px; margin: 10px 0; align-items:center; flex-wrap:wrap;">
-                  <div class="member-card guide-demo-card" data-gender="unknown" style="width:80px; min-height:50px; padding:6px;">
-                    <div class="member-name-text" style="font-size:0.8rem; text-align:center;">不明</div>
+                <div class="guide-feature-title"><i class="fas fa-hand-paper me-2" style="color:#f59e0b;"></i>長押しして動かす</div>
+                <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; margin-top:10px;">
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center;">
+                    <div style="font-size:0.72rem; color:var(--text-sub); margin-bottom:6px;">待機中</div>
+                    <div style="display:inline-block; background:var(--bg-male); border:1px solid var(--border-male); border-radius:6px; padding:6px 10px; font-size:0.8rem;">田中 太郎</div>
                   </div>
-                  <i class="fas fa-arrow-right" style="color:var(--text-sub);"></i>
-                  <div class="member-card guide-demo-card" data-gender="male" style="width:80px; min-height:50px; padding:6px;">
-                    <div class="member-name-text" style="font-size:0.8rem; text-align:center;">男子 🔵</div>
+                  <div style="color:var(--accent-color); font-size:1.2rem;">→</div>
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center;">
+                    <div style="font-size:0.72rem; color:var(--text-sub); margin-bottom:6px;">車の席</div>
+                    <div style="border:2px dashed #bfdbfe; border-radius:6px; padding:8px; font-size:0.76rem; color:var(--text-sub);">ここへ移動</div>
                   </div>
-                  <i class="fas fa-arrow-right" style="color:var(--text-sub);"></i>
-                  <div class="member-card guide-demo-card" data-gender="female" style="width:80px; min-height:50px; padding:6px;">
-                    <div class="member-name-text" style="font-size:0.8rem; text-align:center;">女子 🔴</div>
-                  </div>
-                  <i class="fas fa-arrow-right" style="color:var(--text-sub); font-size:0.7rem;"></i>
-                  <div style="font-size:0.72rem; color:var(--text-sub);">（繰り返し）</div>
                 </div>
-                <div style="font-size:0.8rem; color:var(--text-sub);">自動判定される場合もあります（名前の末尾で判断）。自動割当の性別グループ分けに使われます。</div>
               </div>
 
-              <!-- 各ボタン説明 -->
-              <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-hand-pointer me-2" style="color:var(--accent-color);"></i>カードのアイコンと機能</div>
-                <div style="display:flex; flex-direction:column; gap: 10px; margin-top:10px;">
-                  <div style="display:flex; align-items:flex-start; gap:10px; padding:8px; background:var(--bg-body); border-radius:6px;">
-                    <div style="width:32px; height:32px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                      <span class="grade-badge" data-grade="1" style="font-size:0.7rem; padding:2px 5px; display:inline-block;">1年</span>
-                    </div>
-                    <div><div class="fw-bold" style="font-size:0.85rem;">学年バッジ</div><div style="font-size:0.78rem; color:var(--text-sub);">登録時の学年が色付きで表示。自動割当で「学年をまとめる」を使う際に参照されます。</div></div>
-                  </div>
-                  <div style="display:flex; align-items:flex-start; gap:10px; padding:8px; background:var(--bg-body); border-radius:6px;">
-                    <div style="width:32px; height:32px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                      <i class="fas fa-sticky-note" style="color:var(--text-sub);"></i>
-                    </div>
-                    <div><div class="fw-bold" style="font-size:0.85rem;">メモ <i class="fas fa-sticky-note" style="color:#f59e0b; font-size:0.75rem;"></i>（オレンジ = 記入あり）</div><div style="font-size:0.78rem; color:var(--text-sub);">住所・連絡先・備考などを自由に書けます。タップで編集ダイアログが開きます。</div></div>
-                  </div>
-                  <div style="display:flex; align-items:flex-start; gap:10px; padding:8px; background:var(--bg-body); border-radius:6px;">
-                    <div style="width:32px; height:32px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                      <i class="fas fa-lock" style="color:#f59e0b;"></i>
-                    </div>
-                    <div><div class="fw-bold" style="font-size:0.85rem;">ロック機能</div><div style="font-size:0.78rem; color:var(--text-sub);">タップで🔒鍵がかかり、自動割当・全解除で動かなくなります。配置が決まった人に便利です。</div></div>
-                  </div>
-                  <div style="display:flex; align-items:flex-start; gap:10px; padding:8px; background:var(--bg-body); border-radius:6px;">
-                    <div style="width:32px; height:32px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                      <i class="fas fa-times" style="color:#ef4444;"></i>
-                    </div>
-                    <div><div class="fw-bold" style="font-size:0.85rem;">✕ ボタン（右上）</div><div style="font-size:0.78rem; color:var(--text-sub);">車の中なら待機へ戻す、待機中なら完全削除。どちらも確認が出ます。</div></div>
-                  </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-lock me-2" style="color:#f59e0b;"></i>ロック</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">決まった人はロックすると、自動割当でも動きません。</div>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-times me-2" style="color:#ef4444;"></i>× ボタン</div>
+                  <div style="font-size:0.8rem; color:var(--text-sub);">車の中なら待機へ、待機中なら削除。確認が出るので安心です。</div>
                 </div>
               </div>
             </div>
 
-            <!-- Step 5: 便利機能 -->
             <div class="guide-step-panel" data-panel="5" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">⑤ 便利な機能</h6>
+              <h6 class="guide-step-title">⑤ 最後に確認と共有</h6>
 
-              <div style="display:flex; flex-direction:column; gap: 12px;">
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-link me-2" style="color:var(--accent-color);"></i>リンク共有（リアルタイム同期）</div>
-                  <div style="font-size:0.82rem; color:var(--text-sub); line-height:1.7;">
-                    「リンク」ボタンでURLをコピー → LINEなどで共有。<strong>同じURLを開いた全員の画面がリアルタイムで同期</strong>されます。<br>
-                    幹事が配車を調整している様子を他のメンバーがリアルタイムで確認できます。
+              <div class="guide-feature-card mb-3">
+                <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:#10b981;"></i>表ビューで全体を見る</div>
+                <div style="background:var(--bg-body); border-radius:8px; padding:12px; margin-top:10px;">
+                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+                    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:8px; text-align:center; font-size:0.75rem;">A車<br>3/4</div>
+                    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:8px; text-align:center; font-size:0.75rem;">B車<br>4/4</div>
+                    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:6px; padding:8px; text-align:center; font-size:0.75rem;">待機中<br>2人</div>
                   </div>
                 </div>
+              </div>
 
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-history me-2" style="color:#8b5cf6;"></i>履歴（自動バックアップ）</div>
-                  <div style="font-size:0.82rem; color:var(--text-sub); line-height:1.7;">
-                    1分ごとに自動でバックアップが保存されます（最大20件）。<br>
-                    「履歴」ボタンから過去の状態に戻すことができます。操作ミスの強力な保険です。
-                  </div>
+              <div class="guide-feature-card mb-3">
+                <div class="guide-feature-title"><i class="fas fa-link me-2" style="color:var(--accent-color);"></i>リンクを送る</div>
+                <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; margin-top:10px;">
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">リンクをコピー</div>
+                  <div style="color:var(--accent-color);">→</div>
+                  <div style="background:var(--bg-body); border-radius:8px; padding:10px; text-align:center; font-size:0.78rem;">LINEなどで共有</div>
                 </div>
+              </div>
 
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:#10b981;"></i>スプレッドシートビュー</div>
-                  <div style="font-size:0.82rem; color:var(--text-sub); line-height:1.7;">
-                    全車の配車状況を一覧で確認。ピンチ操作（スマホ）やマウスホイール（PC）でズームできます。<br>
-                    編集保護がかかっていない時、またはこの端末で一度合言葉を通した後は、長押しでそのまま並べ替えできます。
-                  </div>
-                </div>
-
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-paste me-2" style="color:#f59e0b;"></i>一括登録</div>
-                  <div style="font-size:0.82rem; color:var(--text-sub); line-height:1.7;">
-                    Excelやスプレッドシートの名簿から、名前をコピー＆ペーストで一括追加。<br>
-                    学年ごと・運転手ごとに欄が分かれているので、学年情報も一気に登録できます。
-                  </div>
-                </div>
-
-                <div class="guide-feature-card" style="border-color: #ef4444;">
-                  <div class="guide-feature-title"><i class="fas fa-trash-alt me-2" style="color:#ef4444;"></i>リセット（全データ消去）</div>
-                  <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:4px; padding:8px; font-size:0.8rem; color:#991b1b; margin-top:8px;">
-                    <i class="fas fa-exclamation-triangle me-1"></i> <strong>全員の画面のデータが消えます。</strong>操作前に確認ダイアログが表示されます。
-                  </div>
-                </div>
+              <div class="guide-feature-card">
+                <div class="guide-feature-title"><i class="fas fa-history me-2" style="color:#8b5cf6;"></i>困ったら履歴</div>
+                <div style="font-size:0.8rem; color:var(--text-sub);">前の状態に戻したいときは「履歴」から復元できます。</div>
               </div>
             </div>
 
@@ -1375,10 +1237,11 @@ function updateEditLockButton() {
 function updateQuickEditButton() {
     const btn = document.getElementById('sheet-quick-edit-btn');
     if (!btn) return;
-    const canQuickEdit = hasTrustedEditAccess();
-    btn.style.display = canQuickEdit ? '' : 'none';
-    if (!canQuickEdit) quickEditMode = false;
-    btn.classList.toggle('active', quickEditMode && canQuickEdit);
+    const canQuickEdit = !editLockEnabled || hasTrustedEditAccess();
+    const shouldShow = currentView === 'sheet' && canQuickEdit;
+    btn.style.display = shouldShow ? 'inline-flex' : 'none';
+    if (!shouldShow) quickEditMode = false;
+    btn.classList.toggle('active', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
         ? '<i class="fas fa-table me-1"></i>表に戻す'
         : '<i class="fas fa-hand-paper me-1"></i>クイック編集';
@@ -2161,6 +2024,7 @@ function switchView(view) {
         sheetArea.classList.add('active');
         tabList.classList.remove('active');
         tabSheet.classList.add('active');
+        updateQuickEditButton();
         renderSheetView();
         showSheetHint();
     } else {
@@ -2169,6 +2033,7 @@ function switchView(view) {
         sheetArea.classList.remove('active');
         tabList.classList.add('active');
         tabSheet.classList.remove('active');
+        updateQuickEditButton();
     }
 }
 window.switchView = switchView;
