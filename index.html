@@ -2413,10 +2413,25 @@ function moveManualDragCardTo(target) {
     manualCardDrag.currentContainer = target;
 }
 
+function getFinitePointerCoord(point, key, fallback) {
+    const value = Number(point?.[key]);
+    return Number.isFinite(value) ? value : fallback;
+}
+
+function clampDragOffset(value, size, edge = 8) {
+    const min = Math.min(edge, Math.max(0, size / 2));
+    const max = Math.max(min, size - min);
+    return Math.max(min, Math.min(max, value));
+}
+
 function updateManualDragFloat(clientX, clientY) {
     if (!manualCardDrag?.floating) return;
-    manualCardDrag.floating.style.transform =
-        `translate3d(${clientX - manualCardDrag.offsetX}px, ${clientY - manualCardDrag.offsetY}px, 0) scale(1.03)`;
+    const left = clientX - manualCardDrag.offsetX;
+    const top = clientY - manualCardDrag.offsetY;
+    if (!Number.isFinite(left) || !Number.isFinite(top)) return;
+    manualCardDrag.floating.style.left = `${left}px`;
+    manualCardDrag.floating.style.top = `${top}px`;
+    manualCardDrag.floating.style.transform = 'scale(1.03)';
 }
 
 function finishManualCardDrag() {
@@ -2432,12 +2447,14 @@ function finishManualCardDrag() {
     save();
 }
 
-function startManualCardDrag(card, e) {
+function startManualCardDrag(card, point) {
     if (manualCardDrag || !card?.isConnected) return;
     const currentContainer = card.parentElement;
     if (!(currentContainer?.classList?.contains('seat-slot') || currentContainer?.id === 'waiting-list')) return;
 
     const rect = card.getBoundingClientRect();
+    const clientX = getFinitePointerCoord(point, 'clientX', rect.left + rect.width / 2);
+    const clientY = getFinitePointerCoord(point, 'clientY', rect.top + rect.height / 2);
     const floating = card.cloneNode(true);
     floating.classList.add('manual-drag-float');
     floating.style.width = `${rect.width}px`;
@@ -2448,15 +2465,15 @@ function startManualCardDrag(card, e) {
         card,
         floating,
         currentContainer,
-        pointerId: e.pointerId,
-        offsetX: Math.max(8, Math.min(rect.width - 8, e.clientX - rect.left)),
-        offsetY: Math.max(8, Math.min(rect.height - 8, e.clientY - rect.top))
+        pointerId: point?.pointerId,
+        offsetX: clampDragOffset(clientX - rect.left, rect.width),
+        offsetY: clampDragOffset(clientY - rect.top, rect.height)
     };
 
     card.classList.add('manual-drag-source');
     D.body.classList.add('manual-card-dragging');
     isDraggingCards = true;
-    updateManualDragFloat(e.clientX, e.clientY);
+    updateManualDragFloat(clientX, clientY);
 }
 
 function setupManualCardDrag() {
@@ -2475,20 +2492,26 @@ function setupManualCardDrag() {
         e.preventDefault();
         e.stopPropagation();
         clearTimeout(pending?.timer);
-        pending = {
+        const nextPending = {
             card,
             pointerId: e.pointerId,
             startX: e.clientX,
             startY: e.clientY,
-            timer: setTimeout(() => startManualCardDrag(card, e), e.pointerType === 'touch' ? 260 : 90)
+            clientX: e.clientX,
+            clientY: e.clientY,
+            timer: null
         };
+        nextPending.timer = setTimeout(() => startManualCardDrag(card, nextPending), e.pointerType === 'touch' ? 260 : 90);
+        pending = nextPending;
         card.setPointerCapture?.(e.pointerId);
     }, { passive: false });
 
     D.addEventListener('pointermove', e => {
         if (pending && pending.pointerId === e.pointerId && !manualCardDrag) {
+            pending.clientX = e.clientX;
+            pending.clientY = e.clientY;
             const moved = Math.hypot(e.clientX - pending.startX, e.clientY - pending.startY);
-            if (moved > 8 && e.pointerType !== 'touch') startManualCardDrag(pending.card, e);
+            if (moved > 8 && e.pointerType !== 'touch') startManualCardDrag(pending.card, pending);
         }
         if (!manualCardDrag || manualCardDrag.pointerId !== e.pointerId) return;
         e.preventDefault();
@@ -3297,8 +3320,12 @@ function moveManualSheetChipTo(zone) {
 
 function updateManualSheetFloat(clientX, clientY) {
     if (!manualSheetDrag?.floating) return;
-    manualSheetDrag.floating.style.transform =
-        `translate3d(${clientX - manualSheetDrag.offsetX}px, ${clientY - manualSheetDrag.offsetY}px, 0) scale(1.03)`;
+    const left = clientX - manualSheetDrag.offsetX;
+    const top = clientY - manualSheetDrag.offsetY;
+    if (!Number.isFinite(left) || !Number.isFinite(top)) return;
+    manualSheetDrag.floating.style.left = `${left}px`;
+    manualSheetDrag.floating.style.top = `${top}px`;
+    manualSheetDrag.floating.style.transform = 'scale(1.03)';
 }
 
 function finishManualSheetDrag() {
@@ -3313,12 +3340,14 @@ function finishManualSheetDrag() {
     syncSheetToMainData();
 }
 
-function startManualSheetDrag(chip, e) {
+function startManualSheetDrag(chip, point) {
     if (manualSheetDrag || !chip?.isConnected) return;
     const currentZone = chip.parentElement;
     if (!(currentZone?.classList?.contains('sheet-dropzone') || currentZone?.classList?.contains('sheet-waiting-list'))) return;
 
     const rect = chip.getBoundingClientRect();
+    const clientX = getFinitePointerCoord(point, 'clientX', rect.left + rect.width / 2);
+    const clientY = getFinitePointerCoord(point, 'clientY', rect.top + rect.height / 2);
     const floating = chip.cloneNode(true);
     floating.classList.add('manual-sheet-drag-float');
     floating.style.width = `${rect.width}px`;
@@ -3329,15 +3358,15 @@ function startManualSheetDrag(chip, e) {
         chip,
         floating,
         currentZone,
-        pointerId: e.pointerId,
-        offsetX: Math.max(6, Math.min(rect.width - 6, e.clientX - rect.left)),
-        offsetY: Math.max(6, Math.min(rect.height - 6, e.clientY - rect.top))
+        pointerId: point?.pointerId,
+        offsetX: clampDragOffset(clientX - rect.left, rect.width, 6),
+        offsetY: clampDragOffset(clientY - rect.top, rect.height, 6)
     };
 
     chip.classList.add('manual-sheet-drag-source');
     D.body.classList.add('manual-sheet-dragging');
     isDraggingCards = true;
-    updateManualSheetFloat(e.clientX, e.clientY);
+    updateManualSheetFloat(clientX, clientY);
 }
 
 function setupManualSheetDrag() {
@@ -3354,20 +3383,26 @@ function setupManualSheetDrag() {
         e.preventDefault();
         e.stopPropagation();
         clearTimeout(pending?.timer);
-        pending = {
+        const nextPending = {
             chip,
             pointerId: e.pointerId,
             startX: e.clientX,
             startY: e.clientY,
-            timer: setTimeout(() => startManualSheetDrag(chip, e), e.pointerType === 'touch' ? 220 : 80)
+            clientX: e.clientX,
+            clientY: e.clientY,
+            timer: null
         };
+        nextPending.timer = setTimeout(() => startManualSheetDrag(chip, nextPending), e.pointerType === 'touch' ? 220 : 80);
+        pending = nextPending;
         chip.setPointerCapture?.(e.pointerId);
     }, { passive: false });
 
     D.addEventListener('pointermove', e => {
         if (pending && pending.pointerId === e.pointerId && !manualSheetDrag) {
+            pending.clientX = e.clientX;
+            pending.clientY = e.clientY;
             const moved = Math.hypot(e.clientX - pending.startX, e.clientY - pending.startY);
-            if (moved > 8 && e.pointerType !== 'touch') startManualSheetDrag(pending.chip, e);
+            if (moved > 8 && e.pointerType !== 'touch') startManualSheetDrag(pending.chip, pending);
         }
         if (!manualSheetDrag || manualSheetDrag.pointerId !== e.pointerId) return;
         e.preventDefault();
