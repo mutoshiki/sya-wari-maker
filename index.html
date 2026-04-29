@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja" data-bs-theme="light">
   <head>
@@ -245,8 +244,29 @@ html, body {
     display: flex; flex-direction: column; justify-content: center;
     min-height: 38px; touch-action: none; cursor: grab;
     font-size: 0.8rem; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
 }
 .member-card:active { cursor: grabbing; }
+.member-card.manual-drag-source {
+    visibility: hidden !important;
+}
+.manual-drag-float {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100000;
+    pointer-events: none;
+    opacity: 0.96;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    transform: translate3d(0, 0, 0) scale(1.03);
+}
+body.manual-card-dragging,
+body.manual-card-dragging * {
+    cursor: grabbing !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
 
 .member-card[data-gender="male"] { background: var(--bg-male); border-color: var(--border-male); color: var(--text-male); }
 .member-card[data-gender="female"] { background: var(--bg-female); border-color: var(--border-female); color: var(--text-female); }
@@ -661,6 +681,22 @@ html, body {
     gap: 3px;
     flex-shrink: 0;
 }
+.member-card.in-waiting {
+    min-height: 54px;
+}
+.member-card.in-waiting .member-card-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+}
+.member-card.in-waiting .member-name-text {
+    width: 100%;
+    padding-right: 2px;
+}
+.member-card.in-waiting .member-inline-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    min-width: 0;
+}
 .card-bottom-row { display: none; }
 .action-btn { opacity: 0.5; padding: 4px; cursor: pointer; transition: opacity 0.2s; } .action-btn:hover { opacity: 1; }
 
@@ -783,6 +819,21 @@ html, body {
     content: "移動先";
     background: #3b82f6;
     color: #fff;
+}
+.swap-preview-card,
+.drag-preview-card {
+    opacity: 0.58;
+    pointer-events: none;
+    transform: scale(0.98);
+    filter: saturate(0.85);
+    border-style: dashed !important;
+}
+.swap-preview-card .card-actions,
+.drag-preview-card .card-actions {
+    display: none !important;
+}
+.seat-card-will-move {
+    display: none !important;
 }
 
 .sortable-ghost { opacity: 0.4; background: var(--border-color) !important; }
@@ -1532,11 +1583,9 @@ html, body {
               <div style="text-align:center; margin-bottom: 18px;">
                 <div class="guide-hero-mark"><i class="fas fa-route"></i></div>
                 <h5 class="fw-bold mb-2" style="color: var(--text-main);">全体の流れ</h5>
-                <p class="text-muted-dark-friendly mb-0" style="font-size:0.88rem; max-width: 380px; margin: 0 auto;">登録、割り当て、共有。この順番で進めます。</p>
               </div>
 
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-list-check me-2" style="color:var(--accent-color);"></i>この順番で進めます</div>
                 <div class="guide-mini-screen">
                   <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:8px; align-items:center;">
                     <div class="guide-mini-tool"><i class="fas fa-paste d-block mb-1"></i>登録</div>
@@ -1554,22 +1603,26 @@ html, body {
 
               <div class="guide-feature-card mb-3">
                 <div class="guide-feature-title"><i class="fab fa-google me-2" style="color:#4285f4;"></i>フォーム回答から入れる</div>
-                <div class="guide-mini-screen">
-                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; margin-bottom:6px;">
-                    <div class="guide-mini-pill">名前</div>
-                    <div class="guide-mini-pill">学年</div>
-                    <div class="guide-mini-pill">車出し</div>
-                  </div>
-                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; font-size:0.72rem;">
-                    <div class="guide-mini-card">田中 太郎</div><div class="guide-mini-card">1年</div><div class="guide-mini-card">いいえ</div>
-                    <div class="guide-mini-card">高橋 健介</div><div class="guide-mini-card">3年</div><div class="guide-mini-card">はい</div>
+                <div class="guide-mini-screen" style="background:#fff; color:#202124; border-color:#dadce0; text-align:left;">
+                  <div style="height:7px; background:#673ab7; border-radius:6px 6px 0 0; margin:-10px -10px 10px;"></div>
+                  <div style="font-size:0.86rem; font-weight:700; margin-bottom:8px;">山歩会 参加フォーム（回答）</div>
+                  <div style="display:grid; grid-template-columns:1.3fr 0.7fr 0.7fr; border:1px solid #dadce0; border-radius:4px; overflow:hidden; font-size:0.68rem;">
+                    <div style="background:#f8fafd; padding:6px; border-right:1px solid #dadce0; font-weight:700;">名前</div>
+                    <div style="background:#f8fafd; padding:6px; border-right:1px solid #dadce0; font-weight:700;">学年</div>
+                    <div style="background:#f8fafd; padding:6px; font-weight:700;">車出し</div>
+                    <div style="padding:6px; border-top:1px solid #dadce0; border-right:1px solid #dadce0;">田中 太郎</div>
+                    <div style="padding:6px; border-top:1px solid #dadce0; border-right:1px solid #dadce0;">1年</div>
+                    <div style="padding:6px; border-top:1px solid #dadce0;">いいえ</div>
+                    <div style="padding:6px; border-top:1px solid #dadce0; border-right:1px solid #dadce0;">高橋 健介</div>
+                    <div style="padding:6px; border-top:1px solid #dadce0; border-right:1px solid #dadce0;">3年</div>
+                    <div style="padding:6px; border-top:1px solid #dadce0;">はい</div>
                   </div>
                 </div>
-                <div class="guide-tip">学年列や車出し列で並び替えてから、名前だけコピーすると早いです。</div>
+                <div class="guide-tip">回答スプレッドシートを開き、学年や車出しで並び替えてから、名前だけコピーします。</div>
               </div>
 
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-paste me-2" style="color:var(--accent-color);"></i>この画面に貼り付け</div>
+                <div class="guide-feature-title"><i class="fas fa-paste me-2" style="color:var(--accent-color);"></i>登録で学年ごとに貼り付け</div>
                 <div class="guide-mini-screen">
                   <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                     <div>
@@ -1582,12 +1635,12 @@ html, body {
                     </div>
                   </div>
                 </div>
-                <div class="guide-tip">同じ人を複数欄に入れないようにだけ注意します。</div>
+                <div class="guide-tip">「登録」を開き、1年生、2年生、運転手などの欄に名前を貼ります。</div>
               </div>
 
               <div class="guide-feature-card">
-                <div class="guide-feature-title"><i class="fas fa-rotate me-2" style="color:#f59e0b;"></i>あとから増えた人も同じ</div>
-                <div class="guide-tip">追加分だけ登録画面に貼って更新します。今いる人の場所やメモはできるだけ残ります。</div>
+                <div class="guide-feature-title"><i class="fas fa-rotate me-2" style="color:#f59e0b;"></i>あとから編集できます</div>
+                <div class="guide-tip">登録画面をもう一度開けば、追加、削除、学年の直しができます。配置済みの人は、できるだけ今の場所を残します。</div>
               </div>
             </div>
 
@@ -1623,19 +1676,19 @@ html, body {
               <h6 class="guide-step-title">③ 自動割当</h6>
 
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-random me-2" style="color:var(--accent-color);"></i>待機メンバーを自動で入れる</div>
+                <div class="guide-feature-title"><i class="fas fa-random me-2" style="color:var(--accent-color);"></i>自動割当で待機メンバーを入れる</div>
                 <div class="guide-mini-screen">
                   <div style="display:grid; grid-template-columns:58px 1fr 78px; gap:5px;">
                     <div class="guide-mini-tool">埋める</div>
-                    <div class="guide-mini-tool guide-mini-primary"><i class="fas fa-random me-1"></i>入れる</div>
+                    <div class="guide-mini-tool guide-mini-primary"><i class="fas fa-random me-1"></i>自動割当</div>
                     <div class="guide-mini-tool"><i class="fas fa-cog me-1"></i>設定</div>
                   </div>
                 </div>
-                <div class="guide-tip">この「入れる」操作が自動割当です。あとから気になるところだけ直します。</div>
+                <div class="guide-tip">待機メンバーを各車に入れます。空の車が出にくいように割り当てます。</div>
               </div>
 
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-sliders-h me-2" style="color:#f59e0b;"></i>必要なら寄せ方を選ぶ</div>
+                <div class="guide-feature-title"><i class="fas fa-sliders-h me-2" style="color:#f59e0b;"></i>自動割当の設定</div>
                 <div class="guide-mini-screen">
                   <div style="display:grid; grid-template-columns:1fr; gap:5px;">
                     <div class="guide-mini-pill">□ 女子をまとめる</div>
@@ -1643,12 +1696,12 @@ html, body {
                     <div class="guide-mini-pill">□ 学年をまとめる</div>
                   </div>
                 </div>
-                <div class="guide-tip">チェックなしなら、空の車が出ないようにランダムで入ります。</div>
+                <div class="guide-tip">性別や学年を同じ車に寄せたいときだけチェックします。何も選ばなければランダムです。</div>
               </div>
 
               <div class="guide-feature-card">
-                <div class="guide-feature-title"><i class="fas fa-broom me-2" style="color:#ef4444;"></i>やり直したいとき</div>
-                <div class="guide-tip">設定の「全員を待機に戻す」で、固定していない人だけ戻せます。固定しておく機能をロックと呼びます。</div>
+                <div class="guide-feature-title"><i class="fas fa-lock me-2" style="color:#f59e0b;"></i>動かしたくない人はロック</div>
+                <div class="guide-tip">ロックした人は、自動割当や「全員を待機に戻す」でも動きません。</div>
               </div>
             </div>
 
@@ -1664,30 +1717,24 @@ html, body {
                       <div class="guide-mini-card person-male">高橋 健介</div>
                       <div class="guide-mini-card person-female">佐藤 花 <i class="fas fa-reply ms-1"></i></div>
                       <div class="seat-slot"></div>
-                      <div class="guide-mini-card person-male">田中 太一 <i class="fas fa-lock ms-1"></i></div>
+                      <div class="guide-mini-card person-male">田中 太郎</div>
                     </div>
                   </div>
                 </div>
-                <div class="guide-tip">カードを長押しして、席や待機メンバーへ動かします。</div>
+                <div class="guide-tip">カードを長押しして、席を入れ替えます。車をまたいだ移動もできます。</div>
               </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-lock me-2" style="color:#f59e0b;"></i>決まった人を動かさない</div>
-                  <div class="guide-tip">場所を固定しておく機能がロックです。</div>
-                </div>
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-reply me-2" style="color:var(--accent-color);"></i>車から待機へ戻す</div>
-                  <div class="guide-tip">車内の矢印ボタンで戻せます。待機中では削除ボタンに変わります。</div>
-                </div>
+              <div class="guide-feature-card">
+                <div class="guide-feature-title"><i class="fas fa-reply me-2" style="color:var(--accent-color);"></i>待機へ戻す・削除する</div>
+                <div class="guide-tip">車内の矢印で待機へ戻します。待機メンバーではゴミ箱で削除します。</div>
               </div>
             </div>
 
             <div class="guide-step-panel" data-panel="5" style="display:none; padding: 20px;">
-              <h6 class="guide-step-title">⑤ 確認と共有</h6>
+              <h6 class="guide-step-title">⑤ 共有</h6>
 
               <div class="guide-feature-card mb-3">
-                <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:var(--accent-color);"></i>共有前に一覧で確認する</div>
+                <div class="guide-feature-title"><i class="fas fa-table me-2" style="color:var(--accent-color);"></i>表ビューで共有する</div>
                 <div class="guide-mini-screen">
                   <div class="guide-mini-sheet">
                     <div class="head"></div><div class="head">高橋車 3/3</div><div class="head">中村車 2/3</div>
@@ -1696,7 +1743,7 @@ html, body {
                     <div class="head">席2</div><div class="person-female">渡辺 大地</div><div>空き</div>
                   </div>
                 </div>
-                <div class="guide-tip">この一覧が表ビューです。解除済みなら、ここから少しだけ直すこともできます。</div>
+                <div class="guide-tip">見る人には、表ビューを共有します。車ごとの人数と席が一覧で見えます。</div>
               </div>
 
               <div class="guide-feature-card mb-3">
@@ -1710,14 +1757,10 @@ html, body {
                 </div>
               </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+              <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:10px;">
                 <div class="guide-feature-card">
                   <div class="guide-feature-title"><i class="fas fa-shield-alt me-2" style="color:var(--accent-color);"></i>合言葉をかける</div>
-                  <div class="guide-tip">編集モードを開く前に確認できます。これは編集保護です。</div>
-                </div>
-                <div class="guide-feature-card">
-                  <div class="guide-feature-title"><i class="fas fa-hand-pointer me-2" style="color:var(--accent-color);"></i>表のまま少し直す</div>
-                  <div class="guide-tip">表ビューでカードを長押しして動かす機能がクイック編集です。</div>
+                  <div class="guide-tip">個人情報を守りたいときは、編集モードに合言葉をかけます。一度入力した端末では、次回から省略できます。</div>
                 </div>
               </div>
 
@@ -1819,6 +1862,10 @@ let editLockPassphrase = '';
 let trustedEditPassphrase = '';
 let isDraggingCards = false;
 let dragOriginSlot = null;
+let dragHoverSlot = null;
+let dragHoverOccupant = null;
+let dragHoverEscapeSlot = null;
+let manualCardDrag = null;
 let activeSheetSortable = [];
 let quickEditMode = false;
 
@@ -1908,6 +1955,7 @@ D.addEventListener('DOMContentLoaded', () => {
     load();
     refreshRoomTitle();
     updateEditLockButton();
+    setupManualCardDrag();
 
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const checkTheme = () => {
@@ -2239,6 +2287,14 @@ function clearSeatDropPreview() {
     document.querySelectorAll('.seat-slot.drop-preview, .seat-slot.shift-target, .seat-slot.swap-target, .seat-slot.swap-origin, .seat-slot.escape-target').forEach(slot => {
         slot.classList.remove('drop-preview', 'shift-target', 'swap-target', 'swap-origin', 'escape-target');
     });
+    document.querySelectorAll('.swap-preview-card, .drag-preview-card').forEach(card => card.remove());
+    document.querySelectorAll('.seat-card-will-move').forEach(card => card.classList.remove('seat-card-will-move'));
+}
+
+function clearDragHoverState() {
+    dragHoverSlot = null;
+    dragHoverOccupant = null;
+    dragHoverEscapeSlot = null;
 }
 
 function findOpenSeatInSameCar(slot, excluded = []) {
@@ -2248,30 +2304,219 @@ function findOpenSeatInSameCar(slot, excluded = []) {
         if (seat === slot || excluded.includes(seat)) return false;
         return !Array.from(seat.children).some(child =>
             child.classList?.contains('member-card') &&
-            !child.classList.contains('sortable-fallback')
+            !child.classList.contains('sortable-fallback') &&
+            !child.classList.contains('swap-preview-card') &&
+            !child.classList.contains('drag-preview-card')
         );
     }) || null;
 }
 
+function getRealSeatCard(slot, excluded = []) {
+    return Array.from(slot?.children || []).find(child =>
+        child.classList?.contains('member-card') &&
+        !child.classList.contains('sortable-fallback') &&
+        !child.classList.contains('swap-preview-card') &&
+        !child.classList.contains('drag-preview-card') &&
+        !excluded.includes(child)
+    ) || null;
+}
+
+function getRealSeatCards(slot, excluded = []) {
+    return Array.from(slot?.children || []).filter(child =>
+        child.classList?.contains('member-card') &&
+        !child.classList.contains('sortable-fallback') &&
+        !child.classList.contains('swap-preview-card') &&
+        !child.classList.contains('drag-preview-card') &&
+        !excluded.includes(child)
+    );
+}
+
+function showSeatReturnPreview(card, slot, excluded = []) {
+    if (!card || !slot || !slot.classList?.contains('seat-slot')) return;
+    if (getRealSeatCard(slot, excluded)) return;
+    const preview = card.cloneNode(true);
+    preview.classList.add('swap-preview-card');
+    preview.removeAttribute('id');
+    preview.setAttribute('aria-hidden', 'true');
+    slot.appendChild(preview);
+}
+
+function showDraggedSeatPreview(card, slot, excluded = []) {
+    if (!card || !slot || !slot.classList?.contains('seat-slot')) return;
+    if (getRealSeatCard(slot, excluded)) return;
+    const preview = card.cloneNode(true);
+    preview.classList.add('drag-preview-card');
+    preview.removeAttribute('id');
+    preview.setAttribute('aria-hidden', 'true');
+    slot.appendChild(preview);
+}
+
+function enforceOneCardPerSeat() {
+    $$('.seat-slot').forEach(slot => {
+        const cards = getRealSeatCards(slot);
+        cards.slice(1).forEach(card => $('#waiting-list')?.appendChild(card));
+    });
+}
+
+function getManualCardDropTarget(clientX, clientY) {
+    const el = document.elementFromPoint(clientX, clientY);
+    if (!el) return null;
+    return el.closest('.seat-slot') || el.closest('#waiting-list');
+}
+
+function moveManualDragCardTo(target) {
+    if (!manualCardDrag || !target || !target.isConnected) return;
+    const card = manualCardDrag.card;
+    if (target === manualCardDrag.currentContainer) return;
+
+    if (target.id === 'waiting-list') {
+        target.appendChild(card);
+        manualCardDrag.currentContainer = target;
+        return;
+    }
+
+    if (!target.classList.contains('seat-slot')) return;
+    const occupant = getRealSeatCard(target, [card]);
+    const current = manualCardDrag.currentContainer;
+
+    if (occupant) {
+        if (current?.id === 'waiting-list' || current?.classList?.contains('seat-slot')) {
+            current.appendChild(occupant);
+        } else {
+            $('#waiting-list')?.appendChild(occupant);
+        }
+    }
+
+    target.appendChild(card);
+    manualCardDrag.currentContainer = target;
+}
+
+function updateManualDragFloat(clientX, clientY) {
+    if (!manualCardDrag?.floating) return;
+    manualCardDrag.floating.style.transform =
+        `translate3d(${clientX - manualCardDrag.offsetX}px, ${clientY - manualCardDrag.offsetY}px, 0) scale(1.03)`;
+}
+
+function finishManualCardDrag() {
+    if (!manualCardDrag) return;
+    const { card, floating } = manualCardDrag;
+    floating?.remove();
+    card.classList.remove('manual-drag-source');
+    D.body.classList.remove('manual-card-dragging');
+    manualCardDrag = null;
+    isDraggingCards = false;
+    enforceOneCardPerSeat();
+    updateUI();
+    save();
+}
+
+function startManualCardDrag(card, e) {
+    if (manualCardDrag || !card?.isConnected) return;
+    const currentContainer = card.parentElement;
+    if (!(currentContainer?.classList?.contains('seat-slot') || currentContainer?.id === 'waiting-list')) return;
+
+    const rect = card.getBoundingClientRect();
+    const floating = card.cloneNode(true);
+    floating.classList.add('manual-drag-float');
+    floating.style.width = `${rect.width}px`;
+    floating.style.height = `${rect.height}px`;
+    D.body.appendChild(floating);
+
+    manualCardDrag = {
+        card,
+        floating,
+        currentContainer,
+        pointerId: e.pointerId,
+        offsetX: Math.max(8, Math.min(rect.width - 8, e.clientX - rect.left)),
+        offsetY: Math.max(8, Math.min(rect.height - 8, e.clientY - rect.top))
+    };
+
+    card.classList.add('manual-drag-source');
+    D.body.classList.add('manual-card-dragging');
+    isDraggingCards = true;
+    updateManualDragFloat(e.clientX, e.clientY);
+}
+
+function setupManualCardDrag() {
+    let pending = null;
+
+    D.addEventListener('pointerdown', e => {
+        if (currentView !== 'list') return;
+        if (e.button !== undefined && e.button !== 0) return;
+        const card = e.target.closest?.('.member-card');
+        if (!card || card.classList.contains('manual-drag-float') || card.classList.contains('swap-preview-card') || card.classList.contains('drag-preview-card')) return;
+        if (card.dataset.locked === 'true') return;
+        if (e.target.closest('.action-btn, .delete-btn-overlay, button, input, textarea, select, .memo-popup')) return;
+        const parent = card.parentElement;
+        if (!(parent?.classList?.contains('seat-slot') || parent?.id === 'waiting-list')) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        clearTimeout(pending?.timer);
+        pending = {
+            card,
+            pointerId: e.pointerId,
+            startX: e.clientX,
+            startY: e.clientY,
+            timer: setTimeout(() => startManualCardDrag(card, e), e.pointerType === 'touch' ? 260 : 90)
+        };
+        card.setPointerCapture?.(e.pointerId);
+    }, { passive: false });
+
+    D.addEventListener('pointermove', e => {
+        if (pending && pending.pointerId === e.pointerId && !manualCardDrag) {
+            const moved = Math.hypot(e.clientX - pending.startX, e.clientY - pending.startY);
+            if (moved > 8 && e.pointerType !== 'touch') startManualCardDrag(pending.card, e);
+        }
+        if (!manualCardDrag || manualCardDrag.pointerId !== e.pointerId) return;
+        e.preventDefault();
+        updateManualDragFloat(e.clientX, e.clientY);
+        moveManualDragCardTo(getManualCardDropTarget(e.clientX, e.clientY));
+    }, { passive: false });
+
+    const cancelPending = e => {
+        if (pending && pending.pointerId === e.pointerId) {
+            clearTimeout(pending.timer);
+            pending = null;
+        }
+    };
+
+    D.addEventListener('pointerup', e => {
+        cancelPending(e);
+        if (manualCardDrag && manualCardDrag.pointerId === e.pointerId) finishManualCardDrag();
+    }, { passive: true });
+    D.addEventListener('pointercancel', e => {
+        cancelPending(e);
+        if (manualCardDrag && manualCardDrag.pointerId === e.pointerId) finishManualCardDrag();
+    }, { passive: true });
+}
+
 function updateSeatDropPreview(evt) {
     clearSeatDropPreview();
-    const target = evt?.to;
+    clearDragHoverState();
+    const relatedSlot = evt?.related?.closest?.('.seat-slot');
+    const target = relatedSlot || evt?.to;
     if (!target || !target.classList?.contains('seat-slot')) return;
     const dragged = evt.dragged;
-    const occupant = Array.from(target.children).find(child =>
-        child !== dragged &&
-        child.classList?.contains('member-card') &&
-        !child.classList.contains('sortable-fallback')
-    );
+    const occupant = getRealSeatCard(target, [dragged]);
 
     if (occupant) {
         const escapeSlot = findOpenSeatInSameCar(target, [dragOriginSlot]);
+        dragHoverSlot = target;
+        dragHoverOccupant = occupant;
+        dragHoverEscapeSlot = escapeSlot || (dragOriginSlot?.classList?.contains('seat-slot') ? dragOriginSlot : null);
         if (escapeSlot) {
             target.classList.add('shift-target');
             escapeSlot.classList.add('escape-target');
+            occupant.classList.add('seat-card-will-move');
+            showDraggedSeatPreview(dragged, target, [occupant]);
+            showSeatReturnPreview(occupant, escapeSlot, [dragged]);
         } else if (dragOriginSlot && dragOriginSlot !== target && dragOriginSlot.classList.contains('seat-slot')) {
             target.classList.add('swap-target');
             dragOriginSlot.classList.add('swap-origin');
+            occupant.classList.add('seat-card-will-move');
+            showDraggedSeatPreview(dragged, target, [occupant]);
+            showSeatReturnPreview(occupant, dragOriginSlot, [dragged]);
         } else {
             target.classList.add('swap-target');
         }
@@ -2280,42 +2525,74 @@ function updateSeatDropPreview(evt) {
     }
 }
 
+function applyHoverSeatExchange(dragged) {
+    if (!dragged || !dragHoverSlot || !dragHoverOccupant || !dragHoverOccupant.isConnected) return false;
+    const target = dragHoverSlot;
+    const occupant = dragHoverOccupant;
+    const destination = dragHoverEscapeSlot || (dragOriginSlot?.classList?.contains('seat-slot') ? dragOriginSlot : null) || $('#waiting-list');
+    if (!target || !target.isConnected || !destination || destination === target) return false;
+
+    clearSeatDropPreview();
+    target.appendChild(dragged);
+    destination.appendChild(occupant);
+    clearDragHoverState();
+    return true;
+}
+
 function setupSortable(el) {
+    // 編集モードのカード移動は、iPhoneのホーム画面に近い独自ドラッグで扱う。
+    // Sortableは占有済みの枠に一瞬2枚入るため、ここでは起動しない。
+    return;
     new Sortable(el, {
         group: 'shared', animation: 150, scroll: true, scrollSensitivity: 80, scrollSpeed: 8, 
         bubbleScroll: true, delay: 120, delayOnTouchOnly: true, touchStartThreshold: 3, 
         fallbackOnBody: true, fallbackTolerance: 0, swapThreshold: 0.65, emptyInsertThreshold: 8, 
+        draggable: '.member-card:not(.swap-preview-card):not(.drag-preview-card)',
         ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', dragClass: 'sortable-fallback',
         forceFallback: true,
         onStart: evt => {
             isDraggingCards = true;
             dragOriginSlot = evt.from?.classList?.contains('seat-slot') ? evt.from : null;
+            clearDragHoverState();
             clearSeatDropPreview();
         },
-        onEnd: () => {
+        onEnd: evt => {
             isDraggingCards = false;
+            applyHoverSeatExchange(evt?.item);
             dragOriginSlot = null;
+            clearDragHoverState();
             clearSeatDropPreview();
+            enforceOneCardPerSeat();
             updateUI();
             save();
         },
         onAdd: (evt) => {
             const item = evt.item; const target = evt.to;
+            clearSeatDropPreview();
             if (target.id !== 'waiting-list') {
-                const children = Array.from(target.children).filter(c => c !== item && !c.classList.contains('sortable-fallback'));
-                if (children.length > 0) {
+                const children = Array.from(target.children).filter(c =>
+                    c !== item &&
+                    c.classList?.contains('member-card') &&
+                    !c.classList.contains('sortable-fallback') &&
+                    !c.classList.contains('swap-preview-card') &&
+                    !c.classList.contains('drag-preview-card')
+                );
+                children.forEach(extraCard => {
                     const escapeSlot = findOpenSeatInSameCar(target, [evt.from]);
-                    (escapeSlot || evt.from).appendChild(children[0]);
-                }
+                    const returnSlot = escapeSlot || (evt.from?.classList?.contains('seat-slot') ? evt.from : null);
+                    (returnSlot || $('#waiting-list')).appendChild(extraCard);
+                });
             }
+            enforceOneCardPerSeat();
+            clearDragHoverState();
             updateUI(); save();
         },
-        onUnchoose: () => { isDraggingCards = false; dragOriginSlot = null; clearSeatDropPreview(); },
+        onUnchoose: () => { isDraggingCards = false; dragOriginSlot = null; clearDragHoverState(); clearSeatDropPreview(); },
         onSort: () => { isDraggingCards = true; },
         onMove: evt => {
             isDraggingCards = true;
             updateSeatDropPreview(evt);
-            return true;
+            return !dragHoverOccupant;
         }
     });
 }
@@ -2385,7 +2662,7 @@ function updateUI() {
     });
     $$('.car-box').forEach(b => {
         const c = getInt(b.dataset.capacity);
-        const n = $$('.seat-slot .member-card', b).length;
+        const n = Array.from($$('.seat-slot', b)).reduce((sum, slot) => sum + getRealSeatCards(slot).length, 0);
         const badge = $('.capacity-badge', b);
         badge.innerHTML = `${n}/${c} <i class="fas fa-pen ms-1" style="font-size:0.8em"></i>`;
         badge.className = `badge capacity-badge me-2 bg-${n>c?'danger':(n===c?'success':'secondary')}`;
@@ -2412,7 +2689,7 @@ function getData() {
             capacity: c.dataset.capacity,
             driverMemo: $('.driver-memo-text', c).innerText,
             driverGender: $('.driver-seat', c).dataset.gender,
-            members: Array.from($$('.seat-slot', c)).flatMap(s => Array.from(s.children).map(getMemData))
+            members: Array.from($$('.seat-slot', c)).flatMap(s => getRealSeatCards(s).map(getMemData))
         }))
     };
 }
@@ -2449,7 +2726,7 @@ function restore(d) {
 
 function clearAll() {
     if(!confirm('ロックされていないメンバーを全員待機リストに戻しますか？')) return;
-    $$('.seat-slot .member-card:not([data-locked="true"])').forEach(m => $('#waiting-list').appendChild(m));
+    $$('.seat-slot').forEach(slot => getRealSeatCards(slot).filter(m => m.dataset.locked !== 'true').forEach(m => $('#waiting-list').appendChild(m)));
     updateUI(); save();
 }
 window.clearAll = clearAll;
@@ -2503,7 +2780,7 @@ function shuffleArray(arr) {
 function buildCarStates() {
     const states = shuffleArray(Array.from($$('.car-box')).map(box => {
         const slots = Array.from($$('.seat-slot', box));
-        const currentMembers = slots.flatMap(slot => Array.from(slot.children).map(getMemData));
+        const currentMembers = slots.flatMap(slot => getRealSeatCards(slot).map(getMemData));
         const counts = {
             total: currentMembers.length,
             female: currentMembers.filter(m => m.gender === 'female').length,
@@ -2517,7 +2794,7 @@ function buildCarStates() {
         return {
             box,
             slots,
-            freeSlots: slots.filter(slot => !slot.children.length),
+            freeSlots: slots.filter(slot => getRealSeatCards(slot).length === 0),
             counts
         };
     }));
@@ -2600,7 +2877,7 @@ function autoAssign(mode) {
     
     if(mode === 'shuffle') {
         if(!confirm('配置済みのメンバーも含めて再シャッフルしますか？(ロック以外)')) return;
-        $$('.seat-slot .member-card:not([data-locked="true"])').forEach(m => { mems.push(getMemData(m)); m.remove(); });
+        $$('.seat-slot').forEach(slot => getRealSeatCards(slot).filter(m => m.dataset.locked !== 'true').forEach(m => { mems.push(getMemData(m)); m.remove(); }));
         $$('#waiting-list .member-card:not([data-locked="true"])').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     } else {
         $$('#waiting-list .member-card').forEach(m => { mems.push(getMemData(m)); m.remove(); });
