@@ -790,15 +790,7 @@ body.manual-sheet-dragging * {
 .seat-slot.swap-origin::after,
 .seat-slot.drop-preview::after,
 .seat-slot.escape-target::after {
-    position: absolute;
-    right: 5px;
-    bottom: 4px;
-    padding: 1px 5px;
-    border-radius: 999px;
-    font-size: 0.58rem;
-    font-weight: 800;
-    pointer-events: none;
-    z-index: 9;
+    display: none;
 }
 .seat-slot.drop-preview::after {
     content: "ここへ";
@@ -827,11 +819,10 @@ body.manual-sheet-dragging * {
 }
 .swap-preview-card,
 .drag-preview-card {
-    opacity: 0.58;
+    opacity: 1;
     pointer-events: none;
-    transform: scale(0.98);
-    filter: saturate(0.85);
-    border-style: dashed !important;
+    transform: none;
+    filter: none;
 }
 .seat-slot > .swap-preview-card,
 .seat-slot > .drag-preview-card {
@@ -855,11 +846,9 @@ body.manual-sheet-dragging * {
     display: none !important;
 }
 .seat-card-will-move {
-    display: none !important;
+    visibility: hidden !important;
 }
 #waiting-list.return-preview-target {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
     border-radius: var(--radius-sm);
 }
 
