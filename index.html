@@ -7,9 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-/* --- 基本設定 --- */
 :root {
-    /* --- [Light Mode] スマホアプリ + スプレッドシート --- */
     --bg-body: #eef3f1;
     --text-main: #172033;
     --text-sub: #667085;
@@ -22,23 +20,19 @@
     --sheet-grid: #dbe4df;
     --hover-bg: #f4f8f6;
     
-    /* 入力エリア・カード */
     --driver-bg: #f8fafc;
     --seat-bg: #f1f5f9;
     --seat-slot-bg: #ffffff;
     --tray-bg: #ffffff;
     
-    /* モーダル */
     --modal-bg: #ffffff;
     --modal-header-bg: #ffffff;
     --modal-footer-bg: #f8fafc;
 
-    /* --- 性別カラー設定 --- */
     --bg-male: #eef7fb; --border-male: #bdd7e6; --text-male: #1f455b;
     --bg-female: #fbf0ed; --border-female: #e6c6bd; --text-female: #5a342d;
     --bg-unknown: #f5f8f6; --border-unknown: #c8d5ce; --text-unknown: #3f4f46;
 
-    /* --- 学年バッジカラー --- */
     --grade1-bg: #e4f3ea; --grade1-border: #b3d5c0; --grade1-text: #236242; --grade1-badge: #e4f3ea;
     --grade2-bg: #f4edda; --grade2-border: #d4c28e; --grade2-text: #654f20; --grade2-badge: #f4edda;
     --grade3-bg: #ede7f5; --grade3-border: #c8b9df; --grade3-text: #4f3d72; --grade3-badge: #ede7f5;
@@ -52,7 +46,6 @@
 }
 
 [data-theme="dark"] {
-    /* --- [Dark Mode] モダン・ダーク --- */
     --bg-body: #0f172a; 
     --text-main: #f1f5f9; 
     --text-sub: #94a3b8;
@@ -70,7 +63,6 @@
     --seat-slot-bg: #1e293b;
     --tray-bg: #1e293b;
     
-    /* モーダル */
     --modal-bg: #1e293b;
     --modal-header-bg: #1e293b;
     --modal-footer-bg: #0f172a;
@@ -86,7 +78,6 @@
     color-scheme: dark;
 }
 
-/* ダークモードの見やすさ改善 */
 [data-theme="dark"] .dropdown-menu { background-color: var(--modal-bg); border-color: var(--border-color); }
 [data-theme="dark"] .dropdown-item { color: var(--text-main); }
 [data-theme="dark"] .dropdown-item:hover { background-color: var(--tray-bg); color: var(--text-main); }
@@ -110,7 +101,6 @@ html, body {
     -webkit-overflow-scrolling: touch; scroll-behavior: auto; position: relative; z-index: 10;
 }
 
-/* トレイのハンドル */
 #tray-handle {
     height: 24px; display: flex; justify-content: center; align-items: center; cursor: pointer;
     background: var(--tray-bg); border-top: 1px solid var(--border-color);
@@ -120,7 +110,6 @@ html, body {
     width: 40px; height: 4px; background-color: var(--text-sub); border-radius: 2px; opacity: 0.4;
 }
 
-/* トレイの開閉アニメーション設定 */
 #bottom-tray {
     height: 38%; min-height: 200px; background-color: var(--tray-bg);
     box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
@@ -273,7 +262,6 @@ body.manual-card-dragging * {
 .member-card[data-gender="unknown"] { background: var(--bg-unknown); border-color: var(--border-unknown); color: var(--text-unknown); }
 .member-card[data-locked="true"] { border-color: #f59e0b; box-shadow: 0 0 0 1px #f59e0b; }
 
-/* 学年バッジ */
 .grade-badge {
     font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;
     display: inline-block; line-height: 1.35; border: 1px solid currentColor;
@@ -284,7 +272,6 @@ body.manual-card-dragging * {
 .grade-badge[data-grade="4"] { background: var(--grade4-bg); color: var(--grade4-text); border-color: var(--grade4-border); }
 .grade-badge[data-grade="0"] { display: none; }
 
-/* スプレッドシートビュー */
 #view-toggle-bar {
     display: flex; gap: 4px; padding: 5px;
     margin: 8px 10px 6px;
@@ -305,7 +292,6 @@ body.manual-card-dragging * {
 }
 .view-tab:not(.active):hover { background: var(--accent-soft); color: var(--text-main); }
 
-/* スプレッドシートビューのキャンバス */
 #sheet-view-area {
     display: none; flex: 1; overflow: hidden; position: relative;
     touch-action: none; background: var(--bg-body);
@@ -368,7 +354,6 @@ body.manual-card-dragging * {
     min-width: max-content;
 }
 
-/* スプレッドシートの車カラム */
 .sheet-car-col {
     display: flex; flex-direction: column;
     border-right: 1px solid var(--sheet-grid);
@@ -560,7 +545,6 @@ body.manual-sheet-dragging * {
     background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border-color);
 }
 
-/* ズームヒント */
 #sheet-hint {
     position: absolute; bottom: 78px; left: 50%;
     transform: translateX(-50%);
@@ -570,7 +554,6 @@ body.manual-sheet-dragging * {
 }
 #sheet-hint.visible { opacity: 1; }
 
-/* ズームコントロール */
 #zoom-controls {
     position: absolute; bottom: 14px; left: 12px;
     display: flex; gap: 5px; flex-direction: row;
@@ -720,7 +703,6 @@ body.manual-sheet-dragging * {
 .card-bottom-row { display: none; }
 .action-btn { opacity: 0.5; padding: 4px; cursor: pointer; transition: opacity 0.2s; } .action-btn:hover { opacity: 1; }
 
-/* 削除ボタンの押しやすさ改善 */
 .delete-btn-overlay {
     position: absolute; top: 5px; right: 4px;
     width: 24px; height: 24px;
@@ -895,7 +877,6 @@ body.manual-sheet-dragging * {
 .grade-select-btn[data-grade="4"] { background: var(--grade4-bg) !important; color: var(--grade4-text) !important; border-color: var(--grade4-border) !important; }
 .grade-select-btn.active { box-shadow: inset 0 0 0 1px var(--text-main); font-weight: 700; }
 
-/* ツールボタンのアイコン＋文字スタイル */
 .tool-btn {
     border: 1px solid transparent;
     background: transparent;
@@ -920,7 +901,6 @@ body.manual-sheet-dragging * {
 .tool-btn i { font-size: 1rem; margin-bottom: 4px; }
 .tool-btn span { font-size: 0.6rem; line-height: 1; font-weight: 500; white-space: nowrap; }
 
-/* 編集モード */
 .edit-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -1274,7 +1254,6 @@ body.manual-sheet-dragging * {
             padding: 18px !important;
         }
 
-        /* --- UI polish: keep controls and panels visually aligned --- */
         #top-area > .d-flex:first-child {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -1587,7 +1566,6 @@ body.manual-sheet-dragging * {
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
-          <!-- ステップインジケーター -->
           <div style="background: var(--bg-body); border-bottom: 1px solid var(--border-color); padding: 10px 16px; display:flex; gap:6px; overflow-x:auto; flex-shrink:0;">
             <button class="guide-step-btn active" data-step="0" onclick="showGuideStep(0)">流れ</button>
             <button class="guide-step-btn" data-step="1" onclick="showGuideStep(1)">登録</button>
@@ -1625,7 +1603,7 @@ body.manual-sheet-dragging * {
                 <div class="guide-feature-title"><i class="fab fa-google me-2" style="color:#4285f4;"></i>フォーム回答から入れる</div>
                 <div class="guide-mini-screen" style="background:#fff; color:#202124; border-color:#dadce0; text-align:left;">
                   <div style="height:7px; background:#673ab7; border-radius:6px 6px 0 0; margin:-10px -10px 10px;"></div>
-                  <div style="font-size:0.86rem; font-weight:700; margin-bottom:8px;">山歩会 参加フォーム（回答）</div>
+                  <div style="font-size:0.86rem; font-weight:700; margin-bottom:8px;">参加フォーム（回答）</div>
                   <div style="display:grid; grid-template-columns:1.3fr 0.7fr 0.7fr; border:1px solid #dadce0; border-radius:4px; overflow:hidden; font-size:0.68rem;">
                     <div style="background:#f8fafd; padding:6px; border-right:1px solid #dadce0; font-weight:700;">名前</div>
                     <div style="background:#f8fafd; padding:6px; border-right:1px solid #dadce0; font-weight:700;">学年</div>
@@ -1790,7 +1768,7 @@ body.manual-sheet-dragging * {
               </div>
             </div>
 
-          </div><!-- /.modal-body -->
+          </div>
 
           <div class="modal-footer" style="padding: 10px 16px; gap:8px;">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="guidePrevBtn" onclick="guideNavStep(-1)" style="display:none;"><i class="fas fa-chevron-left me-1"></i>前へ</button>
@@ -1815,7 +1793,6 @@ body.manual-sheet-dragging * {
         </div>
       </div>
     </div>
-    <!-- デバッグモードモーダル -->
     <div class="modal fade" id="debugModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
@@ -1905,10 +1882,7 @@ if (!roomId) {
 localStorage.setItem('syawari_last_room_id', roomId);
 dbRef = ref(db, 'rooms/' + roomId);
 
-// ステータス表示の代わりにコンソール出力のみ行うように変更
-const updateStatus = (cls, txt) => {
-    console.log(`Status changed: [${cls}] ${txt}`);
-};
+const updateStatus = () => {};
 
 D.addEventListener('DOMContentLoaded', () => {
     modals.edit = new bootstrap.Modal($('#commonEditModal'));
@@ -2000,7 +1974,6 @@ D.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 1分ごとの履歴自動保存
     setInterval(() => {
         if (isRemoteUpdate || !dbRef) return;
         const currentData = getData();
@@ -2189,13 +2162,12 @@ function load() {
             isRemoteUpdate = false;
             L.setItem(CFG.STORE + '_' + roomId, J.stringify(val));
         } else {
-            // バグ対策: Firebase上のデータがnullになった場合、ローカルにデータがあればそれで復旧する
             const localDataStr = L.getItem(CFG.STORE + '_' + roomId);
             if (localDataStr) {
                 isRemoteUpdate = true;
                 restore(JSON.parse(localDataStr));
                 isRemoteUpdate = false;
-                save(); // 復旧したデータをFirebaseに同期
+                save();
             } else {
                 $('#roomNameInput').value = '';
                 $('#waiting-list').innerHTML = '';
@@ -2585,8 +2557,6 @@ function applyHoverSeatExchange(dragged) {
 }
 
 function setupSortable(el) {
-    // 編集モードのカード移動は、iPhoneのホーム画面に近い独自ドラッグで扱う。
-    // Sortableは占有済みの枠に一瞬2枚入るため、ここでは起動しない。
     return;
     new Sortable(el, {
         group: 'shared', animation: 150, scroll: true, scrollSensitivity: 80, scrollSpeed: 8, 
@@ -3121,7 +3091,6 @@ window.executeBatch = executeBatch;
 
 function copyUrl() { 
     navigator.clipboard.writeText(window.location.href).then(() => {
-        // トースト通知
         let toast = document.getElementById('copy-toast');
         if (!toast) {
             toast = document.createElement('div');
@@ -3135,7 +3104,6 @@ function copyUrl() {
     });
 }
 
-// 学年ボタン選択
 function selectGrade(btn) {
     if (!btn) return;
     document.querySelectorAll('.grade-select-btn').forEach(b => b.classList.remove('active'));
@@ -3143,8 +3111,7 @@ function selectGrade(btn) {
 }
 window.selectGrade = selectGrade;
 
-// ====== ビュー切替 ======
-let currentView = 'sheet'; // デフォルトをスプレッドシートに変更
+let currentView = 'sheet';
 function switchView(view) {
     if (view === 'list' && currentView === 'sheet' && editLockEnabled && !hasTrustedEditAccess()) {
         if (!verifyEditPassphrase('編集モードを開くには合言葉を入力してください')) return;
@@ -3432,7 +3399,6 @@ function setupManualSheetDrag() {
 
 function setupSheetSortables() {
     clearSheetSortables();
-    // クイック編集も独自ドラッグで扱う。指位置のズレと1枠2枚表示を避けるため。
     return;
     if (!hasTrustedEditAccess() || !quickEditMode) return;
     const zones = Array.from(document.querySelectorAll('.sheet-dropzone, .sheet-waiting-list'));
@@ -3478,7 +3444,6 @@ function setupSheetSortables() {
     });
 }
 
-// スプレッドシートビューのレンダリング
 function renderSheetView() {
     const canvas = document.getElementById('sheet-canvas');
     clearSheetSortables();
@@ -3498,10 +3463,8 @@ function renderSheetView() {
         return;
     }
 
-    // 最大座席数
     const maxSeats = Math.max(...data.cars.map(c => parseInt(c.capacity)||0));
 
-    // ヘッダー行ラベル列
     const labelCol = document.createElement('div');
     labelCol.className = 'sheet-car-col';
     labelCol.style.minWidth = '60px';
@@ -3522,14 +3485,12 @@ function renderSheetView() {
 
         let html = `<div class="sheet-car-header">${car.name}車 <span class="sheet-capacity-badge" style="color:${capColor}">${filled}/${cap}</span></div>`;
 
-        // 運転手行
         const dg = car.driverGender || 'unknown';
         html += `<div class="sheet-driver-row" data-gender="${dg}">
             <i class="fas fa-car" style="font-size:0.65rem;opacity:0.6;"></i>
             <span style="font-weight:700;">${car.name}</span>
         </div>`;
 
-        // 座席行
         for (let i = 0; i < maxSeats; i++) {
             const mem = (car.members||[])[i];
             if (i >= cap) {
@@ -3550,7 +3511,6 @@ function renderSheetView() {
         canvas.appendChild(col);
     });
 
-    // 待機メンバー列
     const waitCol = document.createElement('div');
     waitCol.className = 'sheet-wait-block';
     let wHtml = `<div class="sheet-wait-header">待機中 (${data.waiting.length})</div>`;
@@ -3568,7 +3528,6 @@ function renderSheetView() {
     setupSheetSortables();
 }
 
-// ====== パン & ピンチズーム ======
 let sheetScale = 1, sheetX = 0, sheetY = 0;
 let isPanning = false, panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
 let lastPinchDist = 0;
@@ -3597,7 +3556,6 @@ D.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
 
-    // マウスパン
     area.addEventListener('mousedown', e => {
         if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
         isPanning = true; panStartX = e.clientX; panStartY = e.clientY;
@@ -3612,7 +3570,6 @@ D.addEventListener('DOMContentLoaded', () => {
     });
     D.addEventListener('mouseup', () => { isPanning = false; area.style.cursor = ''; });
 
-    // マウスホイールズーム
     area.addEventListener('wheel', e => {
         e.preventDefault();
         const factor = e.deltaY < 0 ? 1.1 : 0.9;
@@ -3624,7 +3581,6 @@ D.addEventListener('DOMContentLoaded', () => {
         applySheetTransform();
     }, { passive: false });
 
-    // タッチパン & ピンチ
     area.addEventListener('touchstart', e => {
         if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
         if (e.touches.length === 1) {
@@ -3669,7 +3625,6 @@ D.addEventListener('DOMContentLoaded', () => {
 });
 window.copyUrl = copyUrl;
 
-// ====== ガイドステップ制御 ======
 let currentGuideStep = 0;
 const GUIDE_TOTAL = 6;
 
@@ -3695,7 +3650,6 @@ window.guideNavStep = function(dir) {
     showGuideStep(next);
 };
 
-// ガイドが開くたびに先頭に戻す
 document.addEventListener('DOMContentLoaded', () => {
     const guideModalEl = document.getElementById('guideModal');
     if (guideModalEl) {
@@ -3705,7 +3659,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ====== デバッグモード ======
 window.openDebugModal = function() {
     if (!window.modals) return;
     if (!window.modals.debug) {
@@ -3747,18 +3700,15 @@ window.executeDebugMode = function() {
         { name: '近藤 直樹', grade: 4, gender: 'male' },
     ];
 
-    // データをリセット
     document.getElementById('waiting-list').innerHTML = '';
     document.getElementById('cars-container').innerHTML = '';
     document.getElementById('roomNameInput').value = 'テストデータ';
 
-    // 車を追加
     const usedDrivers = drivers.slice(0, carCount);
     usedDrivers.forEach(d => {
         addCar(d.name, d.cap, [], '', d.gender);
     });
 
-    // メンバーをシャッフルして追加
     const totalSeats = usedDrivers.reduce((sum, d) => sum + d.cap, 0);
     const shuffled = members.slice(0, totalSeats).sort(() => Math.random() - 0.5);
     shuffled.forEach(m => {
@@ -3770,7 +3720,6 @@ window.executeDebugMode = function() {
 
     if (window.modals && window.modals.debug) window.modals.debug.hide();
 
-    // 編集モードに切替して見せる
     setTimeout(() => {
         switchView('list');
     }, 200);
