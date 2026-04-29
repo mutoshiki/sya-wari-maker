@@ -178,8 +178,8 @@ html, body {
     margin-bottom: 8px !important;
 }
 
-#waiting-list-container { flex: 1; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
-#waiting-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; min-height: 100px; position: relative; }
+#waiting-list-container { flex: 1; overflow-y: auto; padding: 12px 10px 14px; -webkit-overflow-scrolling: touch; }
+#waiting-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(126px, 1fr)); gap: 10px; min-height: 100px; position: relative; align-content: start; }
 
 .btn { border-radius: var(--radius-sm); font-weight: 500; }
 .btn-primary {
@@ -228,10 +228,10 @@ html, body {
 
 .member-card { 
     background: var(--bg-card); border: 1px solid var(--border-color); border-left-width: 3px; 
-    border-radius: var(--radius-sm); padding: 6px 28px 6px 7px; position: relative; 
+    border-radius: var(--radius-sm); padding: 7px 28px 7px 8px; position: relative; 
     box-shadow: none; color: var(--text-main); 
     display: flex; flex-direction: column; justify-content: center;
-    min-height: 38px; touch-action: none; cursor: grab;
+    min-height: 40px; touch-action: none; cursor: grab;
     font-size: 0.8rem; user-select: none; -webkit-user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
 }
@@ -335,12 +335,28 @@ body.manual-card-dragging * {
     opacity: 0.72;
 }
 #sheet-summary {
-    display: block;
-    margin-top: 2px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+.sheet-summary-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--sheet-header);
     color: var(--text-sub);
-    font-size: 0.66rem;
-    font-weight: 600;
-    line-height: 1.2;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.sheet-summary-pill strong {
+    color: var(--text-main);
+    font-size: 0.69rem;
+    font-weight: 800;
 }
 #sheet-canvas {
     position: absolute;
@@ -524,11 +540,11 @@ body.manual-sheet-dragging * {
     background: var(--bg-card);
 }
 .sheet-wait-item {
-    min-height: 36px;
+    min-height: 38px;
     border: 0;
     border-bottom: 1px solid var(--sheet-grid);
     border-radius: 0;
-    padding: 5px 8px;
+    padding: 6px 8px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -557,15 +573,25 @@ body.manual-sheet-dragging * {
 }
 #sheet-hint.visible { opacity: 1; }
 
-#zoom-controls {
-    position: absolute; bottom: 14px; left: 12px;
-    display: flex; gap: 5px; flex-direction: row;
-    padding: 4px;
+#sheet-bottom-controls {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
     border-radius: var(--radius-main);
     background: var(--app-surface);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(10px);
+}
+#zoom-controls {
+    display: flex; gap: 5px; flex-direction: row;
+    padding: 0;
 }
 #zoom-controls button {
     width: 34px; height: 34px; border-radius: 50%;
@@ -575,30 +601,23 @@ body.manual-sheet-dragging * {
 }
 #zoom-controls button:active { transform: scale(0.92); }
 #sheet-quick-edit-btn {
-    position: absolute;
-    bottom: 14px;
-    right: 12px;
-    z-index: 4;
     display: none;
-    min-height: 44px;
-    padding: 10px 14px;
+    min-height: 36px;
+    padding: 8px 12px;
     border-radius: var(--radius-main);
-    border: 1px solid var(--accent-color);
-    background: var(--accent-color);
-    color: #fff;
-    box-shadow: var(--shadow-card);
-    font-size: 0.82rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: none;
+    font-size: 0.78rem;
     font-weight: 800;
     align-items: center;
-    gap: 4px;
-}
-#sheet-quick-edit-btn:not(.active) {
-    color: #fff;
+    gap: 5px;
 }
 #sheet-quick-edit-btn.active {
-    background: #0f766e;
+    background: var(--accent-color);
     color: #fff;
-    border-color: #0f766e;
+    border-color: var(--accent-color);
 }
 .quick-edit-mode .sheet-dropzone,
 .quick-edit-mode .sheet-waiting-list {
@@ -660,9 +679,13 @@ body.manual-sheet-dragging * {
         height: 32px;
     }
 
+    #sheet-bottom-controls {
+        gap: 6px;
+        padding: 5px;
+    }
+
     #sheet-quick-edit-btn {
-        right: 10px;
-        padding: 10px 12px;
+        padding: 8px 10px;
     }
 }
 
@@ -684,32 +707,36 @@ body.manual-sheet-dragging * {
 .member-inline-actions {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     flex-shrink: 0;
 }
 .member-card.in-waiting {
-    min-height: 54px;
+    min-height: 72px;
+    padding: 8px 30px 8px 9px;
 }
 .member-card.in-waiting .member-card-row {
     grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
+    gap: 6px;
 }
 .member-card.in-waiting .member-name-text {
     width: 100%;
     padding-right: 2px;
+    font-size: 0.84rem;
+    font-weight: 700;
 }
 .member-card.in-waiting .member-inline-actions {
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     min-width: 0;
+    overflow: hidden;
 }
 .card-bottom-row { display: none; }
 .action-btn { opacity: 0.5; padding: 4px; cursor: pointer; transition: opacity 0.2s; } .action-btn:hover { opacity: 1; }
 
 .delete-btn-overlay {
-    position: absolute; top: 5px; right: 4px;
-    width: 24px; height: 24px;
-    font-size: 0.78rem; opacity: 0.6; cursor: pointer; z-index: 8;
+    position: absolute; top: 6px; right: 5px;
+    width: 20px; height: 20px;
+    font-size: 0.72rem; opacity: 0.46; cursor: pointer; z-index: 8;
     color: var(--text-main); transition: opacity 0.2s, color 0.2s;
     display: flex; align-items: center; justify-content: center;
     border-radius: 999px;
@@ -720,6 +747,24 @@ body.manual-sheet-dragging * {
 
 .memo-popup { font-size: 0.68rem; background: var(--bg-card); padding: 1px 4px; border-radius: 2px; border-left: 2px solid var(--accent-color); display: none; margin-top: 3px; color: var(--text-main); border: 1px solid var(--border-color); line-height: 1.25; }
 [data-theme="dark"] .memo-popup { background: var(--bg-card); color: var(--text-main); }
+.member-card.in-waiting .memo-popup {
+    display: block !important;
+    min-height: 16px;
+    margin-top: 5px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-sub);
+    font-size: 0.67rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.member-card.in-waiting .memo-popup:empty::before {
+    content: "";
+}
 
 .car-box { 
     background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-main); 
@@ -749,7 +794,7 @@ body.manual-sheet-dragging * {
 .driver-label { display: none; }
 
 .seat-slot {
-    background-color: var(--seat-slot-bg); border: 1px dashed var(--border-color); border-radius: var(--radius-sm);
+    background-color: var(--sheet-header); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: var(--radius-sm);
     min-height: 38px; display: flex; flex-direction: column; position: relative;
 }
 .seat-slot.swap-target::after,
@@ -876,7 +921,7 @@ body.manual-sheet-dragging * {
     background: var(--bg-card);
 }
 .tool-btn i { font-size: 1rem; margin-bottom: 4px; }
-.tool-btn span { font-size: 0.6rem; line-height: 1; font-weight: 500; white-space: nowrap; }
+.tool-btn span { font-size: 0.62rem; line-height: 1; font-weight: 650; white-space: nowrap; }
 
 .edit-header {
     display: grid;
@@ -914,14 +959,29 @@ body.manual-sheet-dragging * {
     gap: 6px;
 }
 .edit-tools .tool-btn {
-    min-height: 48px;
+    min-height: 52px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-sub);
+    padding: 8px 4px 7px;
 }
 .edit-tools .tool-btn:hover {
     background: var(--hover-bg);
     color: var(--text-main);
+}
+.edit-tools .tool-btn[data-priority="high"] {
+    background: var(--hover-bg);
+    color: var(--text-main);
+}
+.edit-tools .tool-btn[data-priority="share"] {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+.edit-tools .tool-btn[data-priority="share"]:hover {
+    background: #0b655f;
+    border-color: #0b655f;
+    color: #fff;
 }
 .edit-tools .tool-btn i {
     margin-bottom: 3px;
@@ -1354,17 +1414,13 @@ body.manual-sheet-dragging * {
             </div>
           </div>
           <div class="edit-tools">
-            <button class="btn tool-btn" onclick="copyUrl()" title="URLをコピー">
-              <i class="fas fa-link"></i>
-              <span>リンク</span>
-            </button>
-            <button class="btn tool-btn" onclick="openBatchModal()" title="登録">
-              <i class="fas fa-paste"></i>
-              <span>登録</span>
-            </button>
-            <button class="btn tool-btn" onclick="modals.guide.show()" title="使い方">
+            <button class="btn tool-btn" data-priority="high" onclick="modals.guide.show()" title="使い方">
               <i class="fas fa-book-open"></i>
               <span>使い方</span>
+            </button>
+            <button class="btn tool-btn" data-priority="high" onclick="openBatchModal()" title="登録">
+              <i class="fas fa-paste"></i>
+              <span>登録</span>
             </button>
             <button class="btn tool-btn" onclick="showHistory()" title="履歴">
               <i class="fas fa-history"></i>
@@ -1373,6 +1429,10 @@ body.manual-sheet-dragging * {
             <button class="btn tool-btn" id="editLockBtn" onclick="toggleEditProtection()" title="編集保護">
               <i class="fas fa-unlock"></i>
               <span>保護</span>
+            </button>
+            <button class="btn tool-btn" data-priority="share" onclick="copyUrl()" title="共有リンクをコピー">
+              <i class="fas fa-link"></i>
+              <span>共有</span>
             </button>
           </div>
         </div>
@@ -1395,14 +1455,16 @@ body.manual-sheet-dragging * {
         </div>
         <div id="sheet-canvas"></div>
         <div id="sheet-hint"><i class="fas fa-hand-pointer me-1"></i>横にドラッグ / ピンチでズーム</div>
-        <div id="zoom-controls">
-          <button onclick="zoomIn()" title="拡大"><i class="fas fa-plus"></i></button>
-          <button onclick="zoomOut()" title="縮小"><i class="fas fa-minus"></i></button>
-          <button onclick="resetZoom()" title="リセット" style="font-size:0.7rem;">⟲</button>
+        <div id="sheet-bottom-controls">
+          <div id="zoom-controls">
+            <button onclick="zoomIn()" title="拡大"><i class="fas fa-plus"></i></button>
+            <button onclick="zoomOut()" title="縮小"><i class="fas fa-minus"></i></button>
+            <button onclick="resetZoom()" title="リセット" style="font-size:0.7rem;">⟲</button>
+          </div>
+          <button id="sheet-quick-edit-btn" type="button" onclick="toggleQuickEdit()">
+            <i class="fas fa-hand-paper me-1"></i>クイック編集
+          </button>
         </div>
-        <button id="sheet-quick-edit-btn" type="button" onclick="toggleQuickEdit()">
-          <i class="fas fa-hand-paper me-1"></i>クイック編集
-        </button>
       </div>
 
       <div id="bottom-tray" style="display: none;">
@@ -1989,7 +2051,12 @@ function updateSheetSummary(data = getData()) {
     const waitingCount = data.waiting.length;
     const riderCount = assignedRiderCount + waitingCount;
     const totalCount = driverCount + riderCount;
-    summaryEl.textContent = `運転手 ${driverCount} / 同乗者 ${riderCount} / 全員 ${totalCount} / 待機 ${waitingCount}`;
+    summaryEl.innerHTML = `
+        <span class="sheet-summary-pill">運転手 <strong>${driverCount}</strong></span>
+        <span class="sheet-summary-pill">同乗者 <strong>${riderCount}</strong></span>
+        <span class="sheet-summary-pill">全員 <strong>${totalCount}</strong></span>
+        <span class="sheet-summary-pill">待機 <strong>${waitingCount}</strong></span>
+    `;
 }
 
 function getTrustedDeviceKey() {
