@@ -467,6 +467,26 @@ body.manual-card-dragging * {
     cursor: grab;
     touch-action: none;
 }
+.sheet-chip.manual-sheet-drag-source {
+    visibility: hidden !important;
+}
+.manual-sheet-drag-float {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100000;
+    pointer-events: none;
+    opacity: 0.96;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    transform: translate3d(0, 0, 0) scale(1.03);
+}
+body.manual-sheet-dragging,
+body.manual-sheet-dragging * {
+    cursor: grabbing !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
 .sheet-chip[data-gender="male"] {
     background: var(--bg-male);
     border-color: var(--border-male);
@@ -1866,6 +1886,7 @@ let dragHoverSlot = null;
 let dragHoverOccupant = null;
 let dragHoverEscapeSlot = null;
 let manualCardDrag = null;
+let manualSheetDrag = null;
 let activeSheetSortable = [];
 let quickEditMode = false;
 
@@ -1956,6 +1977,7 @@ D.addEventListener('DOMContentLoaded', () => {
     refreshRoomTitle();
     updateEditLockButton();
     setupManualCardDrag();
+    setupManualSheetDrag();
 
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const checkTheme = () => {
@@ -3222,8 +3244,161 @@ function syncSheetToMainData() {
     save();
 }
 
+function getSheetZoneChip(zone, excluded = []) {
+    return Array.from(zone?.children || []).find(child =>
+        child.classList?.contains('sheet-chip') &&
+        !child.classList.contains('manual-sheet-drag-float') &&
+        !excluded.includes(child)
+    ) || null;
+}
+
+function clearSheetZoneText(zone) {
+    if (!zone || zone.dataset.zoneType !== 'seat') return;
+    Array.from(zone.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) node.remove();
+    });
+}
+
+function getManualSheetDropZone(clientX, clientY) {
+    const el = document.elementFromPoint(clientX, clientY);
+    if (!el) return null;
+    return el.closest('.sheet-dropzone, .sheet-waiting-list');
+}
+
+function moveManualSheetChipTo(zone) {
+    if (!manualSheetDrag || !zone || !zone.isConnected) return;
+    if (zone.dataset.acceptDrop === 'false') return;
+    const chip = manualSheetDrag.chip;
+    if (zone === manualSheetDrag.currentZone) return;
+
+    if (zone.dataset.zoneType === 'waiting') {
+        zone.appendChild(chip);
+        manualSheetDrag.currentZone = zone;
+        return;
+    }
+
+    if (zone.dataset.zoneType !== 'seat') return;
+    const current = manualSheetDrag.currentZone;
+    const occupant = getSheetZoneChip(zone, [chip]);
+    clearSheetZoneText(zone);
+
+    if (occupant) {
+        if (current?.dataset?.zoneType === 'seat') {
+            clearSheetZoneText(current);
+            current.appendChild(occupant);
+        } else if (current?.dataset?.zoneType === 'waiting') {
+            current.appendChild(occupant);
+        }
+    }
+
+    zone.appendChild(chip);
+    manualSheetDrag.currentZone = zone;
+}
+
+function updateManualSheetFloat(clientX, clientY) {
+    if (!manualSheetDrag?.floating) return;
+    manualSheetDrag.floating.style.transform =
+        `translate3d(${clientX - manualSheetDrag.offsetX}px, ${clientY - manualSheetDrag.offsetY}px, 0) scale(1.03)`;
+}
+
+function finishManualSheetDrag() {
+    if (!manualSheetDrag) return;
+    const { chip, floating } = manualSheetDrag;
+    floating?.remove();
+    chip.classList.remove('manual-sheet-drag-source');
+    D.body.classList.remove('manual-sheet-dragging');
+    manualSheetDrag = null;
+    isDraggingCards = false;
+    document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+    syncSheetToMainData();
+}
+
+function startManualSheetDrag(chip, e) {
+    if (manualSheetDrag || !chip?.isConnected) return;
+    const currentZone = chip.parentElement;
+    if (!(currentZone?.classList?.contains('sheet-dropzone') || currentZone?.classList?.contains('sheet-waiting-list'))) return;
+
+    const rect = chip.getBoundingClientRect();
+    const floating = chip.cloneNode(true);
+    floating.classList.add('manual-sheet-drag-float');
+    floating.style.width = `${rect.width}px`;
+    floating.style.height = `${rect.height}px`;
+    D.body.appendChild(floating);
+
+    manualSheetDrag = {
+        chip,
+        floating,
+        currentZone,
+        pointerId: e.pointerId,
+        offsetX: Math.max(6, Math.min(rect.width - 6, e.clientX - rect.left)),
+        offsetY: Math.max(6, Math.min(rect.height - 6, e.clientY - rect.top))
+    };
+
+    chip.classList.add('manual-sheet-drag-source');
+    D.body.classList.add('manual-sheet-dragging');
+    isDraggingCards = true;
+    updateManualSheetFloat(e.clientX, e.clientY);
+}
+
+function setupManualSheetDrag() {
+    let pending = null;
+
+    D.addEventListener('pointerdown', e => {
+        if (currentView !== 'sheet' || !quickEditMode || !hasTrustedEditAccess()) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        const chip = e.target.closest?.('.sheet-chip.draggable');
+        if (!chip || chip.classList.contains('manual-sheet-drag-float')) return;
+        const zone = chip.parentElement;
+        if (!(zone?.classList?.contains('sheet-dropzone') || zone?.classList?.contains('sheet-waiting-list'))) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        clearTimeout(pending?.timer);
+        pending = {
+            chip,
+            pointerId: e.pointerId,
+            startX: e.clientX,
+            startY: e.clientY,
+            timer: setTimeout(() => startManualSheetDrag(chip, e), e.pointerType === 'touch' ? 220 : 80)
+        };
+        chip.setPointerCapture?.(e.pointerId);
+    }, { passive: false });
+
+    D.addEventListener('pointermove', e => {
+        if (pending && pending.pointerId === e.pointerId && !manualSheetDrag) {
+            const moved = Math.hypot(e.clientX - pending.startX, e.clientY - pending.startY);
+            if (moved > 8 && e.pointerType !== 'touch') startManualSheetDrag(pending.chip, e);
+        }
+        if (!manualSheetDrag || manualSheetDrag.pointerId !== e.pointerId) return;
+        e.preventDefault();
+        updateManualSheetFloat(e.clientX, e.clientY);
+        const zone = getManualSheetDropZone(e.clientX, e.clientY);
+        document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+        zone?.closest('.sheet-seat-row, .sheet-driver-row')?.classList.add('drop-target');
+        moveManualSheetChipTo(zone);
+    }, { passive: false });
+
+    const cancelPending = e => {
+        if (pending && pending.pointerId === e.pointerId) {
+            clearTimeout(pending.timer);
+            pending = null;
+        }
+    };
+
+    D.addEventListener('pointerup', e => {
+        cancelPending(e);
+        if (manualSheetDrag && manualSheetDrag.pointerId === e.pointerId) finishManualSheetDrag();
+    }, { passive: true });
+    D.addEventListener('pointercancel', e => {
+        cancelPending(e);
+        if (manualSheetDrag && manualSheetDrag.pointerId === e.pointerId) finishManualSheetDrag();
+    }, { passive: true });
+}
+
 function setupSheetSortables() {
     clearSheetSortables();
+    // クイック編集も独自ドラッグで扱う。指位置のズレと1枠2枚表示を避けるため。
+    return;
     if (!hasTrustedEditAccess() || !quickEditMode) return;
     const zones = Array.from(document.querySelectorAll('.sheet-dropzone, .sheet-waiting-list'));
     zones.forEach(zone => {
