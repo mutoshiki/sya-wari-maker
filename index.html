@@ -179,7 +179,7 @@ html, body {
 }
 
 #waiting-list-container { flex: 1; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
-#waiting-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; min-height: 100px; }
+#waiting-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; min-height: 100px; position: relative; }
 
 .btn { border-radius: var(--radius-sm); font-weight: 500; }
 .btn-primary {
@@ -238,6 +238,9 @@ html, body {
 .member-card:active { cursor: grabbing; }
 .member-card.manual-drag-source {
     visibility: hidden !important;
+}
+#waiting-list .member-card.manual-drag-source {
+    display: none !important;
 }
 .manual-drag-float {
     position: fixed;
@@ -830,12 +833,34 @@ body.manual-sheet-dragging * {
     filter: saturate(0.85);
     border-style: dashed !important;
 }
+.seat-slot > .swap-preview-card,
+.seat-slot > .drag-preview-card {
+    position: absolute;
+    inset: 3px;
+    z-index: 7;
+    margin: 0;
+    min-height: 0;
+    box-sizing: border-box;
+}
+#waiting-list > .swap-preview-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: min(120px, 100%);
+    z-index: 7;
+    margin: 0;
+}
 .swap-preview-card .card-actions,
 .drag-preview-card .card-actions {
     display: none !important;
 }
 .seat-card-will-move {
     display: none !important;
+}
+#waiting-list.return-preview-target {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
 }
 
 .sortable-ghost { opacity: 0.4; background: var(--border-color) !important; }
@@ -2281,6 +2306,7 @@ function clearSeatDropPreview() {
     document.querySelectorAll('.seat-slot.drop-preview, .seat-slot.shift-target, .seat-slot.swap-target, .seat-slot.swap-origin, .seat-slot.escape-target').forEach(slot => {
         slot.classList.remove('drop-preview', 'shift-target', 'swap-target', 'swap-origin', 'escape-target');
     });
+    document.querySelectorAll('#waiting-list.return-preview-target').forEach(list => list.classList.remove('return-preview-target'));
     document.querySelectorAll('.swap-preview-card, .drag-preview-card').forEach(card => card.remove());
     document.querySelectorAll('.seat-card-will-move').forEach(card => card.classList.remove('seat-card-will-move'));
 }
@@ -2325,14 +2351,28 @@ function getRealSeatCards(slot, excluded = []) {
     );
 }
 
-function showSeatReturnPreview(card, slot, excluded = []) {
-    if (!card || !slot || !slot.classList?.contains('seat-slot')) return;
-    if (getRealSeatCard(slot, excluded)) return;
+function showSeatReturnPreview(card, destination, excluded = []) {
+    if (!card || !destination) return;
     const preview = card.cloneNode(true);
     preview.classList.add('swap-preview-card');
+    preview.classList.remove('manual-drag-source', 'manual-drag-float', 'drag-preview-card', 'seat-card-will-move');
     preview.removeAttribute('id');
     preview.setAttribute('aria-hidden', 'true');
-    slot.appendChild(preview);
+    if (destination.classList?.contains('seat-slot')) {
+        if (getRealSeatCard(destination, excluded)) return;
+        destination.appendChild(preview);
+        return;
+    }
+    if (destination.id === 'waiting-list') {
+        preview.classList.add('in-waiting');
+        destination.classList.add('return-preview-target');
+        const source = manualCardDrag?.card;
+        if (source?.parentElement === destination) {
+            destination.insertBefore(preview, source);
+        } else {
+            destination.appendChild(preview);
+        }
+    }
 }
 
 function showDraggedSeatPreview(card, slot, excluded = []) {
@@ -2340,6 +2380,7 @@ function showDraggedSeatPreview(card, slot, excluded = []) {
     if (getRealSeatCard(slot, excluded)) return;
     const preview = card.cloneNode(true);
     preview.classList.add('drag-preview-card');
+    preview.classList.remove('manual-drag-source', 'manual-drag-float', 'swap-preview-card', 'seat-card-will-move', 'in-waiting');
     preview.removeAttribute('id');
     preview.setAttribute('aria-hidden', 'true');
     slot.appendChild(preview);
@@ -2359,9 +2400,50 @@ function getManualCardDropTarget(clientX, clientY) {
 }
 
 function moveManualDragCardTo(target) {
-    if (!manualCardDrag || !target || !target.isConnected) return;
+    if (!manualCardDrag) return;
+    if ((target || null) === (manualCardDrag.dropTarget || null)) return;
+    clearSeatDropPreview();
+    clearDragHoverState();
+    manualCardDrag.dropTarget = null;
+    if (!target || !target.isConnected) return;
     const card = manualCardDrag.card;
-    if (target === manualCardDrag.currentContainer) return;
+    manualCardDrag.dropTarget = target;
+    if (target.id === 'waiting-list') {
+        return;
+    }
+
+    if (!target.classList.contains('seat-slot')) return;
+    const occupant = getRealSeatCard(target, [card]);
+    if (occupant) {
+        target.classList.add('swap-target');
+        dragHoverSlot = target;
+        dragHoverOccupant = occupant;
+        const returnDestination =
+            manualCardDrag.currentContainer?.classList?.contains('seat-slot') || manualCardDrag.currentContainer?.id === 'waiting-list'
+                ? manualCardDrag.currentContainer
+                : $('#waiting-list');
+        dragHoverEscapeSlot = returnDestination;
+        if (returnDestination && returnDestination !== target) {
+            if (returnDestination.classList?.contains('seat-slot')) {
+                returnDestination.classList.add('swap-origin');
+            }
+            occupant.classList.add('seat-card-will-move');
+            showDraggedSeatPreview(card, target, [occupant]);
+            showSeatReturnPreview(occupant, returnDestination, [card]);
+        }
+        return;
+    }
+
+    target.classList.add('drop-preview');
+    showDraggedSeatPreview(card, target, [card]);
+}
+
+function commitManualCardDrop() {
+    if (!manualCardDrag) return;
+    const card = manualCardDrag.card;
+    const target = manualCardDrag.dropTarget;
+    const current = manualCardDrag.currentContainer;
+    if (!target || !target.isConnected || target === current) return;
 
     if (target.id === 'waiting-list') {
         target.appendChild(card);
@@ -2371,7 +2453,6 @@ function moveManualDragCardTo(target) {
 
     if (!target.classList.contains('seat-slot')) return;
     const occupant = getRealSeatCard(target, [card]);
-    const current = manualCardDrag.currentContainer;
 
     if (occupant) {
         if (current?.id === 'waiting-list' || current?.classList?.contains('seat-slot')) {
@@ -2380,7 +2461,6 @@ function moveManualDragCardTo(target) {
             $('#waiting-list')?.appendChild(occupant);
         }
     }
-
     target.appendChild(card);
     manualCardDrag.currentContainer = target;
 }
@@ -2406,14 +2486,17 @@ function updateManualDragFloat(clientX, clientY) {
     manualCardDrag.floating.style.transform = 'scale(1.03)';
 }
 
-function finishManualCardDrag() {
+function finishManualCardDrag(commit = true) {
     if (!manualCardDrag) return;
     const { card, floating } = manualCardDrag;
+    if (commit) commitManualCardDrop();
     floating?.remove();
     card.classList.remove('manual-drag-source');
     D.body.classList.remove('manual-card-dragging');
     manualCardDrag = null;
     isDraggingCards = false;
+    clearSeatDropPreview();
+    clearDragHoverState();
     enforceOneCardPerSeat();
     updateUI();
     save();
@@ -2500,11 +2583,11 @@ function setupManualCardDrag() {
 
     D.addEventListener('pointerup', e => {
         cancelPending(e);
-        if (manualCardDrag && manualCardDrag.pointerId === e.pointerId) finishManualCardDrag();
+        if (manualCardDrag && manualCardDrag.pointerId === e.pointerId) finishManualCardDrag(true);
     }, { passive: true });
     D.addEventListener('pointercancel', e => {
         cancelPending(e);
-        if (manualCardDrag && manualCardDrag.pointerId === e.pointerId) finishManualCardDrag();
+        if (manualCardDrag && manualCardDrag.pointerId === e.pointerId) finishManualCardDrag(false);
     }, { passive: true });
 }
 
@@ -3256,9 +3339,22 @@ function getManualSheetDropZone(clientX, clientY) {
 }
 
 function moveManualSheetChipTo(zone) {
-    if (!manualSheetDrag || !zone || !zone.isConnected) return;
+    if (!manualSheetDrag) return;
+    if ((zone || null) === (manualSheetDrag.dropZone || null)) return;
+    document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+    manualSheetDrag.dropZone = null;
+    if (!zone || !zone.isConnected) return;
     if (zone.dataset.acceptDrop === 'false') return;
+    manualSheetDrag.dropZone = zone;
+    zone.closest('.sheet-seat-row, .sheet-driver-row')?.classList.add('drop-target');
+}
+
+function commitManualSheetDrop() {
+    if (!manualSheetDrag) return;
     const chip = manualSheetDrag.chip;
+    const zone = manualSheetDrag.dropZone;
+    if (!zone || !zone.isConnected) return;
+    if (zone.dataset.acceptDrop === 'false') return;
     if (zone === manualSheetDrag.currentZone) return;
 
     if (zone.dataset.zoneType === 'waiting') {
@@ -3295,9 +3391,10 @@ function updateManualSheetFloat(clientX, clientY) {
     manualSheetDrag.floating.style.transform = 'scale(1.03)';
 }
 
-function finishManualSheetDrag() {
+function finishManualSheetDrag(commit = true) {
     if (!manualSheetDrag) return;
     const { chip, floating } = manualSheetDrag;
+    if (commit) commitManualSheetDrop();
     floating?.remove();
     chip.classList.remove('manual-sheet-drag-source');
     D.body.classList.remove('manual-sheet-dragging');
@@ -3375,8 +3472,6 @@ function setupManualSheetDrag() {
         e.preventDefault();
         updateManualSheetFloat(e.clientX, e.clientY);
         const zone = getManualSheetDropZone(e.clientX, e.clientY);
-        document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
-        zone?.closest('.sheet-seat-row, .sheet-driver-row')?.classList.add('drop-target');
         moveManualSheetChipTo(zone);
     }, { passive: false });
 
@@ -3389,11 +3484,11 @@ function setupManualSheetDrag() {
 
     D.addEventListener('pointerup', e => {
         cancelPending(e);
-        if (manualSheetDrag && manualSheetDrag.pointerId === e.pointerId) finishManualSheetDrag();
+        if (manualSheetDrag && manualSheetDrag.pointerId === e.pointerId) finishManualSheetDrag(true);
     }, { passive: true });
     D.addEventListener('pointercancel', e => {
         cancelPending(e);
-        if (manualSheetDrag && manualSheetDrag.pointerId === e.pointerId) finishManualSheetDrag();
+        if (manualSheetDrag && manualSheetDrag.pointerId === e.pointerId) finishManualSheetDrag(false);
     }, { passive: true });
 }
 
